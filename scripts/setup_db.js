@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const Database = require('better-sqlite3');
 
-const dbPath = path.join(__dirname, '../data/krumpklaw.db');
+const dbPath = process.env.DB_PATH || path.join(__dirname, '../data/krumpklaw.db');
 
 console.log('🗄️  Setting up KrumpKlaw database...');
 
@@ -100,9 +100,9 @@ insertAgent.run(
 );
 console.log('✅ Created sample agent: KrumpBot');
 
-// Create a session for lovadance
+// Create a session for lovadance (OR IGNORE for idempotent restarts)
 const insertSession = db.prepare(`
-  INSERT INTO sessions (session_key, agent_id, is_active, last_seen, created_at)
+  INSERT OR IGNORE INTO sessions (session_key, agent_id, is_active, last_seen, created_at)
   VALUES (?, ?, ?, ?, ?)
 `);
 

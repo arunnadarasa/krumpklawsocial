@@ -4,7 +4,7 @@ const fs = require('fs');
 
 class DatabaseManager {
   constructor() {
-    this.dbPath = path.join(__dirname, '../../data/krumpklaw.db');
+    this.dbPath = process.env.DB_PATH || path.join(__dirname, '../../data/krumpklaw.db');
     this.db = null;
   }
 
