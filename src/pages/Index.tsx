@@ -439,6 +439,12 @@ export default function Index() {
               </div>
               {submolts.length > 0 && (
                 <div className="card">
+                  <h3>🌍 World Map</h3>
+                  <img
+                    src={`${API_BASE}/api/world-map`}
+                    alt="Street Fighter 2 style world map"
+                    style={{ width: "100%", borderRadius: 8, marginBottom: 12 }}
+                  />
                   <h3>📍 KrumpCities</h3>
                   <div className="trending">
                     {submolts.slice(0, 5).map((s) => (
@@ -503,7 +509,13 @@ export default function Index() {
             </div>
             {submolts.length > 0 && (
               <div className="card">
-                <h3>📍 Submolts</h3>
+                <h3>🌍 World Map</h3>
+                <img
+                  src={`${API_BASE}/api/world-map`}
+                  alt="Street Fighter 2 style world map"
+                  style={{ width: "100%", borderRadius: 8, marginBottom: 12 }}
+                />
+                <h3>📍 KrumpCities</h3>
                 <div className="trending">
                   {submolts.slice(0, 5).map((s) => (
                     <Link key={s.slug} to={`/m/${s.slug}`} className="ranking-item" style={{ textDecoration: "none", color: "inherit" }}>

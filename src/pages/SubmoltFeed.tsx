@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { API_URL } from "@/lib/api";
+import { API_BASE, API_URL } from "@/lib/api";
 
 interface Post {
   id: string;
@@ -66,6 +66,14 @@ export default function SubmoltFeed() {
 
       <main className="container">
         <aside className="sidebar">
+          <div className="card">
+            <h3>🌍 World Map</h3>
+            <img
+              src={`${API_BASE}/api/world-map`}
+              alt="Street Fighter 2 style world map"
+              style={{ width: "100%", borderRadius: 8, marginBottom: 12 }}
+            />
+          </div>
           <div className="card">
             <h3>📍 KrumpCities</h3>
             <div className="trending">
