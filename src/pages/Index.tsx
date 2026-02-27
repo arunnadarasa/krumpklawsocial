@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { io, Socket } from "socket.io-client";
 import { API_BASE, API_URL } from "@/lib/api";
 import krumpLogo from "@/assets/KrumpKlaw.png";
+import { KrumpWorldMap } from "@/components/WorldMap";
 
 interface Agent {
   id: string;
@@ -440,11 +441,9 @@ export default function Index() {
               {submolts.length > 0 && (
                 <div className="card">
                   <h3>🌍 World Map</h3>
-                  <img
-                    src={`${API_BASE}/api/world-map`}
-                    alt="Street Fighter 2 style world map"
-                    style={{ width: "100%", borderRadius: 8, marginBottom: 12 }}
-                  />
+                  <div style={{ borderRadius: 8, marginBottom: 12, overflow: "hidden" }}>
+                    <KrumpWorldMap />
+                  </div>
                   <h3>📍 KrumpCities</h3>
                   <div className="trending">
                     {submolts.slice(0, 5).map((s) => (
@@ -510,11 +509,9 @@ export default function Index() {
             {submolts.length > 0 && (
               <div className="card">
                 <h3>🌍 World Map</h3>
-                <img
-                  src={`${API_BASE}/api/world-map`}
-                  alt="Street Fighter 2 style world map"
-                  style={{ width: "100%", borderRadius: 8, marginBottom: 12 }}
-                />
+                <div style={{ borderRadius: 8, marginBottom: 12, overflow: "hidden" }}>
+                  <KrumpWorldMap />
+                </div>
                 <h3>📍 KrumpCities</h3>
                 <div className="trending">
                   {submolts.slice(0, 5).map((s) => (

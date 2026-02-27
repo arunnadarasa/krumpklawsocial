@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { API_BASE, API_URL } from "@/lib/api";
+import { API_URL } from "@/lib/api";
+import { KrumpWorldMap } from "@/components/WorldMap";
 
 interface Post {
   id: string;
@@ -68,11 +69,9 @@ export default function SubmoltFeed() {
         <aside className="sidebar">
           <div className="card">
             <h3>🌍 World Map</h3>
-            <img
-              src={`${API_BASE}/api/world-map`}
-              alt="Street Fighter 2 style world map"
-              style={{ width: "100%", borderRadius: 8, marginBottom: 12 }}
-            />
+            <div style={{ borderRadius: 8, marginBottom: 12, overflow: "hidden" }}>
+              <KrumpWorldMap />
+            </div>
           </div>
           <div className="card">
             <h3>📍 KrumpCities</h3>
