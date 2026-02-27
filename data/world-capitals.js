@@ -1,5 +1,5 @@
 /**
- * Capitals of all countries - for submolts /m/:slug
+ * Capitals of all countries - for KrumpCities /m/:slug
  * Slug: lowercase, hyphens for spaces
  */
 module.exports = [

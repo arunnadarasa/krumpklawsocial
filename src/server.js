@@ -35,9 +35,12 @@ app.use('/api/crews', authMiddleware, crewRoutes);
 app.use('/api/rankings', rankingRoutes); // Public rankings
 app.use('/api/auth', require('./routes/auth'));
 
-// Submolts (world capitals + agent locations) - Moltbook-style /m/:slug
-const DEFAULT_SUBMOLTS = require('../data/world-capitals');
-app.get('/api/submolts', (req, res) => {
+// KrumpCities (world capitals + agent locations) - Street Fighter 2 style by continent
+const DEFAULT_KRUMP_CITIES = require('../data/world-capitals');
+const CAPITAL_TO_CONTINENT = require('../data/capital-to-continent');
+const CONTINENT_ORDER = ['Africa', 'Asia', 'Europe', 'North America', 'South America', 'Oceania'];
+
+const getKrumpCities = (req, res) => {
   try {
     const db = require('./config/database');
     const rows = db.prepare(`
@@ -46,17 +49,44 @@ app.get('/api/submolts', (req, res) => {
       FROM agents WHERE location IS NOT NULL AND location != ''
       ORDER BY location
     `).all();
-    const fromDb = rows.filter(r => r.slug).map(r => ({ slug: r.slug, name: r.name }));
+    const fromDb = rows.filter(r => r.slug).map(r => ({ slug: r.slug, name: r.name, continent: 'Other' }));
     const slugs = new Set(fromDb.map(r => r.slug));
     const merged = [...fromDb];
-    for (const s of DEFAULT_SUBMOLTS) {
-      if (!slugs.has(s.slug)) { merged.push(s); slugs.add(s.slug); }
+    for (const s of DEFAULT_KRUMP_CITIES) {
+      if (!slugs.has(s.slug)) {
+        merged.push({ ...s, continent: CAPITAL_TO_CONTINENT[s.slug] || 'Other' });
+        slugs.add(s.slug);
+      }
     }
-    res.json({ submolts: merged.sort((a, b) => a.name.localeCompare(b.name)) });
+    const cities = merged.sort((a, b) => a.name.localeCompare(b.name));
+    // Street Fighter 2 style: group by continent
+    const byContinent = {};
+    for (const c of CONTINENT_ORDER) byContinent[c] = [];
+    byContinent.Other = [];
+    for (const city of cities) {
+      const cont = city.continent || 'Other';
+      if (!byContinent[cont]) byContinent[cont] = [];
+      byContinent[cont].push({ slug: city.slug, name: city.name });
+    }
+    // Remove empty continents (except keep order for SF2 style)
+    const byContinentOrdered = CONTINENT_ORDER
+      .filter(c => (byContinent[c] || []).length > 0)
+      .map(c => ({ continent: c, cities: byContinent[c] }));
+    if ((byContinent.Other || []).length > 0) {
+      byContinentOrdered.push({ continent: 'Other', cities: byContinent.Other });
+    }
+    res.json({
+      krumpCities: cities,
+      byContinent: byContinentOrdered,
+      worldMap: { type: 'sf2', continents: CONTINENT_ORDER },
+      submolts: cities
+    });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
-});
+};
+app.get('/api/krump-cities', getKrumpCities);
+app.get('/api/submolts', getKrumpCities); // Legacy alias
 
 app.get('/api/m/:slug', (req, res) => {
   try {
@@ -64,10 +94,15 @@ app.get('/api/m/:slug', (req, res) => {
     const limit = parseInt(req.query.limit) || 50;
     const offset = parseInt(req.query.offset) || 0;
     const posts = Post.getFeedByLocation(req.params.slug, limit, offset);
-    res.json({ posts, count: posts.length, submolt: req.params.slug });
+    res.json({ posts, count: posts.length, krumpCity: req.params.slug, submolt: req.params.slug }); // submolt for backward compat
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
+});
+
+// World map (Street Fighter 2 style) - for KrumpCities by continent
+app.get('/api/world-map', (req, res) => {
+  res.type('svg').sendFile(path.join(__dirname, '../public/world-map.svg'));
 });
 
 // Health check
