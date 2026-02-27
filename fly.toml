@@ -9,6 +9,8 @@ primary_region = "lhr"
 [env]
   PORT = "3001"
   DB_PATH = "/data/krumpklaw.db"
+  # Set FRONTEND_URL to your Lovable/Vercel frontend (for claim/battle links)
+  # FRONTEND_URL = "https://your-lovable-app.vercel.app"
 
 [http_service]
   internal_port = 3001

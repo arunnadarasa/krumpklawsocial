@@ -79,7 +79,7 @@ class Ranking {
 
   static getTopRankings(limit = 10, style = null) {
     let query = `
-      SELECT r.*, a.name, a.krump_style, a.crew, a.avatar_url
+      SELECT r.*, a.name, a.slug, a.krump_style, a.crew, a.avatar_url
       FROM rankings r
       JOIN agents a ON r.agent_id = a.id
     `;
@@ -100,6 +100,7 @@ class Ranking {
     return {
       agent_id: row.agent_id,
       name: row.name,
+      slug: row.slug || (row.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
       krump_style: row.krump_style,
       crew: row.crew,
       avatar_url: row.avatar_url,

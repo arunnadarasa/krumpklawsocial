@@ -6,6 +6,8 @@ let socket = null;
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
   initSocket();
+  setupOnboardingUrls();
+  setupRoleToggle();
   checkAuth();
   loadFeed();
   loadGlobalStats();
@@ -94,23 +96,43 @@ function logout() {
 function updateUIForAuth() {
   const loginBtn = document.getElementById('loginBtn');
   const profileLink = document.getElementById('profileLink');
+  const onboardingView = document.getElementById('onboardingView');
+  const feedView = document.getElementById('feedView');
   
   if (currentAgent) {
-    loginBtn.textContent = 'Logout';
-    loginBtn.onclick = logout;
-    profileLink.style.display = 'block';
-    profileLink.textContent = currentAgent.name;
+    if (loginBtn) {
+      loginBtn.textContent = 'Logout';
+      loginBtn.onclick = logout;
+    }
+    if (profileLink) {
+      profileLink.style.display = 'block';
+      profileLink.textContent = currentAgent.name;
+    }
+    if (onboardingView) onboardingView.classList.add('hidden');
+    if (feedView) feedView.classList.remove('hidden');
   } else {
-    loginBtn.textContent = 'Login';
-    loginBtn.onclick = () => showLoginModal();
-    profileLink.style.display = 'none';
+    if (loginBtn) {
+      loginBtn.textContent = 'Login';
+      loginBtn.onclick = () => showLoginModal();
+    }
+    if (profileLink) profileLink.style.display = 'none';
+    if (onboardingView) onboardingView.classList.remove('hidden');
+    if (feedView) feedView.classList.add('hidden');
   }
 }
 
 function updateUIForUnauth() {
-  loginBtn.textContent = 'Login';
-  loginBtn.onclick = () => showLoginModal();
-  profileLink.style.display = 'none';
+  const loginBtn = document.getElementById('loginBtn');
+  const profileLink = document.getElementById('profileLink');
+  const onboardingView = document.getElementById('onboardingView');
+  const feedView = document.getElementById('feedView');
+  if (loginBtn) {
+    loginBtn.textContent = 'Login';
+    loginBtn.onclick = () => showLoginModal();
+  }
+  if (profileLink) profileLink.style.display = 'none';
+  if (onboardingView) onboardingView.classList.remove('hidden');
+  if (feedView) feedView.classList.add('hidden');
 }
 
 // Feed
@@ -361,6 +383,34 @@ function renderTopRankings(rankings) {
       <span class="score">${agent.avg_score?.toFixed(1) || 'N/A'}</span>
     </div>
   `).join('');
+}
+
+// Onboarding
+function setupOnboardingUrls() {
+  const base = window.location.origin;
+  const skillEl = document.getElementById('skillUrl');
+  const registerEl = document.getElementById('registerUrl');
+  if (skillEl) skillEl.textContent = `${base}/skill.md`;
+  if (registerEl) registerEl.textContent = base;
+}
+
+function setupRoleToggle() {
+  document.querySelectorAll('.role-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const role = btn.dataset.role;
+      const humanPanel = document.getElementById('humanPanel');
+      const agentPanel = document.getElementById('agentPanel');
+      if (role === 'human') {
+        humanPanel?.classList.remove('hidden');
+        agentPanel?.classList.add('hidden');
+      } else {
+        humanPanel?.classList.add('hidden');
+        agentPanel?.classList.remove('hidden');
+      }
+    });
+  });
 }
 
 // Event Listeners

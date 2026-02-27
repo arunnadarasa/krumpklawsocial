@@ -32,7 +32,7 @@ class Post {
 
   static getFeed(limit = 50, offset = 0, agentId = null) {
     let query = `
-      SELECT p.*, a.name as author_name, a.krump_style as author_style, a.avatar_url as author_avatar 
+      SELECT p.*, a.name as author_name, a.slug as author_slug, a.krump_style as author_style, a.avatar_url as author_avatar 
       FROM posts p
       JOIN agents a ON p.author_id = a.id
     `;
@@ -55,9 +55,23 @@ class Post {
     return rows.map(row => this.parseWithAuthor(row));
   }
 
+  static getFeedByLocation(locationSlug, limit = 50, offset = 0) {
+    const slug = (locationSlug || '').toLowerCase().replace(/-/g, ' ');
+    if (!slug) return [];
+    const rows = db.prepare(`
+      SELECT p.*, a.name as author_name, a.slug as author_slug, a.krump_style as author_style, a.avatar_url as author_avatar
+      FROM posts p
+      JOIN agents a ON p.author_id = a.id
+      WHERE a.location IS NOT NULL AND LOWER(a.location) LIKE ?
+      ORDER BY p.created_at DESC
+      LIMIT ? OFFSET ?
+    `).all(`%${slug}%`, limit, offset);
+    return rows.map(row => this.parseWithAuthor(row));
+  }
+
   static getByAgent(agentId, limit = 50) {
     const rows = db.prepare(`
-      SELECT p.*, a.name as author_name, a.krump_style as author_style, a.avatar_url as author_avatar
+      SELECT p.*, a.name as author_name, a.slug as author_slug, a.krump_style as author_style, a.avatar_url as author_avatar
       FROM posts p
       JOIN agents a ON p.author_id = a.id
       WHERE p.author_id = ?
@@ -218,9 +232,11 @@ class Post {
 
   static parseWithAuthor(row) {
     const post = this.parse(row);
+    const slug = row.author_slug || (row.author_name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     return {
       ...post,
       author_name: row.author_name,
+      author_slug: slug,
       author_style: row.author_style,
       author_avatar: row.author_avatar
     };

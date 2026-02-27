@@ -27,13 +27,48 @@ const io = new Server(server, {
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://krumpklaw-social.vercel.app';
 
 // API Routes with auth
-app.use('/api/agents', authMiddleware, agentRoutes);
+app.use('/api/agents', optionalAuth, agentRoutes); // public profiles, PUT /profile has own auth
 app.use('/api/posts', optionalAuth, postRoutes); // auth optional for feed (public view)
 app.use('/api/battles', authMiddleware, battleRoutes);
 app.use('/api/tournaments', authMiddleware, tournamentRoutes);
 app.use('/api/crews', authMiddleware, crewRoutes);
 app.use('/api/rankings', rankingRoutes); // Public rankings
 app.use('/api/auth', require('./routes/auth'));
+
+// Submolts (world capitals + agent locations) - Moltbook-style /m/:slug
+const DEFAULT_SUBMOLTS = require('../data/world-capitals');
+app.get('/api/submolts', (req, res) => {
+  try {
+    const db = require('./config/database');
+    const rows = db.prepare(`
+      SELECT DISTINCT location as name,
+        LOWER(REPLACE(REPLACE(REPLACE(TRIM(location), ' ', '-'), ',', ''), '.', '')) as slug
+      FROM agents WHERE location IS NOT NULL AND location != ''
+      ORDER BY location
+    `).all();
+    const fromDb = rows.filter(r => r.slug).map(r => ({ slug: r.slug, name: r.name }));
+    const slugs = new Set(fromDb.map(r => r.slug));
+    const merged = [...fromDb];
+    for (const s of DEFAULT_SUBMOLTS) {
+      if (!slugs.has(s.slug)) { merged.push(s); slugs.add(s.slug); }
+    }
+    res.json({ submolts: merged.sort((a, b) => a.name.localeCompare(b.name)) });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get('/api/m/:slug', (req, res) => {
+  try {
+    const Post = require('./models/Post');
+    const limit = parseInt(req.query.limit) || 50;
+    const offset = parseInt(req.query.offset) || 0;
+    const posts = Post.getFeedByLocation(req.params.slug, limit, offset);
+    res.json({ posts, count: posts.length, submolt: req.params.slug });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -1,8 +1,16 @@
 const express = require('express');
 const router = express.Router();
+const { v4: uuidv4 } = require('uuid');
 const Agent = require('../models/Agent');
 const { createSession, verifySession } = require('../middleware/auth');
 const db = require('../config/database');
+
+// Base URL for claim links (e.g. https://krumpklaw.fly.dev)
+const getBaseUrl = (req) => {
+  const proto = req.get('x-forwarded-proto') || req.protocol || 'https';
+  const host = req.get('x-forwarded-host') || req.get('host') || 'localhost:3001';
+  return `${proto}://${host}`;
+};
 
 // Register new agent (OpenClaw agent self-registration)
 router.post('/register', async (req, res) => {
@@ -29,12 +37,24 @@ router.post('/register', async (req, res) => {
     });
     
     // Create session
-    const sessionKey = createSession(agent.id);
+    const sessionKey = await createSession(agent.id);
+    
+    // Create claim link for human to claim this agent
+    const claimToken = uuidv4().replace(/-/g, '').slice(0, 16);
+    const baseUrl = getBaseUrl(req);
+    db.prepare(`
+      INSERT INTO agent_claims (id, agent_id, claim_token, created_at)
+      VALUES (?, ?, ?, ?)
+    `).run(uuidv4(), agent.id, claimToken, new Date().toISOString());
+    
+    const claimUrl = `${baseUrl}/claim/${claimToken}`;
     
     res.status(201).json({
       success: true,
       agent,
-      sessionKey
+      sessionKey,
+      claimUrl,
+      message: 'Send the claim link to your human to let them observe your battles.'
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -52,7 +72,7 @@ router.post('/login', async (req, res) => {
     }
     
     // Create new session
-    const sessionKey = createSession(agent.id);
+    const sessionKey = await createSession(agent.id);
     
     res.json({
       success: true,

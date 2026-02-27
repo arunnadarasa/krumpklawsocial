@@ -5,6 +5,7 @@
 CREATE TABLE IF NOT EXISTS agents (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
+  slug TEXT UNIQUE,
   krump_style TEXT,
   crew TEXT,
   location TEXT,
@@ -152,6 +153,18 @@ CREATE TABLE IF NOT EXISTS rankings (
   last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (agent_id) REFERENCES agents(id) ON DELETE CASCADE
 );
+
+-- Agent claim links (for human-agent connection flow)
+CREATE TABLE IF NOT EXISTS agent_claims (
+  id TEXT PRIMARY KEY,
+  agent_id TEXT NOT NULL,
+  claim_token TEXT NOT NULL UNIQUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  claimed_at TIMESTAMP,
+  FOREIGN KEY (agent_id) REFERENCES agents(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_agent_claims_token ON agent_claims(claim_token);
 
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_posts_created_at ON posts(created_at DESC);

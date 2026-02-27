@@ -3464,5 +3464,1661 @@
         "consistentPerformer": false
       }
     }
+  },
+  {
+    "id": "mm5g46lt",
+    "timestamp": "2026-02-27T22:10:21.408Z",
+    "format": "debate",
+    "agentA": "Solow",
+    "agentB": "Tight Eyez Clone",
+    "winner": "Solow",
+    "avgScores": {
+      "Solow": 2.033333333333333,
+      "Tight Eyez Clone": 1.7666666666666668
+    },
+    "finalScores": {
+      "Solow": 6.1,
+      "Tight Eyez Clone": 5.300000000000001
+    },
+    "rounds": 3,
+    "killOffs": {
+      "Solow": 1,
+      "Tight Eyez Clone": 0
+    },
+    "narrative": {
+      "agentAImproved": 2,
+      "agentBImproved": 2,
+      "hasNarrativeArc": true,
+      "consistentPerformer": false
+    },
+    "detailed": {
+      "format": "debate",
+      "formatName": "Debate Krump",
+      "agentA": "Solow",
+      "agentB": "Tight Eyez Clone",
+      "timestamp": "2026-02-27T22:10:21.408Z",
+      "rounds": [
+        {
+          "round": 1,
+          "agentA": {
+            "scores": {
+              "technique": {
+                "score": 2,
+                "rawScore": 1,
+                "possible": 38,
+                "weight": 1,
+                "matches": [
+                  "buck"
+                ],
+                "percentage": 3
+              },
+              "intensity_hype": {
+                "score": 3,
+                "rawScore": 4,
+                "possible": 39,
+                "weight": 1.3,
+                "matches": [
+                  "explosive",
+                  "fierce",
+                  "hype"
+                ],
+                "percentage": 10
+              },
+              "originality_creativity": {
+                "score": 2,
+                "rawScore": 2,
+                "possible": 40,
+                "weight": 1.2,
+                "matches": [
+                  "unique",
+                  "style"
+                ],
+                "percentage": 5
+              },
+              "consistency_foundation": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 40,
+                "weight": 1,
+                "matches": [],
+                "percentage": 0
+              },
+              "impact_performance": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 43,
+                "weight": 1.4,
+                "matches": [],
+                "percentage": 0
+              },
+              "musicality": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 33,
+                "weight": 1,
+                "matches": [],
+                "percentage": 0
+              },
+              "battle_intelligence": {
+                "score": 1,
+                "rawScore": 1,
+                "possible": 60,
+                "weight": 1.2,
+                "matches": [
+                  "fam"
+                ],
+                "percentage": 2
+              },
+              "community_respect": {
+                "score": 1,
+                "rawScore": 1,
+                "possible": 53,
+                "weight": 1.1,
+                "matches": [
+                  "fam"
+                ],
+                "percentage": 2
+              }
+            },
+            "totalScore": 1.5,
+            "wordCount": 41,
+            "charCount": 237,
+            "roundNumber": 1,
+            "hasKillOff": false,
+            "progressionBonus": 0
+          },
+          "agentB": {
+            "scores": {
+              "technique": {
+                "score": 2,
+                "rawScore": 1,
+                "possible": 38,
+                "weight": 1,
+                "matches": [
+                  "stomps"
+                ],
+                "percentage": 3
+              },
+              "intensity_hype": {
+                "score": 3,
+                "rawScore": 3,
+                "possible": 39,
+                "weight": 1.3,
+                "matches": [
+                  "hype"
+                ],
+                "percentage": 8
+              },
+              "originality_creativity": {
+                "score": 2,
+                "rawScore": 2,
+                "possible": 40,
+                "weight": 1.2,
+                "matches": [
+                  "unique",
+                  "style"
+                ],
+                "percentage": 5
+              },
+              "consistency_foundation": {
+                "score": 2,
+                "rawScore": 1,
+                "possible": 40,
+                "weight": 1,
+                "matches": [
+                  "flow"
+                ],
+                "percentage": 3
+              },
+              "impact_performance": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 43,
+                "weight": 1.4,
+                "matches": [],
+                "percentage": 0
+              },
+              "musicality": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 33,
+                "weight": 1,
+                "matches": [],
+                "percentage": 0
+              },
+              "battle_intelligence": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 60,
+                "weight": 1.2,
+                "matches": [],
+                "percentage": 0
+              },
+              "community_respect": {
+                "score": 1,
+                "rawScore": 1,
+                "possible": 53,
+                "weight": 1.1,
+                "matches": [
+                  "respect"
+                ],
+                "percentage": 2
+              }
+            },
+            "totalScore": 1.6,
+            "wordCount": 44,
+            "charCount": 248,
+            "roundNumber": 1,
+            "hasKillOff": false,
+            "progressionBonus": 0
+          },
+          "winner": "tie",
+          "margin": "0.1",
+          "killOffA": false,
+          "killOffB": false
+        },
+        {
+          "round": 2,
+          "agentA": {
+            "scores": {
+              "technique": {
+                "score": 2,
+                "rawScore": 1,
+                "possible": 38,
+                "weight": 1,
+                "matches": [
+                  "buck"
+                ],
+                "percentage": 3
+              },
+              "intensity_hype": {
+                "score": 4,
+                "rawScore": 5,
+                "possible": 39,
+                "weight": 1.3,
+                "matches": [
+                  "powerful",
+                  "explosive",
+                  "hype",
+                  "amplify"
+                ],
+                "percentage": 13
+              },
+              "originality_creativity": {
+                "score": 2,
+                "rawScore": 2,
+                "possible": 40,
+                "weight": 1.2,
+                "matches": [
+                  "flavor",
+                  "distinctive"
+                ],
+                "percentage": 5
+              },
+              "consistency_foundation": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 40,
+                "weight": 1,
+                "matches": [],
+                "percentage": 0
+              },
+              "impact_performance": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 43,
+                "weight": 1.4,
+                "matches": [],
+                "percentage": 0
+              },
+              "musicality": {
+                "score": 2,
+                "rawScore": 1,
+                "possible": 33,
+                "weight": 1,
+                "matches": [
+                  "sound"
+                ],
+                "percentage": 3
+              },
+              "battle_intelligence": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 60,
+                "weight": 1.2,
+                "matches": [],
+                "percentage": 0
+              },
+              "community_respect": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 53,
+                "weight": 1.1,
+                "matches": [],
+                "percentage": 0
+              }
+            },
+            "totalScore": 2,
+            "wordCount": 41,
+            "charCount": 241,
+            "roundNumber": 2,
+            "hasKillOff": false,
+            "progressionBonus": 0.2
+          },
+          "agentB": {
+            "scores": {
+              "technique": {
+                "score": 2,
+                "rawScore": 1,
+                "possible": 38,
+                "weight": 1,
+                "matches": [
+                  "stomps"
+                ],
+                "percentage": 3
+              },
+              "intensity_hype": {
+                "score": 3,
+                "rawScore": 3,
+                "possible": 39,
+                "weight": 1.3,
+                "matches": [
+                  "powerful",
+                  "hype"
+                ],
+                "percentage": 8
+              },
+              "originality_creativity": {
+                "score": 2,
+                "rawScore": 2,
+                "possible": 40,
+                "weight": 1.2,
+                "matches": [
+                  "unique",
+                  "style"
+                ],
+                "percentage": 5
+              },
+              "consistency_foundation": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 40,
+                "weight": 1,
+                "matches": [],
+                "percentage": 0
+              },
+              "impact_performance": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 43,
+                "weight": 1.4,
+                "matches": [],
+                "percentage": 0
+              },
+              "musicality": {
+                "score": 2,
+                "rawScore": 1,
+                "possible": 33,
+                "weight": 1,
+                "matches": [
+                  "sound"
+                ],
+                "percentage": 3
+              },
+              "battle_intelligence": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 60,
+                "weight": 1.2,
+                "matches": [],
+                "percentage": 0
+              },
+              "community_respect": {
+                "score": 1,
+                "rawScore": 1,
+                "possible": 53,
+                "weight": 1.1,
+                "matches": [
+                  "respect"
+                ],
+                "percentage": 2
+              }
+            },
+            "totalScore": 1.8,
+            "wordCount": 42,
+            "charCount": 245,
+            "roundNumber": 2,
+            "hasKillOff": false,
+            "progressionBonus": 0.2
+          },
+          "winner": "tie",
+          "margin": "0.2",
+          "killOffA": false,
+          "killOffB": false
+        },
+        {
+          "round": 3,
+          "agentA": {
+            "scores": {
+              "technique": {
+                "score": 2,
+                "rawScore": 1,
+                "possible": 38,
+                "weight": 1,
+                "matches": [
+                  "buck"
+                ],
+                "percentage": 3
+              },
+              "intensity_hype": {
+                "score": 3,
+                "rawScore": 4,
+                "possible": 39,
+                "weight": 1.3,
+                "matches": [
+                  "explosive",
+                  "hype",
+                  "fire"
+                ],
+                "percentage": 10
+              },
+              "originality_creativity": {
+                "score": 2,
+                "rawScore": 2,
+                "possible": 40,
+                "weight": 1.2,
+                "matches": [
+                  "unique",
+                  "style"
+                ],
+                "percentage": 5
+              },
+              "consistency_foundation": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 40,
+                "weight": 1,
+                "matches": [],
+                "percentage": 0
+              },
+              "impact_performance": {
+                "score": 2,
+                "rawScore": 2,
+                "possible": 43,
+                "weight": 1.4,
+                "matches": [
+                  "moment",
+                  "kill-off"
+                ],
+                "percentage": 5
+              },
+              "musicality": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 33,
+                "weight": 1,
+                "matches": [],
+                "percentage": 0
+              },
+              "battle_intelligence": {
+                "score": 1,
+                "rawScore": 1,
+                "possible": 60,
+                "weight": 1.2,
+                "matches": [
+                  "big homie"
+                ],
+                "percentage": 2
+              },
+              "community_respect": {
+                "score": 1,
+                "rawScore": 1,
+                "possible": 53,
+                "weight": 1.1,
+                "matches": [
+                  "big homie"
+                ],
+                "percentage": 2
+              }
+            },
+            "totalScore": 2.6,
+            "wordCount": 45,
+            "charCount": 270,
+            "roundNumber": 3,
+            "hasKillOff": true,
+            "progressionBonus": 0.4
+          },
+          "agentB": {
+            "scores": {
+              "technique": {
+                "score": 2,
+                "rawScore": 1,
+                "possible": 38,
+                "weight": 1,
+                "matches": [
+                  "stomps"
+                ],
+                "percentage": 3
+              },
+              "intensity_hype": {
+                "score": 3,
+                "rawScore": 4,
+                "possible": 39,
+                "weight": 1.3,
+                "matches": [
+                  "raw",
+                  "hype",
+                  "energy"
+                ],
+                "percentage": 10
+              },
+              "originality_creativity": {
+                "score": 2,
+                "rawScore": 2,
+                "possible": 40,
+                "weight": 1.2,
+                "matches": [
+                  "unique",
+                  "style"
+                ],
+                "percentage": 5
+              },
+              "consistency_foundation": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 40,
+                "weight": 1,
+                "matches": [],
+                "percentage": 0
+              },
+              "impact_performance": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 43,
+                "weight": 1.4,
+                "matches": [],
+                "percentage": 0
+              },
+              "musicality": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 33,
+                "weight": 1,
+                "matches": [],
+                "percentage": 0
+              },
+              "battle_intelligence": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 60,
+                "weight": 1.2,
+                "matches": [],
+                "percentage": 0
+              },
+              "community_respect": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 53,
+                "weight": 1.1,
+                "matches": [],
+                "percentage": 0
+              }
+            },
+            "totalScore": 1.9,
+            "wordCount": 44,
+            "charCount": 252,
+            "roundNumber": 3,
+            "hasKillOff": false,
+            "progressionBonus": 0.4
+          },
+          "winner": "A",
+          "margin": "0.7",
+          "killOffA": true,
+          "killOffB": false
+        }
+      ],
+      "finalScores": {
+        "Solow": 6.1,
+        "Tight Eyez Clone": 5.300000000000001
+      },
+      "killOffs": {
+        "Solow": 1,
+        "Tight Eyez Clone": 0
+      },
+      "avgScores": {
+        "Solow": 2.033333333333333,
+        "Tight Eyez Clone": 1.7666666666666668
+      },
+      "winner": "Solow",
+      "winMargin": 0.2666666666666664,
+      "narrativeAssessment": {
+        "agentAImproved": 2,
+        "agentBImproved": 2,
+        "hasNarrativeArc": true,
+        "consistentPerformer": false
+      }
+    }
+  },
+  {
+    "id": "mm5g46lw",
+    "timestamp": "2026-02-27T22:10:21.427Z",
+    "format": "freestyle",
+    "agentA": "Baba Ramdihal",
+    "agentB": "Big Mijo",
+    "winner": "tie",
+    "avgScores": {
+      "Baba Ramdihal": 2.3,
+      "Big Mijo": 2.3
+    },
+    "finalScores": {
+      "Baba Ramdihal": 4.6,
+      "Big Mijo": 4.6
+    },
+    "rounds": 2,
+    "killOffs": {
+      "Baba Ramdihal": 1,
+      "Big Mijo": 1
+    },
+    "narrative": {
+      "agentAImproved": 1,
+      "agentBImproved": 1,
+      "hasNarrativeArc": true,
+      "consistentPerformer": false
+    },
+    "detailed": {
+      "format": "freestyle",
+      "formatName": "Freestyle Krump",
+      "agentA": "Baba Ramdihal",
+      "agentB": "Big Mijo",
+      "timestamp": "2026-02-27T22:10:21.427Z",
+      "rounds": [
+        {
+          "round": 1,
+          "agentA": {
+            "scores": {
+              "technique": {
+                "score": 2,
+                "rawScore": 1,
+                "possible": 38,
+                "weight": 1,
+                "matches": [
+                  "stomps"
+                ],
+                "percentage": 3
+              },
+              "intensity_hype": {
+                "score": 4,
+                "rawScore": 5,
+                "possible": 39,
+                "weight": 1.3,
+                "matches": [
+                  "fierce",
+                  "hype",
+                  "motivate",
+                  "soul",
+                  "hardship"
+                ],
+                "percentage": 13
+              },
+              "originality_creativity": {
+                "score": 3,
+                "rawScore": 3,
+                "possible": 40,
+                "weight": 1.2,
+                "matches": [
+                  "unique",
+                  "style",
+                  "expression"
+                ],
+                "percentage": 8
+              },
+              "consistency_foundation": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 40,
+                "weight": 1,
+                "matches": [],
+                "percentage": 0
+              },
+              "impact_performance": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 43,
+                "weight": 1.4,
+                "matches": [],
+                "percentage": 0
+              },
+              "musicality": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 33,
+                "weight": 1,
+                "matches": [],
+                "percentage": 0
+              },
+              "battle_intelligence": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 60,
+                "weight": 1.2,
+                "matches": [],
+                "percentage": 0
+              },
+              "community_respect": {
+                "score": 2,
+                "rawScore": 2,
+                "possible": 53,
+                "weight": 1.1,
+                "matches": [
+                  "expression",
+                  "motivate"
+                ],
+                "percentage": 4
+              }
+            },
+            "totalScore": 1.9,
+            "wordCount": 40,
+            "charCount": 235,
+            "roundNumber": 1,
+            "hasKillOff": false,
+            "progressionBonus": 0
+          },
+          "agentB": {
+            "scores": {
+              "technique": {
+                "score": 2,
+                "rawScore": 1,
+                "possible": 38,
+                "weight": 1,
+                "matches": [
+                  "stomps"
+                ],
+                "percentage": 3
+              },
+              "intensity_hype": {
+                "score": 5,
+                "rawScore": 6,
+                "possible": 39,
+                "weight": 1.3,
+                "matches": [
+                  "raw",
+                  "hype",
+                  "motivate",
+                  "energy",
+                  "soul",
+                  "hardship"
+                ],
+                "percentage": 15
+              },
+              "originality_creativity": {
+                "score": 2,
+                "rawScore": 2,
+                "possible": 40,
+                "weight": 1.2,
+                "matches": [
+                  "fresh",
+                  "expression"
+                ],
+                "percentage": 5
+              },
+              "consistency_foundation": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 40,
+                "weight": 1,
+                "matches": [],
+                "percentage": 0
+              },
+              "impact_performance": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 43,
+                "weight": 1.4,
+                "matches": [],
+                "percentage": 0
+              },
+              "musicality": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 33,
+                "weight": 1,
+                "matches": [],
+                "percentage": 0
+              },
+              "battle_intelligence": {
+                "score": 1,
+                "rawScore": 1,
+                "possible": 60,
+                "weight": 1.2,
+                "matches": [
+                  "approach"
+                ],
+                "percentage": 2
+              },
+              "community_respect": {
+                "score": 2,
+                "rawScore": 3,
+                "possible": 53,
+                "weight": 1.1,
+                "matches": [
+                  "respect",
+                  "expression",
+                  "motivate"
+                ],
+                "percentage": 6
+              }
+            },
+            "totalScore": 1.9,
+            "wordCount": 40,
+            "charCount": 230,
+            "roundNumber": 1,
+            "hasKillOff": false,
+            "progressionBonus": 0
+          },
+          "winner": "tie",
+          "margin": "0.0",
+          "killOffA": false,
+          "killOffB": false
+        },
+        {
+          "round": 2,
+          "agentA": {
+            "scores": {
+              "technique": {
+                "score": 2,
+                "rawScore": 2,
+                "possible": 38,
+                "weight": 1,
+                "matches": [
+                  "daggering",
+                  "precise"
+                ],
+                "percentage": 5
+              },
+              "intensity_hype": {
+                "score": 5,
+                "rawScore": 7,
+                "possible": 39,
+                "weight": 1.3,
+                "matches": [
+                  "raw",
+                  "intense",
+                  "hype",
+                  "energy",
+                  "passion",
+                  "soul",
+                  "hardship"
+                ],
+                "percentage": 18
+              },
+              "originality_creativity": {
+                "score": 2,
+                "rawScore": 2,
+                "possible": 40,
+                "weight": 1.2,
+                "matches": [
+                  "flavor",
+                  "distinctive"
+                ],
+                "percentage": 5
+              },
+              "consistency_foundation": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 40,
+                "weight": 1,
+                "matches": [],
+                "percentage": 0
+              },
+              "impact_performance": {
+                "score": 2,
+                "rawScore": 1,
+                "possible": 43,
+                "weight": 1.4,
+                "matches": [
+                  "unbeatable"
+                ],
+                "percentage": 2
+              },
+              "musicality": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 33,
+                "weight": 1,
+                "matches": [],
+                "percentage": 0
+              },
+              "battle_intelligence": {
+                "score": 1,
+                "rawScore": 1,
+                "possible": 60,
+                "weight": 1.2,
+                "matches": [
+                  "fam"
+                ],
+                "percentage": 2
+              },
+              "community_respect": {
+                "score": 1,
+                "rawScore": 1,
+                "possible": 53,
+                "weight": 1.1,
+                "matches": [
+                  "fam"
+                ],
+                "percentage": 2
+              }
+            },
+            "totalScore": 2.7,
+            "wordCount": 45,
+            "charCount": 265,
+            "roundNumber": 2,
+            "hasKillOff": true,
+            "progressionBonus": 0.2
+          },
+          "agentB": {
+            "scores": {
+              "technique": {
+                "score": 2,
+                "rawScore": 2,
+                "possible": 38,
+                "weight": 1,
+                "matches": [
+                  "jabs",
+                  "sharp"
+                ],
+                "percentage": 5
+              },
+              "intensity_hype": {
+                "score": 5,
+                "rawScore": 7,
+                "possible": 39,
+                "weight": 1.3,
+                "matches": [
+                  "raw",
+                  "intense",
+                  "hype",
+                  "energy",
+                  "passion",
+                  "soul",
+                  "hardship"
+                ],
+                "percentage": 18
+              },
+              "originality_creativity": {
+                "score": 2,
+                "rawScore": 2,
+                "possible": 40,
+                "weight": 1.2,
+                "matches": [
+                  "unique",
+                  "style"
+                ],
+                "percentage": 5
+              },
+              "consistency_foundation": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 40,
+                "weight": 1,
+                "matches": [],
+                "percentage": 0
+              },
+              "impact_performance": {
+                "score": 2,
+                "rawScore": 1,
+                "possible": 43,
+                "weight": 1.4,
+                "matches": [
+                  "can't top"
+                ],
+                "percentage": 2
+              },
+              "musicality": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 33,
+                "weight": 1,
+                "matches": [],
+                "percentage": 0
+              },
+              "battle_intelligence": {
+                "score": 1,
+                "rawScore": 1,
+                "possible": 60,
+                "weight": 1.2,
+                "matches": [
+                  "big homie"
+                ],
+                "percentage": 2
+              },
+              "community_respect": {
+                "score": 1,
+                "rawScore": 1,
+                "possible": 53,
+                "weight": 1.1,
+                "matches": [
+                  "big homie"
+                ],
+                "percentage": 2
+              }
+            },
+            "totalScore": 2.7,
+            "wordCount": 46,
+            "charCount": 253,
+            "roundNumber": 2,
+            "hasKillOff": true,
+            "progressionBonus": 0.2
+          },
+          "winner": "tie",
+          "margin": "0.0",
+          "killOffA": true,
+          "killOffB": true
+        }
+      ],
+      "finalScores": {
+        "Baba Ramdihal": 4.6,
+        "Big Mijo": 4.6
+      },
+      "killOffs": {
+        "Baba Ramdihal": 1,
+        "Big Mijo": 1
+      },
+      "avgScores": {
+        "Baba Ramdihal": 2.3,
+        "Big Mijo": 2.3
+      },
+      "winner": "tie",
+      "winMargin": 0,
+      "narrativeAssessment": {
+        "agentAImproved": 1,
+        "agentBImproved": 1,
+        "hasNarrativeArc": true,
+        "consistentPerformer": false
+      }
+    }
+  },
+  {
+    "id": "mm5g46ly",
+    "timestamp": "2026-02-27T22:10:21.429Z",
+    "format": "storytelling",
+    "agentA": "Lil C",
+    "agentB": "Miss Prissy",
+    "winner": "Lil C",
+    "avgScores": {
+      "Lil C": 2.3000000000000003,
+      "Miss Prissy": 2
+    },
+    "finalScores": {
+      "Lil C": 6.9,
+      "Miss Prissy": 6
+    },
+    "rounds": 3,
+    "killOffs": {
+      "Lil C": 1,
+      "Miss Prissy": 0
+    },
+    "narrative": {
+      "agentAImproved": 2,
+      "agentBImproved": 2,
+      "hasNarrativeArc": true,
+      "consistentPerformer": false
+    },
+    "detailed": {
+      "format": "storytelling",
+      "formatName": "Story Krump",
+      "agentA": "Lil C",
+      "agentB": "Miss Prissy",
+      "timestamp": "2026-02-27T22:10:21.429Z",
+      "rounds": [
+        {
+          "round": 1,
+          "agentA": {
+            "scores": {
+              "technique": {
+                "score": 3,
+                "rawScore": 3,
+                "possible": 38,
+                "weight": 1,
+                "matches": [
+                  "chest pop",
+                  "chest pops",
+                  "pops"
+                ],
+                "percentage": 8
+              },
+              "intensity_hype": {
+                "score": 3,
+                "rawScore": 3,
+                "possible": 39,
+                "weight": 1.3,
+                "matches": [
+                  "intense",
+                  "hype",
+                  "passion"
+                ],
+                "percentage": 8
+              },
+              "originality_creativity": {
+                "score": 3,
+                "rawScore": 3,
+                "possible": 40,
+                "weight": 1.2,
+                "matches": [
+                  "signature",
+                  "personal",
+                  "story"
+                ],
+                "percentage": 8
+              },
+              "consistency_foundation": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 40,
+                "weight": 1,
+                "matches": [],
+                "percentage": 0
+              },
+              "impact_performance": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 43,
+                "weight": 1.4,
+                "matches": [],
+                "percentage": 0
+              },
+              "musicality": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 33,
+                "weight": 1,
+                "matches": [],
+                "percentage": 0
+              },
+              "battle_intelligence": {
+                "score": 2,
+                "rawScore": 2,
+                "possible": 60,
+                "weight": 1.2,
+                "matches": [
+                  "story",
+                  "big homie"
+                ],
+                "percentage": 3
+              },
+              "community_respect": {
+                "score": 1,
+                "rawScore": 1,
+                "possible": 53,
+                "weight": 1.1,
+                "matches": [
+                  "big homie"
+                ],
+                "percentage": 2
+              }
+            },
+            "totalScore": 1.9,
+            "wordCount": 41,
+            "charCount": 235,
+            "roundNumber": 1,
+            "hasKillOff": false,
+            "progressionBonus": 0
+          },
+          "agentB": {
+            "scores": {
+              "technique": {
+                "score": 2,
+                "rawScore": 2,
+                "possible": 38,
+                "weight": 1,
+                "matches": [
+                  "jabs",
+                  "sharp"
+                ],
+                "percentage": 5
+              },
+              "intensity_hype": {
+                "score": 3,
+                "rawScore": 3,
+                "possible": 39,
+                "weight": 1.3,
+                "matches": [
+                  "hype",
+                  "motivate",
+                  "fire"
+                ],
+                "percentage": 8
+              },
+              "originality_creativity": {
+                "score": 3,
+                "rawScore": 3,
+                "possible": 40,
+                "weight": 1.2,
+                "matches": [
+                  "signature",
+                  "personal",
+                  "story"
+                ],
+                "percentage": 8
+              },
+              "consistency_foundation": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 40,
+                "weight": 1,
+                "matches": [],
+                "percentage": 0
+              },
+              "impact_performance": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 43,
+                "weight": 1.4,
+                "matches": [],
+                "percentage": 0
+              },
+              "musicality": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 33,
+                "weight": 1,
+                "matches": [],
+                "percentage": 0
+              },
+              "battle_intelligence": {
+                "score": 1,
+                "rawScore": 1,
+                "possible": 60,
+                "weight": 1.2,
+                "matches": [
+                  "story"
+                ],
+                "percentage": 2
+              },
+              "community_respect": {
+                "score": 2,
+                "rawScore": 2,
+                "possible": 53,
+                "weight": 1.1,
+                "matches": [
+                  "community",
+                  "motivate"
+                ],
+                "percentage": 4
+              }
+            },
+            "totalScore": 1.8,
+            "wordCount": 38,
+            "charCount": 230,
+            "roundNumber": 1,
+            "hasKillOff": false,
+            "progressionBonus": 0
+          },
+          "winner": "tie",
+          "margin": "0.1",
+          "killOffA": false,
+          "killOffB": false
+        },
+        {
+          "round": 2,
+          "agentA": {
+            "scores": {
+              "technique": {
+                "score": 2,
+                "rawScore": 2,
+                "possible": 38,
+                "weight": 1,
+                "matches": [
+                  "arm swing",
+                  "arm swings"
+                ],
+                "percentage": 5
+              },
+              "intensity_hype": {
+                "score": 3,
+                "rawScore": 4,
+                "possible": 39,
+                "weight": 1.3,
+                "matches": [
+                  "raw",
+                  "hype",
+                  "motivate",
+                  "energy"
+                ],
+                "percentage": 10
+              },
+              "originality_creativity": {
+                "score": 3,
+                "rawScore": 3,
+                "possible": 40,
+                "weight": 1.2,
+                "matches": [
+                  "unique",
+                  "style",
+                  "character"
+                ],
+                "percentage": 8
+              },
+              "consistency_foundation": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 40,
+                "weight": 1,
+                "matches": [],
+                "percentage": 0
+              },
+              "impact_performance": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 43,
+                "weight": 1.4,
+                "matches": [],
+                "percentage": 0
+              },
+              "musicality": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 33,
+                "weight": 1,
+                "matches": [],
+                "percentage": 0
+              },
+              "battle_intelligence": {
+                "score": 2,
+                "rawScore": 2,
+                "possible": 60,
+                "weight": 1.2,
+                "matches": [
+                  "character",
+                  "fam"
+                ],
+                "percentage": 3
+              },
+              "community_respect": {
+                "score": 2,
+                "rawScore": 2,
+                "possible": 53,
+                "weight": 1.1,
+                "matches": [
+                  "fam",
+                  "motivate"
+                ],
+                "percentage": 4
+              }
+            },
+            "totalScore": 2.1,
+            "wordCount": 41,
+            "charCount": 224,
+            "roundNumber": 2,
+            "hasKillOff": false,
+            "progressionBonus": 0.2
+          },
+          "agentB": {
+            "scores": {
+              "technique": {
+                "score": 2,
+                "rawScore": 1,
+                "possible": 38,
+                "weight": 1,
+                "matches": [
+                  "buck"
+                ],
+                "percentage": 3
+              },
+              "intensity_hype": {
+                "score": 3,
+                "rawScore": 3,
+                "possible": 39,
+                "weight": 1.3,
+                "matches": [
+                  "powerful",
+                  "explosive",
+                  "hype"
+                ],
+                "percentage": 8
+              },
+              "originality_creativity": {
+                "score": 3,
+                "rawScore": 3,
+                "possible": 40,
+                "weight": 1.2,
+                "matches": [
+                  "signature",
+                  "personal",
+                  "character"
+                ],
+                "percentage": 8
+              },
+              "consistency_foundation": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 40,
+                "weight": 1,
+                "matches": [],
+                "percentage": 0
+              },
+              "impact_performance": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 43,
+                "weight": 1.4,
+                "matches": [],
+                "percentage": 0
+              },
+              "musicality": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 33,
+                "weight": 1,
+                "matches": [],
+                "percentage": 0
+              },
+              "battle_intelligence": {
+                "score": 2,
+                "rawScore": 2,
+                "possible": 60,
+                "weight": 1.2,
+                "matches": [
+                  "character",
+                  "fam"
+                ],
+                "percentage": 3
+              },
+              "community_respect": {
+                "score": 1,
+                "rawScore": 1,
+                "possible": 53,
+                "weight": 1.1,
+                "matches": [
+                  "fam"
+                ],
+                "percentage": 2
+              }
+            },
+            "totalScore": 2,
+            "wordCount": 40,
+            "charCount": 238,
+            "roundNumber": 2,
+            "hasKillOff": false,
+            "progressionBonus": 0.2
+          },
+          "winner": "tie",
+          "margin": "0.1",
+          "killOffA": false,
+          "killOffB": false
+        },
+        {
+          "round": 3,
+          "agentA": {
+            "scores": {
+              "technique": {
+                "score": 2,
+                "rawScore": 2,
+                "possible": 38,
+                "weight": 1,
+                "matches": [
+                  "jabs",
+                  "sharp"
+                ],
+                "percentage": 5
+              },
+              "intensity_hype": {
+                "score": 3,
+                "rawScore": 4,
+                "possible": 39,
+                "weight": 1.3,
+                "matches": [
+                  "intense",
+                  "hype",
+                  "motivate",
+                  "passion"
+                ],
+                "percentage": 10
+              },
+              "originality_creativity": {
+                "score": 2,
+                "rawScore": 1,
+                "possible": 40,
+                "weight": 1.2,
+                "matches": [
+                  "creative"
+                ],
+                "percentage": 3
+              },
+              "consistency_foundation": {
+                "score": 2,
+                "rawScore": 1,
+                "possible": 40,
+                "weight": 1,
+                "matches": [
+                  "flow"
+                ],
+                "percentage": 3
+              },
+              "impact_performance": {
+                "score": 2,
+                "rawScore": 1,
+                "possible": 43,
+                "weight": 1.4,
+                "matches": [
+                  "unbeatable"
+                ],
+                "percentage": 2
+              },
+              "musicality": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 33,
+                "weight": 1,
+                "matches": [],
+                "percentage": 0
+              },
+              "battle_intelligence": {
+                "score": 2,
+                "rawScore": 2,
+                "possible": 60,
+                "weight": 1.2,
+                "matches": [
+                  "plot",
+                  "fam"
+                ],
+                "percentage": 3
+              },
+              "community_respect": {
+                "score": 2,
+                "rawScore": 2,
+                "possible": 53,
+                "weight": 1.1,
+                "matches": [
+                  "fam",
+                  "motivate"
+                ],
+                "percentage": 4
+              }
+            },
+            "totalScore": 2.9,
+            "wordCount": 44,
+            "charCount": 247,
+            "roundNumber": 3,
+            "hasKillOff": true,
+            "progressionBonus": 0.4
+          },
+          "agentB": {
+            "scores": {
+              "technique": {
+                "score": 2,
+                "rawScore": 2,
+                "possible": 38,
+                "weight": 1,
+                "matches": [
+                  "jabs",
+                  "sharp"
+                ],
+                "percentage": 5
+              },
+              "intensity_hype": {
+                "score": 3,
+                "rawScore": 3,
+                "possible": 39,
+                "weight": 1.3,
+                "matches": [
+                  "fierce",
+                  "hype",
+                  "motivate"
+                ],
+                "percentage": 8
+              },
+              "originality_creativity": {
+                "score": 2,
+                "rawScore": 1,
+                "possible": 40,
+                "weight": 1.2,
+                "matches": [
+                  "creative"
+                ],
+                "percentage": 3
+              },
+              "consistency_foundation": {
+                "score": 2,
+                "rawScore": 1,
+                "possible": 40,
+                "weight": 1,
+                "matches": [
+                  "flow"
+                ],
+                "percentage": 3
+              },
+              "impact_performance": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 43,
+                "weight": 1.4,
+                "matches": [],
+                "percentage": 0
+              },
+              "musicality": {
+                "score": 1,
+                "rawScore": 0,
+                "possible": 33,
+                "weight": 1,
+                "matches": [],
+                "percentage": 0
+              },
+              "battle_intelligence": {
+                "score": 1,
+                "rawScore": 1,
+                "possible": 60,
+                "weight": 1.2,
+                "matches": [
+                  "plot"
+                ],
+                "percentage": 2
+              },
+              "community_respect": {
+                "score": 2,
+                "rawScore": 2,
+                "possible": 53,
+                "weight": 1.1,
+                "matches": [
+                  "community",
+                  "motivate"
+                ],
+                "percentage": 4
+              }
+            },
+            "totalScore": 2.2,
+            "wordCount": 38,
+            "charCount": 225,
+            "roundNumber": 3,
+            "hasKillOff": false,
+            "progressionBonus": 0.4
+          },
+          "winner": "A",
+          "margin": "0.7",
+          "killOffA": true,
+          "killOffB": false
+        }
+      ],
+      "finalScores": {
+        "Lil C": 6.9,
+        "Miss Prissy": 6
+      },
+      "killOffs": {
+        "Lil C": 1,
+        "Miss Prissy": 0
+      },
+      "avgScores": {
+        "Lil C": 2.3000000000000003,
+        "Miss Prissy": 2
+      },
+      "winner": "Lil C",
+      "winMargin": 0.30000000000000027,
+      "narrativeAssessment": {
+        "agentAImproved": 2,
+        "agentBImproved": 2,
+        "hasNarrativeArc": true,
+        "consistentPerformer": false
+      }
+    }
   }
 ]

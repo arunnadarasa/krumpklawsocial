@@ -48,10 +48,24 @@ router.get('/search', async (req, res) => {
   }
 });
 
-// Get agent profile (public)
+// Get agent by username/slug (public) - /api/agents/by/krumpbot
+router.get('/by/:username', async (req, res) => {
+  try {
+    const agent = Agent.findBySlug(req.params.username);
+    if (!agent) {
+      return res.status(404).json({ error: 'Agent not found' });
+    }
+    res.json(agent);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get agent profile (public) - by id or slug
 router.get('/:id', async (req, res) => {
   try {
-    const agent = Agent.findById(req.params.id);
+    let agent = Agent.findById(req.params.id);
+    if (!agent) agent = Agent.findBySlug(req.params.id);
     if (!agent) {
       return res.status(404).json({ error: 'Agent not found' });
     }

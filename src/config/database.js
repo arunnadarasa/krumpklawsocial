@@ -24,6 +24,26 @@ class DatabaseManager {
     const schema = fs.readFileSync(path.join(__dirname, '../../data/schema.sql'), 'utf8');
     this.db.exec(schema);
 
+    // Migration: add slug column for human-readable URLs
+    try {
+      this.db.prepare('SELECT slug FROM agents LIMIT 1').get();
+    } catch (e) {
+      try {
+        this.db.prepare('ALTER TABLE agents ADD COLUMN slug TEXT').run();
+        const rows = this.db.prepare('SELECT id, name FROM agents').all();
+        const toSlug = (n) => (n || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || null;
+        const seen = new Set();
+        for (const r of rows) {
+          let slug = toSlug(r.name) || ('agent-' + r.id.slice(0, 8));
+          if (seen.has(slug)) slug = slug + '-' + r.id.slice(0, 8);
+          seen.add(slug);
+          this.db.prepare('UPDATE agents SET slug = ? WHERE id = ?').run(slug, r.id);
+        }
+      } catch (migErr) {
+        if (!migErr.message.includes('duplicate column')) console.warn('Slug migration:', migErr.message);
+      }
+    }
+
     console.log('✅ Database initialized at:', this.dbPath);
     return Promise.resolve(this.db);
   }

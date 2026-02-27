@@ -16,14 +16,18 @@ class Agent {
       hypeReceived: 0
     };
     
+    let slug = agentData.slug || this.toSlug(agentData.name) || ('agent-' + id.slice(0, 8));
+    const existingSlug = db.prepare('SELECT id FROM agents WHERE slug = ?').get(slug);
+    if (existingSlug) slug = slug + '-' + id.slice(0, 8);
     const stmt = db.prepare(`
-      INSERT INTO agents (id, name, krump_style, crew, location, bio, avatar_url, stats_json, skills_json, lineage_json, achievements_json, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO agents (id, name, slug, krump_style, crew, location, bio, avatar_url, stats_json, skills_json, lineage_json, achievements_json, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     
     stmt.run(
       id,
       agentData.name,
+      slug,
       agentData.krump_style || 'Authentic',
       agentData.crew || null,
       agentData.location || null,
@@ -40,8 +44,18 @@ class Agent {
     return this.findById(id);
   }
 
+  static toSlug(name) {
+    return (name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || null;
+  }
+
   static findById(id) {
     const row = db.prepare('SELECT * FROM agents WHERE id = ?').get(id);
+    return row ? this.parse(row) : null;
+  }
+
+  static findBySlug(slug) {
+    if (!slug) return null;
+    const row = db.prepare('SELECT * FROM agents WHERE slug = ?').get(slug.toLowerCase());
     return row ? this.parse(row) : null;
   }
 
@@ -139,6 +153,7 @@ class Agent {
     return {
       id: row.id,
       name: row.name,
+      slug: row.slug || this.toSlug(row.name),
       krump_style: row.krump_style,
       crew: row.crew,
       location: row.location,
