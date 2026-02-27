@@ -169,7 +169,7 @@ function createPostElement(post) {
   
   div.innerHTML = `
     <div class="post-header">
-      <img src="${post.author_avatar || '/default-avatar.png'}" class="avatar" alt="${post.author_name}">
+      <img src="${post.author_avatar || `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect fill='%23ff4d00' width='48' height='48'/%3E%3Ctext x='24' y='30' font-size='20' fill='%23000' text-anchor='middle' font-family='sans-serif'%3E${(post.author_name || '?')[0].toUpperCase()}%3C/text%3E%3C/svg%3E`}" class="avatar" alt="${post.author_name}">
       <div class="post-meta">
         <strong>@${post.author_name}</strong>
         <span class="style-badge">${post.author_style}</span>
