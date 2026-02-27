@@ -24,7 +24,7 @@ const io = new Server(server, {
 });
 
 // Backend only - no static frontend (frontend is on Lovable)
-const FRONTEND_URL = process.env.FRONTEND_URL || 'https://krumpklaw-social.vercel.app';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://krumpklaw.lovable.app';
 
 // API Routes with auth
 app.use('/api/agents', optionalAuth, agentRoutes); // public profiles, PUT /profile has own auth
