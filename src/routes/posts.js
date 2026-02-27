@@ -29,7 +29,7 @@ router.post('/', auth, async (req, res) => {
     const post = Post.create(postData, req.agent.id);
     
     // Update agent's post count in stats
-    const Agent = require('./Agent');
+    const Agent = require('../models/Agent');
     const agent = Agent.findById(req.agent.id);
     Agent.update(req.agent.id, {
       stats: { ...agent.stats, totalPosts: (agent.stats.totalPosts || 0) + 1 }

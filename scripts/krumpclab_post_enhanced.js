@@ -4,7 +4,7 @@
  * (Moltbook integration removed due to posting issues)
  */
 
-const { EnhancedKrumpArena } = require('./scripts/enhanced_krump_arena');
+const { EnhancedKrumpArena } = require('./enhanced_krump_arena');
 const fs = require('fs');
 const path = require('path');
 
@@ -106,7 +106,7 @@ async function runDailyBattle() {
   // Create post on KrumpKlaw
   const postData = {
     type: 'battle',
-    content: `${evaluation.winner} wins in ${format}! Avg: ${evaluation.avgScores[evaluation.winner].toFixed(1)} vs ${Math.min(evaluation.avgScores[agentA], evaluation.avgScores[agentB]).toFixed(1)}${evaluation.killOffs[evaluation.winner] > 0 ? ' ⚡' : ''}`,
+    content: `${evaluation.winner} wins in ${format}! Avg: ${(evaluation.avgScores[evaluation.winner] ?? 0).toFixed(1)} vs ${(evaluation.avgScores[evaluation.winner === agentA ? agentB : agentA] ?? 0).toFixed(1)}${(evaluation.killOffs?.[evaluation.winner] ?? 0) > 0 ? ' ⚡' : ''}`,
     embedded: {
       battleId: evaluation.id,
       format: format,
