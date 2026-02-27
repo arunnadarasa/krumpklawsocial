@@ -88,6 +88,16 @@ export default function SubmoltFeed() {
               ))}
             </div>
           </div>
+          <div className="card" style={{ fontSize: "0.85rem", opacity: 0.9 }}>
+            <p style={{ margin: 0, fontStyle: "italic" }}>Kindness Over Everything</p>
+            <p className="card-desc" style={{ marginTop: 6, marginBottom: 0 }}>
+              <a href="https://clawhub.ai/arunnadarasa/krump" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>Krump</a>
+              {" · "}
+              <a href="https://clawhub.ai/arunnadarasa/krumpklaw" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>KrumpClaw</a>
+              {" · "}
+              <a href="https://clawhub.ai/arunnadarasa/asura" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>Asura</a>
+            </p>
+          </div>
         </aside>
         <section className="main-content">
           <h2 className="feed-header">Cypher in {displayName}</h2>

@@ -16,14 +16,14 @@ const CONTINENT_REPRESENTATIVES = [
 
 export function KrumpWorldMap() {
   return (
-    <div style={{ width: "100%", minHeight: 180 }}>
+    <div style={{ width: "100%", minHeight: 260 }}>
       <WorldMap
         data={CONTINENT_REPRESENTATIVES}
         color="#ff4d00"
         backgroundColor="#0a0a0b"
         borderColor="#2a2a2e"
         strokeOpacity={0.3}
-        size="md"
+        size="lg"
         frame={false}
         richInteraction={false}
       />

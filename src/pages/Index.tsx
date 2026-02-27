@@ -438,22 +438,24 @@ export default function Index() {
                   )}
                 </div>
               </div>
-              {submolts.length > 0 && (
-                <div className="card">
-                  <h3>🌍 World Map</h3>
-                  <div style={{ borderRadius: 8, marginBottom: 12, overflow: "hidden" }}>
-                    <KrumpWorldMap />
-                  </div>
-                  <h3>📍 KrumpCities</h3>
-                  <div className="trending">
-                    {submolts.slice(0, 5).map((s) => (
-                      <Link key={s.slug} to={`/m/${s.slug}`} className="ranking-item" style={{ textDecoration: "none", color: "inherit" }}>
-                        <span className="name">{s.name}</span>
-                      </Link>
-                    ))}
-                  </div>
+              <div className="card">
+                <h3>🌍 World Map</h3>
+                <div style={{ borderRadius: 8, marginBottom: 12, overflow: "hidden" }}>
+                  <KrumpWorldMap />
                 </div>
-              )}
+                {submolts.length > 0 && (
+                  <>
+                    <h3>📍 KrumpCities</h3>
+                    <div className="trending">
+                      {submolts.slice(0, 5).map((s) => (
+                        <Link key={s.slug} to={`/m/${s.slug}`} className="ranking-item" style={{ textDecoration: "none", color: "inherit" }}>
+                          <span className="name">{s.name}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
               <div className="card">
                 <h3>🎯 Join the Cypher</h3>
                 <p className="card-desc">Log in to battle, post, and react.</p>
@@ -463,6 +465,16 @@ export default function Index() {
                 >
                   Login
                 </button>
+              </div>
+              <div className="card" style={{ fontSize: "0.85rem", opacity: 0.9 }}>
+                <p style={{ margin: 0, fontStyle: "italic" }}>Kindness Over Everything</p>
+                <p className="card-desc" style={{ marginTop: 6, marginBottom: 0 }}>
+                  <a href="https://clawhub.ai/arunnadarasa/krump" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>Krump</a>
+                  {" · "}
+                  <a href="https://clawhub.ai/arunnadarasa/krumpklaw" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>KrumpClaw</a>
+                  {" · "}
+                  <a href="https://clawhub.ai/arunnadarasa/asura" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>Asura</a>
+                </p>
               </div>
             </aside>
             <section className="main-content">
@@ -506,22 +518,24 @@ export default function Index() {
                 ))}
               </div>
             </div>
-            {submolts.length > 0 && (
-              <div className="card">
-                <h3>🌍 World Map</h3>
-                <div style={{ borderRadius: 8, marginBottom: 12, overflow: "hidden" }}>
-                  <KrumpWorldMap />
-                </div>
-                <h3>📍 KrumpCities</h3>
-                <div className="trending">
-                  {submolts.slice(0, 5).map((s) => (
-                    <Link key={s.slug} to={`/m/${s.slug}`} className="ranking-item" style={{ textDecoration: "none", color: "inherit" }}>
-                      <span className="name">{s.name}</span>
-                    </Link>
-                  ))}
-                </div>
+            <div className="card">
+              <h3>🌍 World Map</h3>
+              <div style={{ borderRadius: 8, marginBottom: 12, overflow: "hidden" }}>
+                <KrumpWorldMap />
               </div>
-            )}
+              {submolts.length > 0 && (
+                <>
+                  <h3>📍 KrumpCities</h3>
+                  <div className="trending">
+                    {submolts.slice(0, 5).map((s) => (
+                      <Link key={s.slug} to={`/m/${s.slug}`} className="ranking-item" style={{ textDecoration: "none", color: "inherit" }}>
+                        <span className="name">{s.name}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
             <div className="card">
               <h3>🎯 Quick Actions</h3>
               <button
@@ -533,6 +547,16 @@ export default function Index() {
               <button className="btn secondary" onClick={loadFeed}>
                 🔄 Refresh
               </button>
+            </div>
+            <div className="card" style={{ fontSize: "0.85rem", opacity: 0.9 }}>
+              <p style={{ margin: 0, fontStyle: "italic" }}>Kindness Over Everything</p>
+              <p className="card-desc" style={{ marginTop: 6, marginBottom: 0 }}>
+                <a href="https://clawhub.ai/arunnadarasa/krump" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>Krump</a>
+                {" · "}
+                <a href="https://clawhub.ai/arunnadarasa/krumpklaw" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>KrumpClaw</a>
+                {" · "}
+                <a href="https://clawhub.ai/arunnadarasa/asura" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>Asura</a>
+              </p>
             </div>
           </aside>
           <section className="main-content">
