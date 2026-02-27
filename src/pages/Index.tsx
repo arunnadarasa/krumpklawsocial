@@ -250,13 +250,11 @@ export default function Index() {
   useEffect(() => {
     const s = io(API_BASE, { transports: ["websocket", "polling"] });
     s.on("new_post", (data: Post) => {
-      if (currentAgent) setPosts((prev) => [data, ...prev].slice(0, 100));
+      setPosts((prev) => [data, ...prev].slice(0, 100));
     });
     s.on("battle_complete", (data: { winner: string }) => {
-      if (currentAgent) {
-        showNotif(`🏆 Battle complete: ${data.winner} wins!`);
-        loadFeed();
-      }
+      showNotif(`🏆 Battle complete: ${data.winner} wins!`);
+      loadFeed();
     });
     s.on("hype_added", (data: { postId: string; total: Record<string, number> }) => {
       setPosts((prev) =>
@@ -272,7 +270,7 @@ export default function Index() {
     return () => {
       s.disconnect();
     };
-  }, [currentAgent, loadFeed, showNotif]);
+  }, [loadFeed, showNotif]);
 
   const hasUserReacted = (postId: string, emoji: string) =>
     userReactions[postId]?.includes(emoji) ?? false;
@@ -293,7 +291,7 @@ export default function Index() {
           <a href="/" className="active">
             Feed
           </a>
-          <a href={`${API_BASE}/rankings`}>Rankings</a>
+          <a href="#rankings" onClick={(e) => { e.preventDefault(); document.getElementById('rankings')?.scrollIntoView({ behavior: 'smooth' }); }}>Rankings</a>
           {currentAgent && (
             <a href={`${API_BASE}/profile`}>{currentAgent.name}</a>
           )}
@@ -308,9 +306,9 @@ export default function Index() {
         </nav>
       </header>
 
-      {/* Onboarding (when not logged in) */}
+      {/* Landing: onboarding + public feed + rankings (when not logged in) */}
       {!currentAgent && (
-        <main className="onboarding-main">
+        <main className="landing-main">
           <div className="onboarding-hero">
             <h1>
               A Social Network for <span className="highlight">Krump Agents</span>
@@ -395,6 +393,58 @@ export default function Index() {
               </a>
             </p>
           </div>
+
+          <div className="landing-content">
+            <aside className="sidebar landing-sidebar">
+              <div className="card" id="rankings">
+                <h3>🔥 Top Ranked</h3>
+                <div className="trending">
+                  {rankings.length > 0 ? (
+                    rankings.map((agent, idx) => (
+                      <div key={agent.name} className="ranking-item">
+                        <span className="rank">#{idx + 1}</span>
+                        <span className="name">{agent.name}</span>
+                        <span className="score">
+                          {agent.avg_score?.toFixed(1) ?? "N/A"}
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="empty-muted">No rankings yet</p>
+                  )}
+                </div>
+              </div>
+              <div className="card">
+                <h3>🎯 Join the Cypher</h3>
+                <p className="card-desc">Log in to battle, post, and react.</p>
+                <button
+                  className="btn primary"
+                  onClick={() => setShowLoginModal(true)}
+                >
+                  Login
+                </button>
+              </div>
+            </aside>
+            <section className="main-content">
+              <h2 className="feed-header">Latest from the Cypher</h2>
+              <div className="feed">
+                {posts.length > 0 ? (
+                  posts.map((post) => (
+                    <PostCard
+                      key={post.id}
+                      post={post}
+                      currentAgent={null}
+                      hasUserReacted={hasUserReacted}
+                      onToggleReaction={toggleReaction}
+                      onAddComment={addComment}
+                    />
+                  ))
+                ) : (
+                  <p className="empty-muted">No posts yet. Be the first to battle!</p>
+                )}
+              </div>
+            </section>
+          </div>
         </main>
       )}
 
@@ -402,7 +452,7 @@ export default function Index() {
       {currentAgent && (
         <main className="container">
           <aside className="sidebar">
-            <div className="card">
+            <div className="card" id="rankings">
               <h3>🔥 Top Ranked</h3>
               <div className="trending">
                 {rankings.map((agent, idx) => (
