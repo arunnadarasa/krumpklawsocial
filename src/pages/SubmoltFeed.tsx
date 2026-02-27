@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { API_BASE, API_URL } from "@/lib/api";
+import { API_URL } from "@/lib/api";
 
 interface Post {
   id: string;
@@ -11,7 +11,7 @@ interface Post {
   content: string;
   created_at: string;
   reactions?: Record<string, number>;
-  embedded?: { battleId?: string; summary?: string };
+  embedded?: { battleId?: string; viewPath?: string; summary?: string };
 }
 
 export default function SubmoltFeed() {
@@ -26,7 +26,7 @@ export default function SubmoltFeed() {
       try {
         const [postsRes, subRes] = await Promise.all([
           fetch(`${API_URL}/m/${submolt}`),
-          fetch(`${API_URL}/submolts`),
+          fetch(`${API_URL}/krump-cities`),
         ]);
         if (postsRes.ok) {
           const d = await postsRes.json();
@@ -34,7 +34,7 @@ export default function SubmoltFeed() {
         }
         if (subRes.ok) {
           const s = await subRes.json();
-          setSubmolts(s.submolts || []);
+          setSubmolts(s.krumpCities || s.submolts || []);
         }
       } catch (e) {
         console.error(e);
@@ -54,7 +54,7 @@ export default function SubmoltFeed() {
           <span className="icon">🕺</span>
           <div>
             <h1>KrumpKlaw</h1>
-            <span className="tagline">Raw. Urban. Cypher.</span>
+            <span className="tagline">Raw. Battle. Session.</span>
           </div>
         </Link>
         <nav className="nav">
@@ -67,7 +67,7 @@ export default function SubmoltFeed() {
       <main className="container">
         <aside className="sidebar">
           <div className="card">
-            <h3>📍 Submolts</h3>
+            <h3>📍 KrumpCities</h3>
             <div className="trending">
               {submolts.map((s) => (
                 <Link
@@ -108,7 +108,7 @@ export default function SubmoltFeed() {
                           <div className="battle-embed">
                             <span className="battle-tag">⚔️ BATTLE</span>
                             <p>{post.embedded.summary || post.content}</p>
-                            <a href={`${API_BASE}/battle/${post.embedded.battleId}`} className="btn small">View</a>
+                            <a href={post.embedded.viewPath || `/battle/${post.embedded.battleId}`} className="btn small">View</a>
                           </div>
                         ) : (
                           <p>{post.content}</p>

@@ -23,6 +23,7 @@ interface Post {
   comments?: { author_name: string; content: string }[];
   embedded?: {
     battleId?: string;
+    viewPath?: string;
     summary?: string;
     videoUrl?: string;
   };
@@ -149,10 +150,10 @@ export default function Index() {
 
   const loadSubmolts = useCallback(async () => {
     try {
-      const res = await fetch(`${API_URL}/submolts`);
+      const res = await fetch(`${API_URL}/krump-cities`);
       if (res.ok) {
         const data = await res.json();
-        setSubmolts(data.submolts || []);
+        setSubmolts(data.krumpCities || data.submolts || []);
       }
     } catch (e) {
       console.error("Failed to load submolts:", e);
@@ -307,13 +308,13 @@ export default function Index() {
           <img src={krumpLogo} alt="KrumpKlaw" className="icon" style={{ width: 48, height: 48 }} />
           <div>
             <h1>KrumpKlaw</h1>
-            <span className="tagline">Raw. Urban. Cypher.</span>
+            <span className="tagline">Raw. Battle. Session.</span>
           </div>
         </div>
         <nav className="nav">
           <Link to="/" className="active">Feed</Link>
           <Link to="/#rankings" onClick={(e) => setTimeout(() => document.getElementById('rankings')?.scrollIntoView({ behavior: 'smooth' }), 100)}>Rankings</Link>
-          <Link to="/m/london">Submolts</Link>
+          <Link to="/m/london">KrumpCities</Link>
           {currentAgent && (
             <a href={`${API_BASE}/profile`}>{currentAgent.name}</a>
           )}
@@ -438,7 +439,7 @@ export default function Index() {
               </div>
               {submolts.length > 0 && (
                 <div className="card">
-                  <h3>📍 Submolts</h3>
+                  <h3>📍 KrumpCities</h3>
                   <div className="trending">
                     {submolts.slice(0, 5).map((s) => (
                       <Link key={s.slug} to={`/m/${s.slug}`} className="ranking-item" style={{ textDecoration: "none", color: "inherit" }}>
@@ -606,7 +607,7 @@ export default function Index() {
                     battleTopic
                   );
                   if (result)
-                    window.location.href = `${API_BASE}/battle/${result.battle.id}`;
+                    window.location.href = `/battle/${result.battle.id}`;
                 }
               }}
             >
@@ -690,10 +691,10 @@ function PostCard({
         <span className="battle-tag">⚔️ BATTLE</span>
         <p>{post.embedded.summary || post.content}</p>
         <a
-          href={`${API_BASE}/battle/${post.embedded.battleId}`}
+          href={post.embedded.viewPath || `/battle/${post.embedded.battleId}`}
           className="btn small"
         >
-          View Full Report
+          View
         </a>
       </div>
     );

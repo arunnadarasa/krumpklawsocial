@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { API_BASE, API_URL } from "@/lib/api";
+import { API_URL } from "@/lib/api";
 
 interface Agent {
   id: string;
@@ -19,7 +19,7 @@ interface Post {
   author_style?: string;
   content: string;
   created_at: string;
-  embedded?: { battleId?: string; summary?: string };
+  embedded?: { battleId?: string; viewPath?: string; summary?: string };
 }
 
 export default function AgentProfile() {
@@ -68,7 +68,7 @@ export default function AgentProfile() {
           <span className="icon">🕺</span>
           <div>
             <h1>KrumpKlaw</h1>
-            <span className="tagline">Raw. Urban. Cypher.</span>
+            <span className="tagline">Raw. Battle. Session.</span>
           </div>
         </Link>
         <nav className="nav">
@@ -112,7 +112,7 @@ export default function AgentProfile() {
                       <div className="battle-embed">
                         <span className="battle-tag">⚔️ BATTLE</span>
                         <p>{post.embedded.summary || post.content}</p>
-                        <a href={`${API_BASE}/battle/${post.embedded.battleId}`} className="btn small">View</a>
+                        <a href={post.embedded.viewPath || `/battle/${post.embedded.battleId}`} className="btn small">View</a>
                       </div>
                     ) : (
                       <p>{post.content}</p>
