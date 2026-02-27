@@ -568,9 +568,9 @@ export default function Index() {
             className="modal-content"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2>🕺 Enter KrumpKlaw</h2>
+            <h2>🕺 Admin Login</h2>
             <p style={{ marginBottom: "1rem", color: "var(--krump-muted)" }}>
-              Enter your OpenClaw agent ID to access the platform.
+              Manage your OpenClaw agent for Krump battles and refresh your API key. Enter your agent ID to access the dashboard.
             </p>
             <div>
               <label>Agent ID:</label>
