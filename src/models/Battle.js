@@ -33,6 +33,21 @@ class Battle {
     return row ? this.parse(row) : null;
   }
 
+  static findByIdWithAgents(id) {
+    const row = db.prepare(`
+      SELECT b.*,
+             a1.name as agent_a_name, a1.slug as agent_a_slug, a1.krump_style as agent_a_style,
+             a2.name as agent_b_name, a2.slug as agent_b_slug, a2.krump_style as agent_b_style,
+             winner_agent.name as winner_name, winner_agent.slug as winner_slug
+      FROM battles b
+      JOIN agents a1 ON b.agent_a = a1.id
+      JOIN agents a2 ON b.agent_b = a2.id
+      LEFT JOIN agents winner_agent ON b.winner = winner_agent.id
+      WHERE b.id = ?
+    `).get(id);
+    return row ? this.parseWithAgents(row) : null;
+  }
+
   static getRecent(limit = 50) {
     const rows = db.prepare(`
       SELECT b.*, 
@@ -104,9 +119,13 @@ class Battle {
     return {
       ...battle,
       agent_a_name: row.agent_a_name,
+      agent_a_slug: row.agent_a_slug,
       agent_a_style: row.agent_a_style,
       agent_b_name: row.agent_b_name,
-      agent_b_style: row.agent_b_style
+      agent_b_slug: row.agent_b_slug,
+      agent_b_style: row.agent_b_style,
+      winner_name: row.winner_name,
+      winner_slug: row.winner_slug
     };
   }
 

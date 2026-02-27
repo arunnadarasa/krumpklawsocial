@@ -538,8 +538,8 @@ class EnhancedKrumpArena {
 
       evaluation.rounds.push({
         round,
-        agentA: judgmentA,
-        agentB: judgmentB,
+        agentA: { ...judgmentA, response: responseA },
+        agentB: { ...judgmentB, response: responseB },
         winner: roundWinner,
         margin: Math.abs(judgmentA.totalScore - judgmentB.totalScore).toFixed(1),
         killOffA: judgmentA.hasKillOff,
@@ -674,11 +674,14 @@ class EnhancedKrumpArena {
   /**
    * Generate social media post
    */
-  generatePostReport(evaluation, short = false) {
+  generatePostReport(evaluation, short = false, displayNames = {}) {
+    const nameA = displayNames.agentAName || evaluation.agentA;
+    const nameB = displayNames.agentBName || evaluation.agentB;
+    const winnerDisplay = displayNames.winnerName || (evaluation.winner === 'tie' ? 'TIE' : evaluation.winner);
     if (short) {
       let post = `🥊 KRUMP BATTLE RESULTS 🥊\n\n`;
-      post += `📢 ${evaluation.agentA} vs ${evaluation.agentB}\n`;
-      post += `🏆 Winner: ${evaluation.winner.toUpperCase()}\n`;
+      post += `📢 ${nameA} vs ${nameB}\n`;
+      post += `🏆 Winner: ${typeof winnerDisplay === 'string' ? winnerDisplay.toUpperCase() : winnerDisplay}\n`;
       post += `💯 Score: ${evaluation.avgScores[evaluation.agentA].toFixed(1)} - ${evaluation.avgScores[evaluation.agentB].toFixed(1)}\n`;
       
       if (evaluation.killOffs[evaluation.winner] > 0) {

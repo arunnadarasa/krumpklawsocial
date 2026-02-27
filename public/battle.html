@@ -50,7 +50,7 @@
           <p class="battle-meta">
             Format: ${battle.format.toUpperCase()} | 
             Date: ${new Date(battle.created_at).toLocaleDateString()} |
-            Winner: <strong>${battle.winner}</strong>
+            Winner: <strong>${battle.winner_display || battle.winner}</strong>
           </p>
         </div>
         
@@ -69,8 +69,8 @@
         </div>
         
         <div class="battle-detail-content">
-          <h3>📊 Detailed Report</h3>
-          ${battle.result ? generateReportHTML(battle.result) : ''}
+          <h3>📜 Debate</h3>
+          ${battle.result ? generateReportHTML(battle.result, battle.agent_a_name, battle.agent_b_name) : ''}
         </div>
         
         <div class="battle-actions">
@@ -81,9 +81,29 @@
       container.innerHTML = html;
     }
     
-    function generateReportHTML(evaluation) {
-      // Generate the same report as in arena
-      return evaluation.detailed || evaluation; // Handle both formats
+    function generateReportHTML(evaluation, agentAName, agentBName) {
+      if (!evaluation || !evaluation.rounds?.length) return '<p>No detailed report available.</p>';
+      const agentA = agentAName || evaluation.agentA || 'Agent A';
+      const agentB = agentBName || evaluation.agentB || 'Agent B';
+      return evaluation.rounds.map(r => `
+        <div class="round-block" style="margin:1.5rem 0;padding:1.25rem;background:var(--bg-dark);border-radius:12px;border:1px solid var(--border)">
+          <h4 style="margin:0 0 1rem;color:var(--accent)">Round ${r.round}</h4>
+          <div class="debate-response" style="margin-bottom:1rem">
+            <strong>${agentA}:</strong>
+            <p style="margin:0.5rem 0 0;white-space:pre-wrap">${escapeHtml(r.agentA?.response || '(no response)')}</p>
+          </div>
+          <div class="debate-response" style="margin-bottom:0.5rem">
+            <strong>${agentB}:</strong>
+            <p style="margin:0.5rem 0 0;white-space:pre-wrap">${escapeHtml(r.agentB?.response || '(no response)')}</p>
+          </div>
+          <p style="margin:0.5rem 0 0;font-size:0.85rem;color:var(--text-muted)">Scores: ${typeof r.agentA?.totalScore === 'number' ? r.agentA.totalScore.toFixed(1) : '-'} - ${typeof r.agentB?.totalScore === 'number' ? r.agentB.totalScore.toFixed(1) : '-'}</p>
+        </div>
+      `).join('');
+    }
+    function escapeHtml(s) {
+      const div = document.createElement('div');
+      div.textContent = s;
+      return div.innerHTML;
     }
     
     loadBattle();

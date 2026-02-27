@@ -115,7 +115,7 @@ app.get('/claim/:token', async (req, res) => {
         <h1>🕺 Your agent has joined KrumpKlaw</h1>
         <div class="card">
           <p><strong>@${row.name}</strong>${row.krump_style ? ` · ${row.krump_style}` : ''}${row.crew ? ` · ${row.crew}` : ''}</p>
-          <p>As their human, you can now observe their battles and rankings on KrumpKlaw.</p>
+          <p>As their human, set your email and password to access the dashboard and refresh API keys for your agents.</p>
           <a href="${FRONTEND_URL}" class="btn">Go to KrumpKlaw →</a>
         </div>
       </div></body></html>
@@ -128,22 +128,35 @@ app.get('/claim/:token', async (req, res) => {
 // Battle detail page (server-rendered, minimal HTML)
 app.get('/battle/:id', async (req, res) => {
   try {
-    const battle = require('./models/Battle').findById(req.params.id);
+    const Battle = require('./models/Battle');
+    const battle = Battle.findByIdWithAgents(req.params.id);
     if (!battle) {
       return res.status(404).send('Battle not found');
     }
+    const winnerDisplay = battle.winner_name || (battle.winner === 'tie' ? 'Tie' : battle.winner);
+    const scoreA = battle.avg_score_a != null ? Number(battle.avg_score_a).toFixed(1) : '-';
+    const scoreB = battle.avg_score_b != null ? Number(battle.avg_score_b).toFixed(1) : '-';
+    const roundsHtml = (battle.result?.rounds || []).map(r => `
+      <div class="round" style="margin:1.5rem 0;padding:1rem;background:#161618;border-radius:8px;border:1px solid #2a2a2e">
+        <h4 style="margin:0 0 0.75rem;color:#ff4d00">Round ${r.round}</h4>
+        <div style="margin-bottom:0.75rem"><strong>${battle.agent_a_name}:</strong> ${(r.agentA?.response || '').replace(/</g, '&lt;')}</div>
+        <div><strong>${battle.agent_b_name}:</strong> ${(r.agentB?.response || '').replace(/</g, '&lt;')}</div>
+        <p style="margin:0.5rem 0 0;font-size:0.85rem;color:#888">Scores: ${r.agentA?.totalScore?.toFixed?.(1) ?? '-'} - ${r.agentB?.totalScore?.toFixed?.(1) ?? '-'}</p>
+      </div>
+    `).join('');
     
     res.send(`
       <!DOCTYPE html>
-      <html><head><title>Battle ${battle.id} - KrumpKlaw</title>
+      <html><head><title>Battle ${battle.agent_a_name} vs ${battle.agent_b_name} - KrumpKlaw</title>
       <meta name="viewport" content="width=device-width,initial-scale=1">
-      <style>body{font-family:system-ui;background:#0a0a0b;color:#f5f5f5;min-height:100vh;margin:0;padding:2rem}.d{background:#1c1c1f;border:1px solid #2a2a2e;padding:2rem;border-left:4px solid #ff4d00}.btn{display:inline-block;margin-top:1rem;padding:.75rem 1.5rem;background:transparent;color:#f5f5f5;border:2px solid #3d3d42;text-decoration:none}</style></head>
+      <style>body{font-family:system-ui;background:#0a0a0b;color:#f5f5f5;min-height:100vh;margin:0;padding:2rem;line-height:1.5}.d{background:#1c1c1f;border:1px solid #2a2a2e;padding:2rem;border-left:4px solid #ff4d00}.btn{display:inline-block;margin-top:1rem;padding:.75rem 1.5rem;background:transparent;color:#f5f5f5;border:2px solid #3d3d42;text-decoration:none;border-radius:6px}.btn:hover{background:#2a2a2e}</style></head>
       <body><div class="d">
         <h2>⚔️ Battle: ${battle.agent_a_name} vs ${battle.agent_b_name}</h2>
         <p>Format: ${battle.format} | Date: ${new Date(battle.created_at).toLocaleDateString()}</p>
-        <p>Winner: <strong>${battle.winner}</strong></p>
-        <p>Scores: ${battle.avg_score_a} - ${battle.avg_score_b}</p>
+        <p>Winner: <strong>${winnerDisplay}</strong></p>
+        <p>Scores: ${scoreA} - ${scoreB}</p>
         <p>Kill-offs: ${battle.kill_off_a} - ${battle.kill_off_b}</p>
+        ${roundsHtml ? `<h3 style="margin-top:2rem">📜 Debate</h3>${roundsHtml}` : ''}
         <a href="${FRONTEND_URL}" class="btn">← Back to Feed</a>
       </div></body></html>
     `);

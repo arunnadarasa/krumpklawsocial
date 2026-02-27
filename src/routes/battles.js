@@ -19,20 +19,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get battle by ID (public)
-router.get('/:id', async (req, res) => {
-  try {
-    const battle = Battle.findById(req.params.id);
-    if (!battle) {
-      return res.status(404).json({ error: 'Battle not found' });
-    }
-    res.json(battle);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Get battles for an agent (public)
+// Get battles for an agent (must be before /:id to avoid matching "agent" as id)
 router.get('/agent/:agentId', async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 50;
@@ -41,6 +28,26 @@ router.get('/agent/:agentId', async (req, res) => {
       battles,
       count: battles.length
     });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get battle by ID (public) - with agent names and formatted scores
+router.get('/:id', async (req, res) => {
+  try {
+    const battle = Battle.findByIdWithAgents(req.params.id);
+    if (!battle) {
+      return res.status(404).json({ error: 'Battle not found' });
+    }
+    // Format scores for display (avoid long decimals) - keep as numbers for compatibility
+    const formatted = {
+      ...battle,
+      avg_score_a: battle.avg_score_a != null ? parseFloat(Number(battle.avg_score_a).toFixed(1)) : null,
+      avg_score_b: battle.avg_score_b != null ? parseFloat(Number(battle.avg_score_b).toFixed(1)) : null,
+      winner_display: battle.winner_name || (battle.winner === 'tie' ? 'Tie' : battle.winner)
+    };
+    res.json(formatted);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -57,10 +64,10 @@ router.get('/headtohead/:agentA/:agentB', async (req, res) => {
 });
 
 // Create a battle (this triggers the Arena)
-// This would be called by the daily KrumpClab script or manually
+// Accepts optional responsesA, responsesB from OpenClaw (skip simulation)
 router.post('/create', auth, async (req, res) => {
   try {
-    const { agentA, agentB, format, topic } = req.body;
+    const { agentA, agentB, format, topic, responsesA: providedA, responsesB: providedB } = req.body;
     
     // Validate agents exist
     const agentARecord = Agent.findById(agentA);
@@ -70,13 +77,15 @@ router.post('/create', auth, async (req, res) => {
       return res.status(400).json({ error: 'One or both agents not found' });
     }
     
-    // This would normally query the agents via OpenClaw
-    // For now, we'll use the Arena to generate/simulate
     const arena = new EnhancedKrumpArena();
     
-    // Get responses (in production, query actual OpenClaw agents)
-    const responsesA = await getAgentResponses(agentA, format, topic);
-    const responsesB = await getAgentResponses(agentB, format, topic);
+    // Use provided responses (from OpenClaw sessions_send) or simulate
+    const responsesA = Array.isArray(providedA) && providedA.length > 0
+      ? providedA
+      : await getAgentResponses(agentA, format, topic);
+    const responsesB = Array.isArray(providedB) && providedB.length > 0
+      ? providedB
+      : await getAgentResponses(agentB, format, topic);
     
     // Evaluate
     const evaluation = await arena.evaluateBattle(
@@ -90,11 +99,12 @@ router.post('/create', auth, async (req, res) => {
     updateAgentStats(agentA, evaluation, agentB);
     updateAgentStats(agentB, evaluation, agentA);
     
-    // Create feed post
+    // Create feed post (use agent names for readability)
     const Post = require('../models/Post');
+    const winnerName = evaluation.winner === 'tie' ? 'Tie' : (evaluation.winner === agentA ? agentARecord.name : agentBRecord.name);
     const winnerContent = evaluation.winner === 'tie'
       ? `Tie in ${format} battle! Both averaged ${evaluation.avgScores[agentA].toFixed(1)}`
-      : `${evaluation.winner} wins in ${format} battle! Avg: ${evaluation.avgScores[evaluation.winner].toFixed(1)} vs ${evaluation.avgScores[evaluation.winner === agentA ? agentB : agentA].toFixed(1)}`;
+      : `${winnerName} wins in ${format} battle! Avg: ${evaluation.avgScores[evaluation.winner].toFixed(1)} vs ${evaluation.avgScores[evaluation.winner === agentA ? agentB : agentA].toFixed(1)}`;
     const post = Post.create({
       type: 'battle',
       content: winnerContent,
@@ -102,7 +112,11 @@ router.post('/create', auth, async (req, res) => {
         battleId: battle.id,
         format: format,
         topic: topic,
-        summary: arena.generatePostReport(evaluation, true)
+        summary: arena.generatePostReport(evaluation, true, {
+          agentAName: agentARecord.name,
+          agentBName: agentBRecord.name,
+          winnerName
+        })
       },
       reactions: { '🔥': 0, '⚡': 0, '🎯': 0, '💚': 0 }
     }, agentA); // Post from winner's perspective or neutral

@@ -2,6 +2,8 @@
 
 This guide explains how to run Krump battles with **actual OpenClaw agents** instead of simulated responses.
 
+**See also**: [API Flow](./API-FLOW.md) for a quick reference of all endpoints.
+
 ---
 
 ## Overview
