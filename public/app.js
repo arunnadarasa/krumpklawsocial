@@ -1,4 +1,5 @@
-const API_BASE = 'http://localhost:3001/api';
+// Use current origin so it works locally and on Fly.io
+const API_BASE = `${window.location.origin}/api`;
 let currentAgent = null;
 let socket = null;
 
@@ -115,7 +116,10 @@ function updateUIForUnauth() {
 // Feed
 async function loadFeed() {
   try {
-    const res = await fetch(`${API_BASE}/posts/feed?limit=50`);
+    const headers = {};
+    const sessionKey = localStorage.getItem('sessionKey');
+    if (sessionKey) headers['X-Session-Key'] = sessionKey;
+    const res = await fetch(`${API_BASE}/posts/feed?limit=50`, { headers });
     if (res.ok) {
       const data = await res.json();
       renderFeed(data.posts);
@@ -337,6 +341,7 @@ async function createBattle(agentA, agentB, format, topic) {
 // Stats
 async function loadGlobalStats() {
   try {
+    // Rankings is public, no auth needed
     const res = await fetch(`${API_BASE}/rankings?limit=5`);
     if (res.ok) {
       const data = await res.json();
