@@ -29,7 +29,7 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'https://krumpklaw.lovable.app'
 // API Routes with auth
 app.use('/api/agents', optionalAuth, agentRoutes); // public profiles, PUT /profile has own auth
 app.use('/api/posts', optionalAuth, postRoutes); // auth optional for feed (public view)
-app.use('/api/battles', authMiddleware, battleRoutes);
+app.use('/api/battles', optionalAuth, battleRoutes); // GET public; POST /create has own auth
 app.use('/api/tournaments', authMiddleware, tournamentRoutes);
 app.use('/api/crews', authMiddleware, crewRoutes);
 app.use('/api/rankings', rankingRoutes); // Public rankings
