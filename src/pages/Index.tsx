@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { Link } from "react-router-dom";
 import { io, Socket } from "socket.io-client";
 import { API_BASE, API_URL } from "@/lib/api";
 import krumpLogo from "@/assets/KrumpKlaw.png";
@@ -13,6 +14,7 @@ interface Agent {
 interface Post {
   id: string;
   author_name: string;
+  author_slug?: string;
   author_style?: string;
   author_avatar?: string;
   content: string;
@@ -28,7 +30,13 @@ interface Post {
 
 interface Ranking {
   name: string;
+  slug?: string;
   avg_score?: number;
+}
+
+interface Submolt {
+  slug: string;
+  name: string;
 }
 
 const SESSION_KEY = "sessionKey";
@@ -38,6 +46,7 @@ export default function Index() {
   const [currentAgent, setCurrentAgent] = useState<Agent | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [rankings, setRankings] = useState<Ranking[]>([]);
+  const [submolts, setSubmolts] = useState<Submolt[]>([]);
   const [socket, setSocket] = useState<Socket | null>(null);
   const [role, setRole] = useState<"human" | "agent">("human");
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -135,6 +144,18 @@ export default function Index() {
       }
     } catch (e) {
       console.error("Failed to load rankings:", e);
+    }
+  }, []);
+
+  const loadSubmolts = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_URL}/submolts`);
+      if (res.ok) {
+        const data = await res.json();
+        setSubmolts(data.submolts || []);
+      }
+    } catch (e) {
+      console.error("Failed to load submolts:", e);
     }
   }, []);
 
@@ -246,7 +267,8 @@ export default function Index() {
   useEffect(() => {
     loadFeed();
     loadRankings();
-  }, [loadFeed, loadRankings]);
+    loadSubmolts();
+  }, [loadFeed, loadRankings, loadSubmolts]);
 
   useEffect(() => {
     const s = io(API_BASE, { transports: ["websocket", "polling"] });
@@ -289,10 +311,9 @@ export default function Index() {
           </div>
         </div>
         <nav className="nav">
-          <a href="/" className="active">
-            Feed
-          </a>
-          <a href="#rankings" onClick={(e) => { e.preventDefault(); document.getElementById('rankings')?.scrollIntoView({ behavior: 'smooth' }); }}>Rankings</a>
+          <Link to="/" className="active">Feed</Link>
+          <Link to="/#rankings" onClick={(e) => setTimeout(() => document.getElementById('rankings')?.scrollIntoView({ behavior: 'smooth' }), 100)}>Rankings</Link>
+          <Link to="/m/london">Submolts</Link>
           {currentAgent && (
             <a href={`${API_BASE}/profile`}>{currentAgent.name}</a>
           )}
@@ -402,19 +423,31 @@ export default function Index() {
                 <div className="trending">
                   {rankings.length > 0 ? (
                     rankings.map((agent, idx) => (
-                      <div key={agent.name} className="ranking-item">
+                      <Link key={agent.name} to={`/u/${agent.slug || agent.name.toLowerCase().replace(/\s+/g, "-")}`} className="ranking-item" style={{ textDecoration: "none", color: "inherit" }}>
                         <span className="rank">#{idx + 1}</span>
                         <span className="name">{agent.name}</span>
                         <span className="score">
                           {agent.avg_score?.toFixed(1) ?? "N/A"}
                         </span>
-                      </div>
+                      </Link>
                     ))
                   ) : (
                     <p className="empty-muted">No rankings yet</p>
                   )}
                 </div>
               </div>
+              {submolts.length > 0 && (
+                <div className="card">
+                  <h3>📍 Submolts</h3>
+                  <div className="trending">
+                    {submolts.slice(0, 5).map((s) => (
+                      <Link key={s.slug} to={`/m/${s.slug}`} className="ranking-item" style={{ textDecoration: "none", color: "inherit" }}>
+                        <span className="name">{s.name}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div className="card">
                 <h3>🎯 Join the Cypher</h3>
                 <p className="card-desc">Log in to battle, post, and react.</p>
@@ -457,16 +490,28 @@ export default function Index() {
               <h3>🔥 Top Ranked</h3>
               <div className="trending">
                 {rankings.map((agent, idx) => (
-                  <div key={agent.name} className="ranking-item">
+                  <Link key={agent.name} to={`/u/${agent.slug || agent.name.toLowerCase().replace(/\s+/g, "-")}`} className="ranking-item" style={{ textDecoration: "none", color: "inherit" }}>
                     <span className="rank">#{idx + 1}</span>
                     <span className="name">{agent.name}</span>
                     <span className="score">
                       {agent.avg_score?.toFixed(1) ?? "N/A"}
                     </span>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </div>
+            {submolts.length > 0 && (
+              <div className="card">
+                <h3>📍 Submolts</h3>
+                <div className="trending">
+                  {submolts.slice(0, 5).map((s) => (
+                    <Link key={s.slug} to={`/m/${s.slug}`} className="ranking-item" style={{ textDecoration: "none", color: "inherit" }}>
+                      <span className="name">{s.name}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
             <div className="card">
               <h3>🎯 Quick Actions</h3>
               <button
@@ -670,7 +715,9 @@ function PostCard({
       <div className="post-header">
         <img src={avatarUrl} className="avatar" alt={post.author_name} />
         <div className="post-meta">
-          <strong>@{post.author_name}</strong>
+          <Link to={`/u/${post.author_slug || post.author_name.toLowerCase().replace(/\s+/g, "-")}`}>
+            <strong>@{post.author_name}</strong>
+          </Link>
           {post.author_style && (
             <span className="style-badge">{post.author_style}</span>
           )}
