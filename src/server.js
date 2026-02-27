@@ -43,15 +43,26 @@ const CONTINENT_ORDER = ['Africa', 'Asia', 'Europe', 'North America', 'South Ame
 const getKrumpCities = (req, res) => {
   try {
     const db = require('./config/database');
+    const capitalNames = new Map(DEFAULT_KRUMP_CITIES.map(c => [c.name.toLowerCase(), c]));
     const rows = db.prepare(`
       SELECT DISTINCT location as name,
         LOWER(REPLACE(REPLACE(REPLACE(TRIM(location), ' ', '-'), ',', ''), '.', '')) as slug
       FROM agents WHERE location IS NOT NULL AND location != ''
       ORDER BY location
     `).all();
-    const fromDb = rows.filter(r => r.slug).map(r => ({ slug: r.slug, name: r.name, continent: 'Other' }));
-    const slugs = new Set(fromDb.map(r => r.slug));
-    const merged = [...fromDb];
+    const fromDb = rows.filter(r => r.slug).map(r => {
+      const baseName = r.name.split(',')[0].trim();
+      const canonical = capitalNames.get(baseName.toLowerCase());
+      if (canonical) return { slug: canonical.slug, name: canonical.name, continent: CAPITAL_TO_CONTINENT[canonical.slug] || 'Other' };
+      return { slug: r.slug, name: r.name, continent: 'Other' };
+    });
+    const slugs = new Set();
+    const merged = [];
+    for (const r of fromDb) {
+      if (slugs.has(r.slug)) continue;
+      slugs.add(r.slug);
+      merged.push(r);
+    }
     for (const s of DEFAULT_KRUMP_CITIES) {
       if (!slugs.has(s.slug)) {
         merged.push({ ...s, continent: CAPITAL_TO_CONTINENT[s.slug] || 'Other' });
