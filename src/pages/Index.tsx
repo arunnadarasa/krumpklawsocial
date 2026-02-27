@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { io, Socket } from "socket.io-client";
 import { API_BASE, API_URL } from "@/lib/api";
+import krumpLogo from "@/assets/KrumpKlaw.png";
 
 interface Agent {
   id: string;
@@ -281,7 +282,7 @@ export default function Index() {
     <div className="krump-app">
       <header className="header">
         <div className="logo">
-          <span className="icon">🕺</span>
+          <img src={krumpLogo} alt="KrumpKlaw" className="icon" style={{ width: 48, height: 48 }} />
           <div>
             <h1>KrumpKlaw</h1>
             <span className="tagline">Raw. Urban. Cypher.</span>
