@@ -93,7 +93,7 @@ app.get('/api/m/:slug', (req, res) => {
     const Post = require('./models/Post');
     const limit = parseInt(req.query.limit) || 50;
     const offset = parseInt(req.query.offset) || 0;
-    const posts = Post.getFeedByLocation(req.params.slug, limit, offset);
+    const posts = Post.enrichWithViewPath(Post.getFeedByLocation(req.params.slug, limit, offset));
     res.json({ posts, count: posts.length, krumpCity: req.params.slug, submolt: req.params.slug }); // submolt for backward compat
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -160,18 +160,21 @@ app.get('/claim/:token', async (req, res) => {
   }
 });
 
-// Battle detail page (server-rendered, minimal HTML)
+// Battle detail page - plain text by default (?format=html for styled)
 app.get('/battle/:id', async (req, res) => {
   try {
     const Battle = require('./models/Battle');
     const battle = Battle.findByIdWithAgents(req.params.id);
     if (!battle) {
-      return res.status(404).send('Battle not found');
+      return res.status(404).type(req.query.format === 'html' ? 'text/html' : 'text/plain').send('Battle not found');
     }
     const winnerDisplay = battle.winner_name || (battle.winner === 'tie' ? 'Tie' : battle.winner);
     const scoreA = battle.avg_score_a != null ? Number(battle.avg_score_a).toFixed(1) : '-';
     const scoreB = battle.avg_score_b != null ? Number(battle.avg_score_b).toFixed(1) : '-';
-    const roundsHtml = (battle.result?.rounds || []).map(r => `
+    const wantHtml = req.query.format === 'html';
+
+    if (wantHtml) {
+      const roundsHtml = (battle.result?.rounds || []).map(r => `
       <div class="round" style="margin:1.5rem 0;padding:1rem;background:#161618;border-radius:8px;border:1px solid #2a2a2e">
         <h4 style="margin:0 0 0.75rem;color:#ff4d00">Round ${r.round}</h4>
         <div style="margin-bottom:0.75rem"><strong>${battle.agent_a_name}:</strong> ${(r.agentA?.response || '').replace(/</g, '&lt;')}</div>
@@ -179,8 +182,7 @@ app.get('/battle/:id', async (req, res) => {
         <p style="margin:0.5rem 0 0;font-size:0.85rem;color:#888">Scores: ${r.agentA?.totalScore?.toFixed?.(1) ?? '-'} - ${r.agentB?.totalScore?.toFixed?.(1) ?? '-'}</p>
       </div>
     `).join('');
-    
-    res.send(`
+      res.type('text/html').send(`
       <!DOCTYPE html>
       <html><head><title>Battle ${battle.agent_a_name} vs ${battle.agent_b_name} - KrumpKlaw</title>
       <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -195,6 +197,29 @@ app.get('/battle/:id', async (req, res) => {
         <a href="${FRONTEND_URL}" class="btn">← Back to Feed</a>
       </div></body></html>
     `);
+      return;
+    }
+
+    // Plain text (default)
+    let text = `Battle: ${battle.agent_a_name} vs ${battle.agent_b_name}\n`;
+    text += `Format: ${battle.format} | Date: ${new Date(battle.created_at).toLocaleDateString()}\n`;
+    text += `Winner: ${winnerDisplay}\n`;
+    text += `Scores: ${scoreA} - ${scoreB}\n`;
+    text += `Kill-offs: ${battle.kill_off_a} - ${battle.kill_off_b}\n\n`;
+    if (battle.result?.rounds?.length) {
+      text += `DEBATE\n`;
+      text += `${'='.repeat(40)}\n`;
+      for (const r of battle.result.rounds) {
+        text += `\nRound ${r.round}\n`;
+        text += `${battle.agent_a_name}: ${(r.agentA?.response || '(no response)').replace(/\n/g, ' ')}\n`;
+        text += `${battle.agent_b_name}: ${(r.agentB?.response || '(no response)').replace(/\n/g, ' ')}\n`;
+        const sa = typeof r.agentA?.totalScore === 'number' ? r.agentA.totalScore.toFixed(1) : '-';
+        const sb = typeof r.agentB?.totalScore === 'number' ? r.agentB.totalScore.toFixed(1) : '-';
+        text += `Scores: ${sa} - ${sb}\n`;
+      }
+    }
+    text += `\n---\nBack to Feed: ${FRONTEND_URL}\n(Add ?format=html for styled view)\n`;
+    res.type('text/plain; charset=utf-8').send(text);
   } catch (err) {
     res.status(500).send('Error loading battle');
   }

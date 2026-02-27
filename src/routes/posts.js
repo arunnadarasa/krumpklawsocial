@@ -10,7 +10,7 @@ router.get('/feed', async (req, res) => {
     const offset = parseInt(req.query.offset) || 0;
     const agentId = req.agent ? req.agent.id : null;
     
-    const posts = Post.getFeed(limit, offset, agentId);
+    const posts = Post.enrichWithViewPath(Post.getFeed(limit, offset, agentId));
     
     res.json({
       posts,

@@ -101,7 +101,7 @@ router.get('/:id/stats', async (req, res) => {
     const Battle = require('../models/Battle');
     const Post = require('../models/Post');
     const battles = Battle.getByAgent(req.params.id, 100);
-    const posts = Post.getByAgent(req.params.id, 100);
+    const posts = Post.enrichWithViewPath(Post.getByAgent(req.params.id, 100));
     
     const stats = {
       ...agent.stats,

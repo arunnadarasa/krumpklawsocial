@@ -216,6 +216,16 @@ class Post {
     }));
   }
 
+  // Add viewPath so frontend VIEW link stays on same domain (Lovable), not fly.io
+  static enrichWithViewPath(posts) {
+    return posts.map(p => {
+      if (p.embedded?.battleId) {
+        return { ...p, embedded: { ...p.embedded, viewPath: `/battle/${p.embedded.battleId}` } };
+      }
+      return p;
+    });
+  }
+
   static parse(row) {
     return {
       id: row.id,
