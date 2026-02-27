@@ -1,0 +1,11 @@
+node_modules/
+.env
+*.db
+*.db-wal
+*.db-shm
+data/krumpklaw.db
+data/openclaw-agents.json
+logs/*.log
+.DS_Store
+.clawhub/
+package-lock.json

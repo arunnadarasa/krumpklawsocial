@@ -1,0 +1,168 @@
+[2026-02-13T17:01:10.203Z] [INFO] === Krump-Agent Heartbeat Started ===
+[2026-02-13T17:01:10.206Z] [INFO] Colosseum state: no_state (stage: n/a)
+[2026-02-13T17:01:10.206Z] [INFO] Log health OK (last update -0.0h ago)
+[2026-02-13T17:01:10.237Z] [INFO] Node.js: v25.1.0
+[2026-02-13T17:01:10.237Z] [INFO] All checks passed. Agent appears healthy.
+[2026-02-13T17:01:10.237Z] [INFO] === Krump-Agent Heartbeat Completed ===
+[2026-02-14T14:00:07.816Z] [INFO] === Krump-Agent Heartbeat Started ===
+[2026-02-14T14:00:07.819Z] [INFO] Colosseum state: no_state (stage: n/a)
+[2026-02-14T14:00:07.819Z] [INFO] Log health OK (last update -0.0h ago)
+[2026-02-14T14:00:07.846Z] [INFO] Node.js: v25.1.0
+[2026-02-14T14:00:07.846Z] [INFO] All checks passed. Agent appears healthy.
+[2026-02-14T14:00:07.846Z] [INFO] === Krump-Agent Heartbeat Completed ===
+[2026-02-14T17:00:07.660Z] [INFO] === Krump-Agent Heartbeat Started ===
+[2026-02-14T17:00:07.663Z] [INFO] Colosseum state: no_state (stage: n/a)
+[2026-02-14T17:00:07.663Z] [INFO] Log health OK (last update -0.0h ago)
+[2026-02-14T17:00:07.693Z] [INFO] Node.js: v25.1.0
+[2026-02-14T17:00:07.694Z] [INFO] All checks passed. Agent appears healthy.
+[2026-02-14T17:00:07.694Z] [INFO] === Krump-Agent Heartbeat Completed ===
+[2026-02-15T14:00:07.318Z] [INFO] === Krump-Agent Heartbeat Started ===
+[2026-02-15T14:00:07.324Z] [INFO] Colosseum state: no_state (stage: n/a)
+[2026-02-15T14:00:07.324Z] [INFO] Log health OK (last update -0.0h ago)
+[2026-02-15T14:00:07.354Z] [INFO] Node.js: v25.1.0
+[2026-02-15T14:00:07.354Z] [INFO] All checks passed. Agent appears healthy.
+[2026-02-15T14:00:07.354Z] [INFO] === Krump-Agent Heartbeat Completed ===
+[2026-02-15T17:00:07.525Z] [INFO] === Krump-Agent Heartbeat Started ===
+[2026-02-15T17:00:07.530Z] [INFO] Colosseum state: no_state (stage: n/a)
+[2026-02-15T17:00:07.530Z] [INFO] Log health OK (last update -0.0h ago)
+[2026-02-15T17:00:07.564Z] [INFO] Node.js: v25.1.0
+[2026-02-15T17:00:07.564Z] [INFO] All checks passed. Agent appears healthy.
+[2026-02-15T17:00:07.564Z] [INFO] === Krump-Agent Heartbeat Completed ===
+[2026-02-16T14:00:03.929Z] [INFO] === Krump-Agent Heartbeat Started ===
+[2026-02-16T14:00:03.936Z] [INFO] Colosseum state: no_state (stage: n/a)
+[2026-02-16T14:00:03.936Z] [INFO] Log health OK (last update -0.0h ago)
+[2026-02-16T14:00:03.967Z] [INFO] Node.js: v25.1.0
+[2026-02-16T14:00:03.967Z] [INFO] All checks passed. Agent appears healthy.
+[2026-02-16T14:00:03.967Z] [INFO] === Krump-Agent Heartbeat Completed ===
+[2026-02-16T17:00:04.197Z] [INFO] === Krump-Agent Heartbeat Started ===
+[2026-02-16T17:00:04.205Z] [INFO] Colosseum state: no_state (stage: n/a)
+[2026-02-16T17:00:04.205Z] [INFO] Log health OK (last update -0.0h ago)
+[2026-02-16T17:00:04.243Z] [INFO] Node.js: v25.1.0
+[2026-02-16T17:00:04.243Z] [INFO] All checks passed. Agent appears healthy.
+[2026-02-16T17:00:04.243Z] [INFO] === Krump-Agent Heartbeat Completed ===
+[2026-02-17T14:00:05.940Z] [INFO] === Krump-Agent Heartbeat Started ===
+[2026-02-17T14:00:05.946Z] [INFO] Colosseum state: no_state (stage: n/a)
+[2026-02-17T14:00:05.946Z] [INFO] Log health OK (last update -0.0h ago)
+[2026-02-17T14:00:05.975Z] [INFO] Node.js: v25.1.0
+[2026-02-17T14:00:05.976Z] [INFO] All checks passed. Agent appears healthy.
+[2026-02-17T14:00:05.976Z] [INFO] === Krump-Agent Heartbeat Completed ===
+[2026-02-17T17:00:10.265Z] [INFO] === Krump-Agent Heartbeat Started ===
+[2026-02-17T17:00:10.269Z] [INFO] Colosseum state: no_state (stage: n/a)
+[2026-02-17T17:00:10.270Z] [INFO] Log health OK (last update -0.0h ago)
+[2026-02-17T17:00:10.302Z] [INFO] Node.js: v25.1.0
+[2026-02-17T17:00:10.303Z] [INFO] All checks passed. Agent appears healthy.
+[2026-02-17T17:00:10.303Z] [INFO] === Krump-Agent Heartbeat Completed ===
+[2026-02-18T14:00:05.928Z] [INFO] === Krump-Agent Heartbeat Started ===
+[2026-02-18T14:00:05.935Z] [INFO] Colosseum state: no_state (stage: n/a)
+[2026-02-18T14:00:05.936Z] [INFO] Log health OK (last update -0.0h ago)
+[2026-02-18T14:00:05.970Z] [INFO] Node.js: v25.1.0
+[2026-02-18T14:00:05.970Z] [INFO] All checks passed. Agent appears healthy.
+[2026-02-18T14:00:05.970Z] [INFO] === Krump-Agent Heartbeat Completed ===
+[2026-02-18T17:00:03.934Z] [INFO] === Krump-Agent Heartbeat Started ===
+[2026-02-18T17:00:03.941Z] [INFO] Colosseum state: no_state (stage: n/a)
+[2026-02-18T17:00:03.942Z] [INFO] Log health OK (last update 0.0h ago)
+[2026-02-18T17:00:03.977Z] [INFO] Node.js: v25.1.0
+[2026-02-18T17:00:03.978Z] [INFO] All checks passed. Agent appears healthy.
+[2026-02-18T17:00:03.978Z] [INFO] === Krump-Agent Heartbeat Completed ===
+[2026-02-19T14:00:07.650Z] [INFO] === Krump-Agent Heartbeat Started ===
+[2026-02-19T14:00:07.653Z] [INFO] Colosseum state: no_state (stage: n/a)
+[2026-02-19T14:00:07.653Z] [INFO] Log health OK (last update -0.0h ago)
+[2026-02-19T14:00:07.679Z] [INFO] Node.js: v25.1.0
+[2026-02-19T14:00:07.679Z] [INFO] All checks passed. Agent appears healthy.
+[2026-02-19T14:00:07.679Z] [INFO] === Krump-Agent Heartbeat Completed ===
+[2026-02-19T17:00:04.057Z] [INFO] === Krump-Agent Heartbeat Started ===
+[2026-02-19T17:00:04.060Z] [INFO] Colosseum state: no_state (stage: n/a)
+[2026-02-19T17:00:04.060Z] [INFO] Log health OK (last update -0.0h ago)
+[2026-02-19T17:00:04.086Z] [INFO] Node.js: v25.1.0
+[2026-02-19T17:00:04.086Z] [INFO] All checks passed. Agent appears healthy.
+[2026-02-19T17:00:04.086Z] [INFO] === Krump-Agent Heartbeat Completed ===
+[2026-02-20T19:00:09.859Z] [INFO] === Krump-Agent Heartbeat Started ===
+[2026-02-20T19:00:09.862Z] [INFO] Colosseum state: no_state (stage: n/a)
+[2026-02-20T19:00:09.862Z] [INFO] Log health OK (last update -0.0h ago)
+[2026-02-20T19:00:09.886Z] [INFO] Node.js: v25.1.0
+[2026-02-20T19:00:09.887Z] [INFO] All checks passed. Agent appears healthy.
+[2026-02-20T19:00:09.887Z] [INFO] === Krump-Agent Heartbeat Completed ===
+[2026-02-21T16:45:10.093Z] [INFO] === Krump-Agent Heartbeat Started ===
+[2026-02-21T16:45:10.096Z] [INFO] Colosseum state: no_state (stage: n/a)
+[2026-02-21T16:45:10.096Z] [INFO] Log health OK (last update -0.0h ago)
+[2026-02-21T16:45:10.123Z] [INFO] Node.js: v25.1.0
+[2026-02-21T16:45:10.124Z] [INFO] All checks passed. Agent appears healthy.
+[2026-02-21T16:45:10.124Z] [INFO] === Krump-Agent Heartbeat Completed ===
+[2026-02-21T17:04:43.994Z] [INFO] === Krump-Agent Heartbeat Started ===
+[2026-02-21T17:04:43.998Z] [INFO] Colosseum state: no_state (stage: n/a)
+[2026-02-21T17:04:43.999Z] [INFO] Log health OK (last update -0.0h ago)
+[2026-02-21T17:04:44.027Z] [INFO] Node.js: v25.1.0
+[2026-02-21T17:04:44.027Z] [INFO] All checks passed. Agent appears healthy.
+[2026-02-21T17:04:44.027Z] [INFO] === Krump-Agent Heartbeat Completed ===
+[2026-02-22T14:00:04.907Z] [INFO] === Krump-Agent Heartbeat Started ===
+[2026-02-22T14:00:04.916Z] [INFO] Colosseum state: no_state (stage: n/a)
+[2026-02-22T14:00:04.917Z] [INFO] Log health OK (last update -0.0h ago)
+[2026-02-22T14:00:04.959Z] [INFO] Node.js: v25.1.0
+[2026-02-22T14:00:04.959Z] [INFO] All checks passed. Agent appears healthy.
+[2026-02-22T14:00:04.959Z] [INFO] === Krump-Agent Heartbeat Completed ===
+[2026-02-22T17:00:04.814Z] [INFO] === Krump-Agent Heartbeat Started ===
+[2026-02-22T17:00:04.817Z] [INFO] Colosseum state: no_state (stage: n/a)
+[2026-02-22T17:00:04.817Z] [INFO] Log health OK (last update -0.0h ago)
+[2026-02-22T17:00:04.846Z] [INFO] Node.js: v25.1.0
+[2026-02-22T17:00:04.846Z] [INFO] All checks passed. Agent appears healthy.
+[2026-02-22T17:00:04.846Z] [INFO] === Krump-Agent Heartbeat Completed ===
+[2026-02-23T14:02:55.442Z] [INFO] === Krump-Agent Heartbeat Started ===
+[2026-02-23T14:02:55.445Z] [INFO] Colosseum state: no_state (stage: n/a)
+[2026-02-23T14:02:55.445Z] [INFO] Log health OK (last update -0.0h ago)
+[2026-02-23T14:02:55.474Z] [INFO] Node.js: v25.1.0
+[2026-02-23T14:02:55.475Z] [INFO] All checks passed. Agent appears healthy.
+[2026-02-23T14:02:55.475Z] [INFO] === Krump-Agent Heartbeat Completed ===
+[2026-02-23T17:01:44.992Z] [INFO] === Krump-Agent Heartbeat Started ===
+[2026-02-23T17:01:44.996Z] [INFO] Colosseum state: no_state (stage: n/a)
+[2026-02-23T17:01:44.996Z] [INFO] Log health OK (last update -0.0h ago)
+[2026-02-23T17:01:45.034Z] [INFO] Node.js: v25.1.0
+[2026-02-23T17:01:45.035Z] [INFO] All checks passed. Agent appears healthy.
+[2026-02-23T17:01:45.035Z] [INFO] === Krump-Agent Heartbeat Completed ===
+[2026-02-24T14:00:06.959Z] [INFO] === Krump-Agent Heartbeat Started ===
+[2026-02-24T14:00:06.968Z] [INFO] Colosseum state: no_state (stage: n/a)
+[2026-02-24T14:00:06.968Z] [INFO] Log health OK (last update -0.0h ago)
+[2026-02-24T14:00:07.008Z] [INFO] Node.js: v25.1.0
+[2026-02-24T14:00:07.008Z] [INFO] All checks passed. Agent appears healthy.
+[2026-02-24T14:00:07.008Z] [INFO] === Krump-Agent Heartbeat Completed ===
+[2026-02-24T17:00:09.701Z] [INFO] === Krump-Agent Heartbeat Started ===
+[2026-02-24T17:00:09.707Z] [INFO] Colosseum state: no_state (stage: n/a)
+[2026-02-24T17:00:09.707Z] [INFO] Log health OK (last update -0.0h ago)
+[2026-02-24T17:00:09.744Z] [INFO] Node.js: v25.1.0
+[2026-02-24T17:00:09.744Z] [INFO] All checks passed. Agent appears healthy.
+[2026-02-24T17:00:09.744Z] [INFO] === Krump-Agent Heartbeat Completed ===
+[2026-02-25T14:00:27.640Z] [INFO] === Krump-Agent Heartbeat Started ===
+[2026-02-25T14:00:27.648Z] [INFO] Colosseum state: no_state (stage: n/a)
+[2026-02-25T14:00:27.648Z] [INFO] Log health OK (last update -0.0h ago)
+[2026-02-25T14:00:27.681Z] [INFO] Node.js: v25.1.0
+[2026-02-25T14:00:27.681Z] [INFO] All checks passed. Agent appears healthy.
+[2026-02-25T14:00:27.681Z] [INFO] === Krump-Agent Heartbeat Completed ===
+[2026-02-25T17:00:04.061Z] [INFO] === Krump-Agent Heartbeat Started ===
+[2026-02-25T17:00:04.067Z] [INFO] Colosseum state: no_state (stage: n/a)
+[2026-02-25T17:00:04.068Z] [INFO] Log health OK (last update 0.0h ago)
+[2026-02-25T17:00:04.102Z] [INFO] Node.js: v25.1.0
+[2026-02-25T17:00:04.103Z] [INFO] All checks passed. Agent appears healthy.
+[2026-02-25T17:00:04.103Z] [INFO] === Krump-Agent Heartbeat Completed ===
+[2026-02-26T14:00:12.419Z] [INFO] === Krump-Agent Heartbeat Started ===
+[2026-02-26T14:00:12.427Z] [INFO] Colosseum state: no_state (stage: n/a)
+[2026-02-26T14:00:12.428Z] [INFO] Log health OK (last update -0.0h ago)
+[2026-02-26T14:00:12.463Z] [INFO] Node.js: v25.1.0
+[2026-02-26T14:00:12.464Z] [INFO] All checks passed. Agent appears healthy.
+[2026-02-26T14:00:12.464Z] [INFO] === Krump-Agent Heartbeat Completed ===
+[2026-02-26T17:00:12.230Z] [INFO] === Krump-Agent Heartbeat Started ===
+[2026-02-26T17:00:12.235Z] [INFO] Colosseum state: no_state (stage: n/a)
+[2026-02-26T17:00:12.235Z] [INFO] Log health OK (last update -0.0h ago)
+[2026-02-26T17:00:12.258Z] [INFO] Node.js: v25.1.0
+[2026-02-26T17:00:12.258Z] [INFO] All checks passed. Agent appears healthy.
+[2026-02-26T17:00:12.258Z] [INFO] === Krump-Agent Heartbeat Completed ===
+[2026-02-27T14:00:05.941Z] [INFO] === Krump-Agent Heartbeat Started ===
+[2026-02-27T14:00:05.948Z] [INFO] Colosseum state: no_state (stage: n/a)
+[2026-02-27T14:00:05.948Z] [INFO] Log health OK (last update -0.0h ago)
+[2026-02-27T14:00:05.982Z] [INFO] Node.js: v25.1.0
+[2026-02-27T14:00:05.982Z] [INFO] All checks passed. Agent appears healthy.
+[2026-02-27T14:00:05.982Z] [INFO] === Krump-Agent Heartbeat Completed ===
+[2026-02-27T17:00:04.413Z] [INFO] === Krump-Agent Heartbeat Started ===
+[2026-02-27T17:00:04.422Z] [INFO] Colosseum state: no_state (stage: n/a)
+[2026-02-27T17:00:04.422Z] [INFO] Log health OK (last update -0.0h ago)
+[2026-02-27T17:00:04.459Z] [INFO] Node.js: v25.1.0
+[2026-02-27T17:00:04.460Z] [INFO] All checks passed. Agent appears healthy.
+[2026-02-27T17:00:04.460Z] [INFO] === Krump-Agent Heartbeat Completed ===

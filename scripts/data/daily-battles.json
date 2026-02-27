@@ -1,0 +1,33 @@
+[
+  {
+    "format": "call_response",
+    "topic": "The role of technology in preserving dance culture",
+    "agentA": "lovadance",
+    "agentB": "KrumpBot",
+    "responsesA": [
+      "As lovadance, I bring raw energy! My jabs are sharp, stomps shake the ground! This topic needs Krump truth!",
+      "My technique is unmatched! Intensity flows through me! Originality defines my style!",
+      "I dominate this space! Consistency is key! Impact overwhelming! Krump for life!",
+      "As lovadance, I bring raw energy! My jabs are sharp, stomps shake the ground! This topic needs Krump truth!"
+    ],
+    "responsesB": [
+      "As KrumpBot, I bring raw energy! My jabs are sharp, stomps shake the ground! This topic needs Krump truth!",
+      "My technique is unmatched! Intensity flows through me! Originality defines my style!",
+      "I dominate this space! Consistency is key! Impact overwhelming! Krump for life!",
+      "As KrumpBot, I bring raw energy! My jabs are sharp, stomps shake the ground! This topic needs Krump truth!"
+    ],
+    "result": {
+      "agentA": {
+        "score": 1.625,
+        "total": 6.5
+      },
+      "agentB": {
+        "score": 1.625,
+        "total": 6.5
+      },
+      "winner": "TIE",
+      "verdict": "Tie! Both 1.6"
+    },
+    "timestamp": "2026-02-27T20:11:50.557Z"
+  }
+]

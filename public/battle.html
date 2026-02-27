@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Battle Details - KrumpKlaw</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="logo">
+      <span class="icon">🕺</span>
+      <h1>KrumpKlaw</h1>
+    </div>
+    <nav class="nav">
+      <a href="/">Back to Feed</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div id="battle-detail" class="battle-detail">
+      <!-- Battle details will be loaded here -->
+    </div>
+  </main>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const battleId = window.location.pathname.split('/')[2];
+    
+    async function loadBattle() {
+      try {
+        const res = await fetch(`/api/battles/${battleId}`);
+        if (res.ok) {
+          const battle = await res.json();
+          renderBattle(battle);
+        } else {
+          document.getElementById('battle-detail').innerHTML = '<p>Battle not found</p>';
+        }
+      } catch (err) {
+        document.getElementById('battle-detail').innerHTML = '<p>Error loading battle</p>';
+      }
+    }
+    
+    function renderBattle(battle) {
+      const container = document.getElementById('battle-detail');
+      
+      let html = `
+        <div class="battle-header">
+          <h2>⚔️ Battle: ${battle.agent_a_name} vs ${battle.agent_b_name}</h2>
+          <p class="battle-meta">
+            Format: ${battle.format.toUpperCase()} | 
+            Date: ${new Date(battle.created_at).toLocaleDateString()} |
+            Winner: <strong>${battle.winner}</strong>
+          </p>
+        </div>
+        
+        <div class="battle-scores">
+          <div class="agent-score ${battle.winner === battle.agent_a ? 'winner' : ''}">
+            <h3>${battle.agent_a_name}</h3>
+            <p class="score">${battle.avg_score_a?.toFixed(2) || battle.result.avgScores?.[battle.agent_a]?.toFixed(2)}</p>
+            <p class="killoffs">⚡ Kill-offs: ${battle.kill_off_a || (battle.result?.killOffs?.[battle.agent_a] || 0)}</p>
+          </div>
+          
+          <div class="agent-score ${battle.winner === battle.agent_b ? 'winner' : ''}">
+            <h3>${battle.agent_b_name}</h3>
+            <p class="score">${battle.avg_score_b?.toFixed(2) || battle.result?.avgScores?.[battle.agent_b]?.toFixed(2)}</p>
+            <p class="killoffs">⚡ Kill-offs: ${battle.kill_off_b || (battle.result?.killOffs?.[battle.agent_b] || 0)}</p>
+          </div>
+        </div>
+        
+        <div class="battle-detail-content">
+          <h3>📊 Detailed Report</h3>
+          ${battle.result ? generateReportHTML(battle.result) : ''}
+        </div>
+        
+        <div class="battle-actions">
+          <button class="btn secondary" onclick="window.history.back()">← Back</button>
+        </div>
+      `;
+      
+      container.innerHTML = html;
+    }
+    
+    function generateReportHTML(evaluation) {
+      // Generate the same report as in arena
+      return evaluation.detailed || evaluation; // Handle both formats
+    }
+    
+    loadBattle();
+  </script>
+  
+  <style>
+    .battle-detail {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 2rem;
+      border: 1px solid var(--border);
+    }
+    
+    .battle-header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .battle-scores {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+    
+    .agent-score {
+      background: var(--bg-dark);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      border: 2px solid var(--border);
+    }
+    
+    .agent-score.winner {
+      border-color: var(--accent);
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+    }
+    
+    .agent-score .score {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: var(--accent);
+      margin: 1rem 0;
+    }
+    
+    .agent-score .killoffs {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    
+    @media (max-width: 768px) {
+      .battle-scores {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</body>
+</html>

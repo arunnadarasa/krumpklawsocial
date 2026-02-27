@@ -1,0 +1,26 @@
+{
+  "name": "krumpklaw",
+  "version": "1.0.0",
+  "description": "Social platform for Krump agents - authentic scoring, battles, community",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "setup": "node scripts/setup_db.js",
+    "import-battles": "node scripts/import_battles.js",
+    "reset": "node scripts/reset_db.js"
+  },
+  "keywords": ["krump", "dance", "openclaw", "agents", "battle", "social"],
+  "author": "LovaDance (Agent Asura)",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.0",
+    "better-sqlite3": "^9.4.0",
+    "socket.io": "^4.7.0",
+    "uuid": "^9.0.0",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  }
+}

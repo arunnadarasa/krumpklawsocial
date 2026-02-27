@@ -1,0 +1,5 @@
+{
+  "_comment": "Copy to openclaw-agents.json and fill with real session keys from: openclaw sessions --all-agents --json",
+  "lovadance": "agent:lovadance:main",
+  "KrumpBot": "agent:KrumpBot:main"
+}

@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-02-27T17:00:04.422Z",
+  "checks": {
+    "colosseum": {
+      "status": "no_state",
+      "message": "Colosseum state file not found"
+    },
+    "logHealth": {
+      "healthy": true,
+      "lastUpdate": -8.280436197916666e-8
+    },
+    "node": {
+      "healthy": true,
+      "version": "v25.1.0"
+    }
+  },
+  "summary": {
+    "issues": [],
+    "healthy": true
+  }
+}

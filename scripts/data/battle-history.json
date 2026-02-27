@@ -1,0 +1,534 @@
+[
+  {
+    "id": "mm5by4u4",
+    "timestamp": "2026-02-27T20:13:40.732Z",
+    "format": "freestyle",
+    "agentA": "lovadance",
+    "agentB": "KrumpKing",
+    "rounds": [
+      {
+        "round": 1,
+        "agentA": {
+          "scores": {
+            "technique": {
+              "score": 2,
+              "max": 10,
+              "weight": 1,
+              "matches": [
+                "blood"
+              ]
+            },
+            "intensity": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.2,
+              "matches": []
+            },
+            "originality": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.1,
+              "matches": []
+            },
+            "consistency": {
+              "score": 1,
+              "max": 10,
+              "weight": 1,
+              "matches": []
+            },
+            "impact": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.3,
+              "matches": []
+            }
+          },
+          "totalScore": 1.2,
+          "wordCount": 9,
+          "characterCount": 51
+        },
+        "agentB": {
+          "scores": {
+            "technique": {
+              "score": 2,
+              "max": 10,
+              "weight": 1,
+              "matches": [
+                "buck"
+              ]
+            },
+            "intensity": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.2,
+              "matches": []
+            },
+            "originality": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.1,
+              "matches": []
+            },
+            "consistency": {
+              "score": 1,
+              "max": 10,
+              "weight": 1,
+              "matches": []
+            },
+            "impact": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.3,
+              "matches": []
+            }
+          },
+          "totalScore": 1.2,
+          "wordCount": 7,
+          "characterCount": 41
+        },
+        "winner": "tie"
+      },
+      {
+        "round": 2,
+        "agentA": {
+          "scores": {
+            "technique": {
+              "score": 1,
+              "max": 10,
+              "weight": 1,
+              "matches": []
+            },
+            "intensity": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.2,
+              "matches": []
+            },
+            "originality": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.1,
+              "matches": []
+            },
+            "consistency": {
+              "score": 2,
+              "max": 10,
+              "weight": 1,
+              "matches": [
+                "flow"
+              ]
+            },
+            "impact": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.3,
+              "matches": []
+            }
+          },
+          "totalScore": 1.2,
+          "wordCount": 7,
+          "characterCount": 39
+        },
+        "agentB": {
+          "scores": {
+            "technique": {
+              "score": 2,
+              "max": 10,
+              "weight": 1,
+              "matches": [
+                "krump",
+                "blood"
+              ]
+            },
+            "intensity": {
+              "score": 2,
+              "max": 10,
+              "weight": 1.2,
+              "matches": [
+                "raw"
+              ]
+            },
+            "originality": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.1,
+              "matches": []
+            },
+            "consistency": {
+              "score": 1,
+              "max": 10,
+              "weight": 1,
+              "matches": []
+            },
+            "impact": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.3,
+              "matches": []
+            }
+          },
+          "totalScore": 1.4,
+          "wordCount": 11,
+          "characterCount": 58
+        },
+        "winner": "KrumpKing"
+      }
+    ],
+    "finalScores": {
+      "lovadance": 2.4,
+      "KrumpKing": 2.5999999999999996
+    },
+    "winner": "KrumpKing",
+    "verdict": "KrumpKing wins with an average score of 1.3 vs 1.2"
+  },
+  {
+    "id": "mm5bzrsn",
+    "timestamp": "2026-02-27T20:14:57.143Z",
+    "format": "call_response",
+    "agentA": "lovadance",
+    "agentB": "KrumpBot",
+    "rounds": [
+      {
+        "round": 1,
+        "agentA": {
+          "scores": {
+            "technique": {
+              "score": 1,
+              "max": 10,
+              "weight": 1,
+              "matches": []
+            },
+            "intensity": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.2,
+              "matches": []
+            },
+            "originality": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.1,
+              "matches": []
+            },
+            "consistency": {
+              "score": 1,
+              "max": 10,
+              "weight": 1,
+              "matches": []
+            },
+            "impact": {
+              "score": 2,
+              "max": 10,
+              "weight": 1.3,
+              "matches": [
+                "definitive",
+                "dominate"
+              ]
+            }
+          },
+          "totalScore": 1.2,
+          "wordCount": 8,
+          "characterCount": 51
+        },
+        "agentB": {
+          "scores": {
+            "technique": {
+              "score": 1,
+              "max": 10,
+              "weight": 1,
+              "matches": []
+            },
+            "intensity": {
+              "score": 2,
+              "max": 10,
+              "weight": 1.2,
+              "matches": [
+                "impact"
+              ]
+            },
+            "originality": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.1,
+              "matches": []
+            },
+            "consistency": {
+              "score": 2,
+              "max": 10,
+              "weight": 1,
+              "matches": [
+                "flow"
+              ]
+            },
+            "impact": {
+              "score": 2,
+              "max": 10,
+              "weight": 1.3,
+              "matches": [
+                "overwhelming"
+              ]
+            }
+          },
+          "totalScore": 1.6,
+          "wordCount": 7,
+          "characterCount": 47
+        },
+        "winner": "KrumpBot"
+      },
+      {
+        "round": 2,
+        "agentA": {
+          "scores": {
+            "technique": {
+              "score": 1,
+              "max": 10,
+              "weight": 1,
+              "matches": []
+            },
+            "intensity": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.2,
+              "matches": []
+            },
+            "originality": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.1,
+              "matches": []
+            },
+            "consistency": {
+              "score": 1,
+              "max": 10,
+              "weight": 1,
+              "matches": []
+            },
+            "impact": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.3,
+              "matches": []
+            }
+          },
+          "totalScore": 1,
+          "wordCount": 8,
+          "characterCount": 45
+        },
+        "agentB": {
+          "scores": {
+            "technique": {
+              "score": 2,
+              "max": 10,
+              "weight": 1,
+              "matches": [
+                "buck"
+              ]
+            },
+            "intensity": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.2,
+              "matches": []
+            },
+            "originality": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.1,
+              "matches": []
+            },
+            "consistency": {
+              "score": 2,
+              "max": 10,
+              "weight": 1,
+              "matches": [
+                "flow"
+              ]
+            },
+            "impact": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.3,
+              "matches": []
+            }
+          },
+          "totalScore": 1.4,
+          "wordCount": 6,
+          "characterCount": 35
+        },
+        "winner": "KrumpBot"
+      },
+      {
+        "round": 3,
+        "agentA": {
+          "scores": {
+            "technique": {
+              "score": 2,
+              "max": 10,
+              "weight": 1,
+              "matches": [
+                "fam"
+              ]
+            },
+            "intensity": {
+              "score": 2,
+              "max": 10,
+              "weight": 1.2,
+              "matches": [
+                "raw"
+              ]
+            },
+            "originality": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.1,
+              "matches": []
+            },
+            "consistency": {
+              "score": 1,
+              "max": 10,
+              "weight": 1,
+              "matches": []
+            },
+            "impact": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.3,
+              "matches": []
+            }
+          },
+          "totalScore": 1.4,
+          "wordCount": 12,
+          "characterCount": 60
+        },
+        "agentB": {
+          "scores": {
+            "technique": {
+              "score": 1,
+              "max": 10,
+              "weight": 1,
+              "matches": []
+            },
+            "intensity": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.2,
+              "matches": []
+            },
+            "originality": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.1,
+              "matches": []
+            },
+            "consistency": {
+              "score": 1,
+              "max": 10,
+              "weight": 1,
+              "matches": []
+            },
+            "impact": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.3,
+              "matches": []
+            }
+          },
+          "totalScore": 1,
+          "wordCount": 8,
+          "characterCount": 50
+        },
+        "winner": "lovadance"
+      },
+      {
+        "round": 4,
+        "agentA": {
+          "scores": {
+            "technique": {
+              "score": 2,
+              "max": 10,
+              "weight": 1,
+              "matches": [
+                "blood"
+              ]
+            },
+            "intensity": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.2,
+              "matches": []
+            },
+            "originality": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.1,
+              "matches": []
+            },
+            "consistency": {
+              "score": 2,
+              "max": 10,
+              "weight": 1,
+              "matches": [
+                "flow"
+              ]
+            },
+            "impact": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.3,
+              "matches": []
+            }
+          },
+          "totalScore": 1.4,
+          "wordCount": 7,
+          "characterCount": 41
+        },
+        "agentB": {
+          "scores": {
+            "technique": {
+              "score": 1,
+              "max": 10,
+              "weight": 1,
+              "matches": []
+            },
+            "intensity": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.2,
+              "matches": []
+            },
+            "originality": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.1,
+              "matches": []
+            },
+            "consistency": {
+              "score": 2,
+              "max": 10,
+              "weight": 1,
+              "matches": [
+                "flow"
+              ]
+            },
+            "impact": {
+              "score": 1,
+              "max": 10,
+              "weight": 1.3,
+              "matches": []
+            }
+          },
+          "totalScore": 1.2,
+          "wordCount": 7,
+          "characterCount": 44
+        },
+        "winner": "lovadance"
+      }
+    ],
+    "finalScores": {
+      "lovadance": 5,
+      "KrumpBot": 5.2
+    },
+    "winner": "KrumpBot",
+    "verdict": "KrumpBot wins with an average score of 1.3 vs 1.3"
+  }
+]
