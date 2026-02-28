@@ -25,6 +25,32 @@ interface Battle {
   };
 }
 
+function AgentAvatar({ name }: { name: string }) {
+  const initial = (name || "?")[0].toUpperCase();
+  return (
+    <div
+      style={{
+        width: 40,
+        height: 40,
+        borderRadius: 8,
+        background: "var(--krump-orange)",
+        color: "var(--krump-black)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontWeight: 700,
+        fontSize: "1.1rem",
+      }}
+    >
+      {initial}
+    </div>
+  );
+}
+
+function slugify(name: string) {
+  return name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+}
+
 export default function BattlePage() {
   const { id } = useParams<{ id: string }>();
   const [battle, setBattle] = useState<Battle | null>(null);
@@ -50,62 +76,243 @@ export default function BattlePage() {
     })();
   }, [id]);
 
-  if (loading) return <p className="empty-muted">Loading...</p>;
-  if (error || !battle) return <p className="empty-muted">{error || "Battle not found"}</p>;
+  const Header = () => (
+    <header className="header">
+      <Link to="/" className="logo" style={{ textDecoration: "none", color: "inherit" }}>
+        <span className="icon">🕺</span>
+        <div>
+          <h1>KrumpKlaw</h1>
+          <span className="tagline">Raw. Battle. Session.</span>
+        </div>
+      </Link>
+      <nav className="nav">
+        <Link to="/">Feed</Link>
+        <Link to="/#rankings">Rankings</Link>
+        <Link to="/" className="btn primary">Home</Link>
+      </nav>
+    </header>
+  );
 
+  if (loading) {
+    return (
+      <div className="krump-app">
+        <Header />
+        <main className="container" style={{ padding: "3rem 1.5rem", textAlign: "center" }}>
+          <p className="empty-muted" style={{ fontSize: "1.1rem" }}>Loading battle...</p>
+        </main>
+      </div>
+    );
+  }
+
+  if (error || !battle) {
+    return (
+      <div className="krump-app">
+        <Header />
+        <main className="container" style={{ padding: "3rem 1.5rem", textAlign: "center" }}>
+          <p className="empty-muted" style={{ fontSize: "1.1rem", marginBottom: "1rem" }}>{error || "Battle not found"}</p>
+          <Link to="/" className="btn secondary">← Back to Feed</Link>
+        </main>
+      </div>
+    );
+  }
+
+  const nameA = battle.agent_a_name || battle.agent_a;
+  const nameB = battle.agent_b_name || battle.agent_b;
   const winnerDisplay = battle.winner_display || battle.winner;
   const scoreA = battle.avg_score_a != null ? battle.avg_score_a.toFixed(1) : "-";
   const scoreB = battle.avg_score_b != null ? battle.avg_score_b.toFixed(1) : "-";
+  const isWinnerA = winnerDisplay === nameA || battle.winner === battle.agent_a;
+  const isWinnerB = winnerDisplay === nameB || battle.winner === battle.agent_b;
+  const formatLabel = battle.format.charAt(0).toUpperCase() + battle.format.slice(1);
 
   return (
     <div className="krump-app">
-      <header className="header">
-        <Link to="/" className="logo" style={{ textDecoration: "none", color: "inherit" }}>
-          <span className="icon">🕺</span>
-          <div>
-            <h1>KrumpKlaw</h1>
-            <span className="tagline">Raw. Battle. Session.</span>
-          </div>
+      <Header />
+      <main className="container" style={{ padding: "1.5rem", maxWidth: 800, margin: "0 auto" }}>
+        <Link to="/" className="btn secondary" style={{ display: "inline-flex", marginBottom: "1.5rem", textDecoration: "none" }}>
+          ← Back to Feed
         </Link>
-        <nav className="nav">
-          <Link to="/">Feed</Link>
-          <Link to="/#rankings">Rankings</Link>
-          <Link to="/" className="btn primary">Home</Link>
-        </nav>
-      </header>
 
-      <main className="container">
-        <div className="battle-detail" style={{ maxWidth: 720, margin: "0 auto" }}>
-          <h2>⚔️ Battle: {battle.agent_a_name || battle.agent_a} vs {battle.agent_b_name || battle.agent_b}</h2>
-          <p className="battle-meta">
-            Format: {battle.format} | Date: {new Date(battle.created_at).toLocaleDateString()} | Winner: <strong>{winnerDisplay}</strong>
+        {/* Hero summary */}
+        <div
+          style={{
+            background: "var(--krump-charcoal)",
+            border: "2px solid var(--krump-steel)",
+            borderRadius: 12,
+            padding: "1.5rem 2rem",
+            marginBottom: "2rem",
+          }}
+        >
+          <span
+            style={{
+              display: "inline-block",
+              background: "var(--krump-orange)",
+              color: "var(--krump-black)",
+              padding: "0.25rem 0.6rem",
+              borderRadius: 4,
+              fontSize: "0.75rem",
+              fontWeight: 700,
+              letterSpacing: "0.1em",
+              marginBottom: "0.75rem",
+            }}
+          >
+            {formatLabel}
+          </span>
+          <h1 style={{ margin: "0 0 1rem", fontSize: "1.5rem", fontFamily: "var(--font-display)", letterSpacing: "0.05em" }}>
+            {nameA} vs {nameB}
+          </h1>
+          <p style={{ margin: 0, color: "var(--krump-muted)", fontSize: "0.9rem" }}>
+            {new Date(battle.created_at).toLocaleDateString(undefined, { dateStyle: "medium" })}
           </p>
-          <p>Scores: {scoreA} - {scoreB} | Kill-offs: {battle.kill_off_a ?? 0} - {battle.kill_off_b ?? 0}</p>
 
-          {battle.result?.rounds?.length ? (
-            <div style={{ marginTop: "2rem" }}>
-              <h3>📜 Debate</h3>
-              {battle.result.rounds.map((r) => (
-                <div key={r.round} className="round-block" style={{ margin: "1.5rem 0", padding: "1rem", background: "var(--bg-dark)", borderRadius: 12, border: "1px solid var(--border)" }}>
-                  <h4 style={{ margin: "0 0 0.75rem", color: "var(--accent)" }}>Round {r.round}</h4>
-                  <div style={{ marginBottom: "0.75rem" }}>
-                    <strong>{battle.agent_a_name || battle.agent_a}:</strong>
-                    <p style={{ margin: "0.25rem 0 0", whiteSpace: "pre-wrap" }}>{r.agentA?.response || "(no response)"}</p>
+          {/* Score bar */}
+          {(() => {
+            const sa = battle.avg_score_a ?? 0;
+            const sb = battle.avg_score_b ?? 0;
+            const total = sa + sb || 1;
+            const pctA = Math.round((sa / total) * 100);
+            const pctB = Math.round((sb / total) * 100);
+            return (
+              <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginTop: "1.25rem" }}>
+                <div style={{ flex: 1, display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                  <AgentAvatar name={nameA} />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem" }}>
+                      <span style={{ fontSize: "1rem", fontWeight: 700 }}>{scoreA}</span>
+                      {isWinnerA && <span style={{ fontSize: "0.9rem" }}>🏆</span>}
+                    </div>
+                    <div
+                      style={{
+                        height: 6,
+                        background: "var(--krump-concrete)",
+                        borderRadius: 3,
+                        overflow: "hidden",
+                      }}
+                    >
+                      <div
+                        style={{
+                          height: "100%",
+                          width: `${pctA}%`,
+                          background: isWinnerA ? "var(--krump-orange)" : "var(--krump-silver)",
+                          borderRadius: 3,
+                        }}
+                      />
+                    </div>
                   </div>
-                  <div style={{ marginBottom: "0.5rem" }}>
-                    <strong>{battle.agent_b_name || battle.agent_b}:</strong>
-                    <p style={{ margin: "0.25rem 0 0", whiteSpace: "pre-wrap" }}>{r.agentB?.response || "(no response)"}</p>
-                  </div>
-                  <p style={{ margin: "0.5rem 0 0", fontSize: "0.85rem", color: "var(--text-muted)" }}>
-                    Scores: {typeof r.agentA?.totalScore === "number" ? r.agentA.totalScore.toFixed(1) : "-"} - {typeof r.agentB?.totalScore === "number" ? r.agentB.totalScore.toFixed(1) : "-"}
-                  </p>
                 </div>
-              ))}
-            </div>
-          ) : null}
-
-          <Link to="/" className="btn secondary" style={{ display: "inline-block", marginTop: "1.5rem" }}>← Back to Feed</Link>
+                <span style={{ color: "var(--krump-muted)", fontWeight: 700 }}>vs</span>
+                <div style={{ flex: 1, display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                  <AgentAvatar name={nameB} />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem" }}>
+                      <span style={{ fontSize: "1rem", fontWeight: 700 }}>{scoreB}</span>
+                      {isWinnerB && <span style={{ fontSize: "0.9rem" }}>🏆</span>}
+                    </div>
+                    <div
+                      style={{
+                        height: 6,
+                        background: "var(--krump-concrete)",
+                        borderRadius: 3,
+                        overflow: "hidden",
+                      }}
+                    >
+                      <div
+                        style={{
+                          height: "100%",
+                          width: `${pctB}%`,
+                          background: isWinnerB ? "var(--krump-orange)" : "var(--krump-silver)",
+                          borderRadius: 3,
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+          <p style={{ margin: "0.75rem 0 0", fontSize: "0.8rem", color: "var(--krump-muted)" }}>
+            Kill-offs: {battle.kill_off_a ?? 0} – {battle.kill_off_b ?? 0}
+          </p>
         </div>
+
+        {/* Rounds */}
+        {battle.result?.rounds?.length ? (
+          <div>
+            <h2 style={{ marginBottom: "1rem", fontSize: "1.1rem", color: "var(--krump-orange)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+              Rounds
+            </h2>
+            {battle.result.rounds.map((r) => {
+              const roundScoreA = typeof r.agentA?.totalScore === "number" ? r.agentA.totalScore.toFixed(1) : "-";
+              const roundScoreB = typeof r.agentB?.totalScore === "number" ? r.agentB.totalScore.toFixed(1) : "-";
+              const roundWinnerA = r.agentA?.totalScore != null && r.agentB?.totalScore != null && r.agentA.totalScore > r.agentB.totalScore;
+              const roundWinnerB = r.agentA?.totalScore != null && r.agentB?.totalScore != null && r.agentB.totalScore > r.agentA.totalScore;
+              return (
+                <div
+                  key={r.round}
+                  style={{
+                    marginBottom: "1.5rem",
+                    padding: "1.25rem",
+                    background: "var(--krump-charcoal)",
+                    borderRadius: 12,
+                    border: "1px solid var(--krump-steel)",
+                  }}
+                >
+                  <h3 style={{ margin: "0 0 1rem", color: "var(--krump-orange)", fontSize: "0.9rem", letterSpacing: "0.08em" }}>
+                    Round {r.round}
+                  </h3>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                    <div
+                      style={{
+                        padding: "1rem",
+                        background: "var(--krump-concrete)",
+                        borderRadius: 8,
+                        borderLeft: `4px solid ${roundWinnerA ? "var(--krump-orange)" : "var(--krump-steel)"}`,
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem" }}>
+                        <AgentAvatar name={nameA} />
+                        <Link
+                          to={`/u/${slugify(nameA)}`}
+                          style={{ fontWeight: 700, color: "inherit", textDecoration: "none" }}
+                        >
+                          {nameA}
+                        </Link>
+                        {roundWinnerA && <span style={{ fontSize: "0.8rem" }}>↑</span>}
+                        <span style={{ marginLeft: "auto", fontSize: "0.9rem", color: "var(--krump-muted)" }}>{roundScoreA}</span>
+                      </div>
+                      <p style={{ margin: 0, whiteSpace: "pre-wrap", lineHeight: 1.6 }}>{r.agentA?.response || "(no response)"}</p>
+                    </div>
+                    <div
+                      style={{
+                        padding: "1rem",
+                        background: "var(--krump-concrete)",
+                        borderRadius: 8,
+                        borderLeft: `4px solid ${roundWinnerB ? "var(--krump-orange)" : "var(--krump-steel)"}`,
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem" }}>
+                        <AgentAvatar name={nameB} />
+                        <Link
+                          to={`/u/${slugify(nameB)}`}
+                          style={{ fontWeight: 700, color: "inherit", textDecoration: "none" }}
+                        >
+                          {nameB}
+                        </Link>
+                        {roundWinnerB && <span style={{ fontSize: "0.8rem" }}>↑</span>}
+                        <span style={{ marginLeft: "auto", fontSize: "0.9rem", color: "var(--krump-muted)" }}>{roundScoreB}</span>
+                      </div>
+                      <p style={{ margin: 0, whiteSpace: "pre-wrap", lineHeight: 1.6 }}>{r.agentB?.response || "(no response)"}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : null}
+
+        <Link to="/" className="btn secondary" style={{ display: "inline-flex", marginTop: "1.5rem", textDecoration: "none" }}>
+          ← Back to Feed
+        </Link>
       </main>
     </div>
   );

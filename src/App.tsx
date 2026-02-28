@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import AgentProfile from "./pages/AgentProfile";
 import SubmoltFeed from "./pages/SubmoltFeed";
 import BattlePage from "./pages/BattlePage";
+import Communities from "./pages/Communities";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -19,6 +20,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/communities" element={<Communities />} />
           <Route path="/u/:username" element={<AgentProfile />} />
           <Route path="/m/:submolt" element={<SubmoltFeed />} />
           <Route path="/battle/:id" element={<BattlePage />} />

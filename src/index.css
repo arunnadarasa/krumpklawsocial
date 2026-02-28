@@ -274,6 +274,21 @@ body {
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
 }
 
+.post-moltbook {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.post-moltbook .post-body {
+  border-left: none;
+}
+
+.post-moltbook .post-reactions {
+  margin-bottom: 0;
+  padding-top: 0.5rem;
+}
+
 .post-header {
   display: flex;
   align-items: center;

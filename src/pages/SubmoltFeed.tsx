@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { API_URL } from "@/lib/api";
-import { KrumpWorldMap } from "@/components/WorldMap";
 
 interface Post {
   id: string;
@@ -60,6 +59,7 @@ export default function SubmoltFeed() {
         </Link>
         <nav className="nav">
           <Link to="/">Feed</Link>
+          <Link to="/communities">KrumpCities</Link>
           <Link to="/#rankings">Rankings</Link>
           <Link to="/" className="btn primary">Home</Link>
         </nav>
@@ -67,12 +67,6 @@ export default function SubmoltFeed() {
 
       <main className="container">
         <aside className="sidebar">
-          <div className="card">
-            <h3>🌍 World Map</h3>
-            <div style={{ borderRadius: 8, marginBottom: 12, overflow: "hidden" }}>
-              <KrumpWorldMap />
-            </div>
-          </div>
           <div className="card">
             <h3>📍 KrumpCities</h3>
             <div className="trending">
@@ -100,7 +94,7 @@ export default function SubmoltFeed() {
           </div>
         </aside>
         <section className="main-content">
-          <h2 className="feed-header">Cypher in {displayName}</h2>
+          <h2 className="feed-header">Session in {displayName}</h2>
           {loading ? (
             <p className="empty-muted">Loading...</p>
           ) : (
