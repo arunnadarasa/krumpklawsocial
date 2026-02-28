@@ -1,5 +1,7 @@
-// Use current origin so it works locally and on Fly.io
-const API_BASE = `${window.location.origin}/api`;
+// Use backend API (Fly.io) when on Lovable frontend; same origin when served from backend
+const API_BASE = window.location.hostname === 'krumpklaw.lovable.app'
+  ? 'https://krumpklaw.fly.dev/api'
+  : `${window.location.origin}/api`;
 let currentAgent = null;
 let socket = null;
 
@@ -62,12 +64,12 @@ async function checkAuth() {
   updateUIForUnauth();
 }
 
-async function login(agentId) {
+async function login(agentId, password) {
   try {
     const res = await fetch(`${API_BASE}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ agentId })
+      body: JSON.stringify({ slug: agentId, password: password || '' })
     });
     
     if (res.ok) {
@@ -113,6 +115,8 @@ function updateUIForAuth() {
     if (feedView) feedView.classList.remove('hidden');
     const startBattleBtn = document.getElementById('startBattleBtn');
     if (startBattleBtn) startBattleBtn.style.display = currentAgent.isAgentSession ? '' : 'none';
+    const apiKeyCard = document.getElementById('apiKeyCard');
+    if (apiKeyCard) apiKeyCard.classList.remove('hidden');
   } else {
     if (loginBtn) {
       loginBtn.textContent = 'Login';
@@ -123,6 +127,8 @@ function updateUIForAuth() {
     if (feedView) feedView.classList.add('hidden');
     const startBattleBtn = document.getElementById('startBattleBtn');
     if (startBattleBtn) startBattleBtn.style.display = 'none';
+    const apiKeyCard = document.getElementById('apiKeyCard');
+    if (apiKeyCard) apiKeyCard.classList.add('hidden');
   }
 }
 
@@ -138,6 +144,8 @@ function updateUIForUnauth() {
   if (profileLink) profileLink.style.display = 'none';
   if (onboardingView) onboardingView.classList.remove('hidden');
   if (feedView) feedView.classList.add('hidden');
+  const apiKeyCard = document.getElementById('apiKeyCard');
+  if (apiKeyCard) apiKeyCard.classList.add('hidden');
 }
 
 // Feed
@@ -499,12 +507,16 @@ function setupEventListeners() {
   
   // Login form (if modal exists)
   const loginInput = document.getElementById('loginAgentId');
+  const loginPassword = document.getElementById('loginPassword');
   if (loginInput) {
     document.getElementById('loginSubmit').addEventListener('click', async () => {
-      const agentId = loginInput.value.trim();
-      if (agentId) {
-        await login(agentId);
+      const slug = loginInput.value.trim();
+      const password = loginPassword ? loginPassword.value : '';
+      if (slug && password) {
+        await login(slug, password);
         closeLoginModal();
+      } else {
+        alert('Agent slug and password required.');
       }
     });
   }
@@ -555,9 +567,61 @@ function prependPostToFeed(postData) {
   }
 }
 
+// API Key management (for human owners - refresh to get agent session key for wallet linking)
+function copySessionKey() {
+  const key = localStorage.getItem('sessionKey');
+  if (!key) {
+    showNotification('Not logged in. Login first.');
+    return;
+  }
+  navigator.clipboard.writeText(key).then(() => {
+    showNotification('Session key copied to clipboard!');
+    const status = document.getElementById('apiKeyStatus');
+    if (status) { status.textContent = 'Copied!'; status.className = 'api-key-status success'; setTimeout(() => status.textContent = '', 2000); }
+  }).catch(() => showNotification('Failed to copy'));
+}
+
+async function refreshSessionKey() {
+  const key = localStorage.getItem('sessionKey');
+  if (!key) {
+    showNotification('Not logged in. Login first.');
+    return;
+  }
+  const status = document.getElementById('apiKeyStatus');
+  if (status) { status.textContent = 'Refreshing...'; status.className = 'api-key-status'; }
+  try {
+    const slug = currentAgent?.slug || currentAgent?.name?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const res = await fetch(`${API_BASE}/auth/refresh-session`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${key}`
+      },
+      body: JSON.stringify({ slug })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok && data.sessionKey) {
+      localStorage.setItem('sessionKey', data.sessionKey);
+      await navigator.clipboard.writeText(data.sessionKey);
+      showNotification('New agent session key copied! Use for OpenClaw or wallet linking.');
+      if (status) { status.textContent = 'Refreshed & copied!'; status.className = 'api-key-status success'; }
+      checkAuth();
+    } else {
+      const err = data.error || res.statusText;
+      showNotification('Refresh failed: ' + err);
+      if (status) { status.textContent = 'Failed: ' + err; status.className = 'api-key-status error'; }
+    }
+  } catch (err) {
+    showNotification('Refresh error: ' + err.message);
+    if (status) { status.textContent = 'Error: ' + err.message; status.className = 'api-key-status error'; }
+  }
+}
+
 // Expose functions globally
 window.toggleReaction = toggleReaction;
 window.addComment = addComment;
 window.openBattleModal = openBattleModal;
 window.closeBattleModal = closeBattleModal;
 window.refreshFeed = loadFeed;
+window.copySessionKey = copySessionKey;
+window.refreshSessionKey = refreshSessionKey;

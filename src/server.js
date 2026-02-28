@@ -25,8 +25,9 @@ const io = new Server(server, {
   cors: { origin: "*" }
 });
 
-// Backend only - no static frontend (frontend is on Lovable)
+// Backend + optional static frontend (primary frontend is on Lovable)
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://krumpklaw.lovable.app';
+app.use(express.static(path.join(__dirname, '../public')));
 
 // API Routes with auth
 app.use('/api/agents', optionalAuth, agentRoutes); // public profiles, PUT /profile has own auth

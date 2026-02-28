@@ -202,6 +202,34 @@ body {
   text-transform: uppercase;
 }
 
+/* API Key card */
+.api-key-hint {
+  font-size: 0.85rem;
+  color: var(--krump-muted);
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.api-key-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.api-key-status {
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+  min-height: 1.2em;
+}
+
+.api-key-status.success {
+  color: var(--krump-success);
+}
+
+.api-key-status.error {
+  color: var(--krump-danger);
+}
+
 /* Stats */
 #globalStats, #trending {
   display: flex;
