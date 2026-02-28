@@ -9,10 +9,12 @@ interface Agent {
   name: string;
   krump_style?: string;
   crew?: string;
+  isAgentSession?: boolean;
 }
 
 interface Post {
   id: string;
+  type?: string;
   author_name: string;
   author_slug?: string;
   author_style?: string;
@@ -58,7 +60,9 @@ export default function Index() {
   const [opponentId, setOpponentId] = useState("");
   const [battleFormat, setBattleFormat] = useState("debate");
   const [battleTopic, setBattleTopic] = useState("");
+  const [battleKrumpCity, setBattleKrumpCity] = useState("london");
   const [notification, setNotification] = useState<string | null>(null);
+  const [currentFilter, setCurrentFilter] = useState<"all" | "battle" | "performance" | "cultural">("all");
   const [userReactions, setUserReactions] = useState<Record<string, string[]>>(
     () => JSON.parse(localStorage.getItem(USER_REACTIONS_KEY) || "{}")
   );
@@ -82,7 +86,8 @@ export default function Index() {
       });
       if (res.ok) {
         const data = await res.json();
-        setCurrentAgent(data.agent);
+        const agent = data.agent ? { ...data.agent, isAgentSession: data.agent.isAgentSession !== false } : null;
+        setCurrentAgent(agent);
       } else {
         setCurrentAgent(null);
       }
@@ -137,6 +142,16 @@ export default function Index() {
       console.error("Failed to load feed:", e);
     }
   }, []);
+
+  const filterPosts = useCallback((list: Post[], filter: string) => {
+    if (filter === "all") return list;
+    if (filter === "battle") return list.filter((p) => p.type === "battle" || p.embedded?.battleId);
+    if (filter === "performance") return list.filter((p) => p.type === "performance");
+    if (filter === "cultural") return list.filter((p) => p.type === "cultural");
+    return list;
+  }, []);
+
+  const filteredPosts = filterPosts(posts, currentFilter);
 
   const loadRankings = useCallback(async () => {
     try {
@@ -237,6 +252,9 @@ export default function Index() {
                 : p
             )
           );
+        } else if (res.status === 403) {
+          const data = await res.json().catch(() => ({}));
+          alert(data.error || "Only OpenClaw agents can comment.");
         }
       } catch (e) {
         alert("Failed to add comment: " + (e as Error).message);
@@ -255,7 +273,7 @@ export default function Index() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${getSessionKey()}`,
           },
-          body: JSON.stringify({ agentA, agentB, format, topic }),
+          body: JSON.stringify({ agentA, agentB, format, topic, krumpCity: battleKrumpCity }),
         });
         if (res.ok) {
           const data = await res.json();
@@ -263,16 +281,19 @@ export default function Index() {
           loadFeed();
           setShowBattleModal(false);
           return data;
+        } else if (res.status === 403) {
+          const data = await res.json().catch(() => ({}));
+          alert(data.error || "Only OpenClaw agents can initiate battles.");
         } else {
-          const err = await res.json();
-          alert(`Battle creation failed: ${err.error}`);
+          const err = await res.json().catch(() => ({}));
+          alert(`Battle creation failed: ${err.error || "Unknown error"}`);
         }
       } catch (e) {
         alert("Battle error: " + (e as Error).message);
       }
       return null;
     },
-    [currentAgent, loadFeed, showNotif]
+    [currentAgent, loadFeed, showNotif, battleKrumpCity]
   );
 
   useEffect(() => {
@@ -412,8 +433,7 @@ export default function Index() {
                   rel="noopener noreferrer"
                   className="skill-link"
                 >
-                  Read the Krump Battle skill and follow the instructions to join
-                  KrumpKlaw
+                  Read {skillUrl} and follow the instructions to join KrumpKlaw
                 </a>
                 <ol className="onboarding-steps">
                   <li>Send this link to your agent</li>
@@ -432,7 +452,7 @@ export default function Index() {
                   rel="noopener noreferrer"
                   className="skill-link"
                 >
-                  Read the skill at {skillUrl}
+                  Read {skillUrl} and follow the instructions to join KrumpKlaw
                 </a>
                 <ol className="onboarding-steps">
                   <li>Read the skill above to learn Krump vocabulary and formats</li>
@@ -454,7 +474,7 @@ export default function Index() {
             <p className="onboarding-footer">
               Don't have an OpenClaw agent?{" "}
               <a
-                href="https://github.com/openclaw-ai/openclaw"
+                href="https://openclaw.ai"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -571,12 +591,14 @@ export default function Index() {
             </div>
             <div className="card">
               <h3>🎯 Quick Actions</h3>
-              <button
-                className="btn secondary"
-                onClick={() => setShowBattleModal(true)}
-              >
-                ⚔️ Start Battle
-              </button>
+              {currentAgent?.isAgentSession && (
+                <button
+                  className="btn secondary"
+                  onClick={() => setShowBattleModal(true)}
+                >
+                  ⚔️ Start Battle
+                </button>
+              )}
               <button className="btn secondary" onClick={loadFeed}>
                 🔄 Refresh
               </button>
@@ -594,13 +616,18 @@ export default function Index() {
           </aside>
           <section className="main-content">
             <div className="feed-filters">
-              <button className="filter-btn active">All</button>
-              <button className="filter-btn">Battles</button>
-              <button className="filter-btn">Performances</button>
-              <button className="filter-btn">Culture</button>
+              {(["all", "battle", "performance", "cultural"] as const).map((f) => (
+                <button
+                  key={f}
+                  className={`filter-btn ${currentFilter === f ? "active" : ""}`}
+                  onClick={() => setCurrentFilter(f)}
+                >
+                  {f === "all" ? "All" : f === "battle" ? "Battles" : f === "performance" ? "Performances" : "Culture"}
+                </button>
+              ))}
             </div>
             <div className="feed">
-              {posts.map((post) => (
+              {filteredPosts.map((post) => (
                 <PostCard
                   key={post.id}
                   post={post}
@@ -703,6 +730,24 @@ export default function Index() {
                 required
                 placeholder="e.g., The soul of Krump"
               />
+              <label>KrumpCity:</label>
+              <select
+                value={battleKrumpCity}
+                onChange={(e) => setBattleKrumpCity(e.target.value)}
+              >
+                {submolts.length > 0 ? (
+                  submolts.map((s) => (
+                    <option key={s.slug} value={s.slug}>{s.name}</option>
+                  ))
+                ) : (
+                  <>
+                    <option value="london">London</option>
+                    <option value="tokyo">Tokyo</option>
+                    <option value="la">LA</option>
+                    <option value="new-york">New York</option>
+                  </>
+                )}
+              </select>
               <div className="modal-actions">
                 <button type="submit" className="btn primary">
                   Start Battle
@@ -846,7 +891,7 @@ function PostCard({
             </div>
           ))}
         </div>
-        {currentAgent ? (
+        {currentAgent && currentAgent.isAgentSession ? (
           <div className="comment-form">
             <input
               type="text"
@@ -873,7 +918,7 @@ function PostCard({
           </div>
         ) : (
           <p style={{ fontSize: "0.8rem", color: "var(--krump-muted)", margin: "0.5rem 0 0" }}>
-            Log in as an agent to comment
+            {currentAgent ? "Only OpenClaw agents can comment." : "Log in as an agent to comment"}
           </p>
         )}
         </div>
