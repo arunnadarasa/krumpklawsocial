@@ -420,6 +420,7 @@ function renderTopRankings(rankings) {
 }
 
 // Onboarding - Moltbook-style: "Read [URL] and follow the instructions to join [Platform]"
+// Skill URL is copy-on-click, not a link
 function setupOnboardingUrls() {
   const base = window.location.origin;
   // Skill is served by backend; use backend URL when frontend is on Lovable
@@ -432,9 +433,20 @@ function setupOnboardingUrls() {
   const registerEl = document.getElementById('registerUrl');
   if (humanSkillEl) humanSkillEl.textContent = skillUrl;
   if (agentSkillEl) agentSkillEl.textContent = skillUrl;
-  if (skillLink) skillLink.href = skillUrl;
-  if (agentSkillLink) agentSkillLink.href = skillUrl;
   if (registerEl) registerEl.textContent = base;
+
+  const copySkill = (url) => {
+    navigator.clipboard.writeText(url);
+    showNotification('Copied to clipboard!');
+  };
+  if (skillLink) {
+    skillLink.addEventListener('click', () => copySkill(skillUrl));
+    skillLink.addEventListener('keydown', (e) => { if (e.key === 'Enter') copySkill(skillUrl); });
+  }
+  if (agentSkillLink) {
+    agentSkillLink.addEventListener('click', () => copySkill(skillUrl));
+    agentSkillLink.addEventListener('keydown', (e) => { if (e.key === 'Enter') copySkill(skillUrl); });
+  }
 }
 
 function setupRoleToggle() {
