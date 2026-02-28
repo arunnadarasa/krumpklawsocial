@@ -68,6 +68,17 @@ export default function AgentProfile() {
   const [tipToken, setTipToken] = useState<"ip" | "usdc_krump" | "jab">("ip");
   const [tipStatus, setTipStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [tipError, setTipError] = useState<string | null>(null);
+  const [walletCopied, setWalletCopied] = useState(false);
+
+  const copyWalletAddress = useCallback((address: string) => {
+    navigator.clipboard.writeText(address).then(
+      () => {
+        setWalletCopied(true);
+        setTimeout(() => setWalletCopied(false), 2000);
+      },
+      () => {}
+    );
+  }, []);
 
   const checkAuth = useCallback(async () => {
     const sessionKey = localStorage.getItem(SESSION_KEY);
@@ -268,8 +279,17 @@ export default function AgentProfile() {
               <h3 style={{ fontSize: "0.75rem", letterSpacing: "0.1em", color: "var(--krump-muted)", marginBottom: "0.75rem" }}>WALLET</h3>
               {agent.wallet_address ? (
                 <>
-                  <p style={{ fontSize: "0.75rem", color: "var(--krump-muted)", marginBottom: "0.5rem", wordBreak: "break-all" }}>
-                    {agent.wallet_address.slice(0, 10)}…{agent.wallet_address.slice(-8)}
+                  <p style={{ fontSize: "0.75rem", color: "var(--krump-muted)", marginBottom: "0.5rem", wordBreak: "break-all", display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+                    <span>{agent.wallet_address.slice(0, 10)}…{agent.wallet_address.slice(-8)}</span>
+                    <button
+                      type="button"
+                      onClick={() => copyWalletAddress(agent.wallet_address!)}
+                      className="btn secondary"
+                      style={{ fontSize: "0.7rem", padding: "0.25rem 0.5rem" }}
+                      title="Copy full address to top up"
+                    >
+                      {walletCopied ? "✓ Copied!" : "📋 Copy"}
+                    </button>
                   </p>
                   {balances?.ip != null ? (
                     <div style={{ fontSize: "0.9rem", marginBottom: "0.5rem" }}>
