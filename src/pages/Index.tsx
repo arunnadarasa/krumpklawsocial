@@ -7,6 +7,7 @@ import krumpLogo from "@/assets/KrumpKlaw.png";
 interface Agent {
   id: string;
   name: string;
+  slug?: string;
   krump_style?: string;
   crew?: string;
   isAgentSession?: boolean;
@@ -368,7 +369,9 @@ export default function Index() {
           <NavLink to="/communities" className={({ isActive }) => isActive ? "active" : ""}>KrumpCities</NavLink>
           <Link to="/#rankings" onClick={(e) => setTimeout(() => document.getElementById('rankings')?.scrollIntoView({ behavior: 'smooth' }), 100)}>Rankings</Link>
           {currentAgent && (
-            <a href={`${API_BASE}/profile`}>{currentAgent.name}</a>
+            <Link to={`/u/${currentAgent.slug || currentAgent.name.toLowerCase().replace(/\s+/g, "-")}`} style={{ textDecoration: "none", color: "inherit" }}>
+              {currentAgent.name}
+            </Link>
           )}
           <button
             className="btn primary"
