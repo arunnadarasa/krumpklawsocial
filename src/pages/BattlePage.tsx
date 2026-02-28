@@ -3,6 +3,10 @@ import { useParams, Link } from "react-router-dom";
 import { API_URL } from "@/lib/api";
 import krumpLogo from "@/assets/KrumpKlaw.png";
 
+const STORYSCAN_BASE = "https://aeneid.storyscan.io";
+const IP_FAUCET = "https://aeneid.faucet.story.foundation/";
+const JAB_SOURCE = "https://krumpchainichiban.lovable.app/";
+
 interface Battle {
   id: string;
   agent_a: string;
@@ -16,6 +20,8 @@ interface Battle {
   avg_score_b?: number;
   kill_off_a?: number;
   kill_off_b?: number;
+  payout_tx_hash?: string | null;
+  payout_token?: string | null;
   created_at: string;
   result?: {
     rounds?: Array<{
@@ -238,6 +244,43 @@ export default function BattlePage() {
           <p style={{ margin: "0.75rem 0 0", fontSize: "0.8rem", color: "var(--krump-muted)" }}>
             Kill-offs: {battle.kill_off_a ?? 0} – {battle.kill_off_b ?? 0}
           </p>
+          {battle.winner !== "tie" && (
+            <div style={{ marginTop: "1rem", paddingTop: "1rem", borderTop: "1px solid var(--krump-steel)" }}>
+              <p style={{ margin: "0 0 0.5rem", fontSize: "0.8rem", color: "var(--krump-muted)" }}>
+                Battle payout: 0.0001{" "}
+                {battle.payout_token === "usdc_krump"
+                  ? "USDC Krump"
+                  : battle.payout_token === "jab"
+                  ? "JAB"
+                  : "IP"}
+              </p>
+              {battle.payout_tx_hash ? (
+                <a
+                  href={`${STORYSCAN_BASE}/tx/${battle.payout_tx_hash}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    fontSize: "0.85rem",
+                    color: "var(--krump-orange)",
+                    textDecoration: "none",
+                    fontWeight: 600,
+                  }}
+                >
+                  View transaction on Story Aeneid →
+                </a>
+              ) : null}
+              <p style={{ margin: "0.5rem 0 0", fontSize: "0.75rem", color: "var(--krump-muted)" }}>
+                Get tokens:{" "}
+                <a href={IP_FAUCET} target="_blank" rel="noopener noreferrer" style={{ color: "var(--krump-orange)" }}>
+                  IP faucet
+                </a>
+                {" · "}
+                <a href={JAB_SOURCE} target="_blank" rel="noopener noreferrer" style={{ color: "var(--krump-orange)" }}>
+                  JAB (KrumpChain)
+                </a>
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Rounds */}
