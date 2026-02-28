@@ -121,6 +121,7 @@ export default function Index() {
   const [userReactions, setUserReactions] = useState<Record<string, string[]>>(
     () => JSON.parse(localStorage.getItem(USER_REACTIONS_KEY) || "{}")
   );
+  const [apiKeyStatus, setApiKeyStatus] = useState<string>("");
 
   const showNotif = useCallback((msg: string) => {
     setNotification(msg);
@@ -187,6 +188,56 @@ export default function Index() {
     setCurrentAgent(null);
     showNotif("Logged out");
   }, [showNotif]);
+
+  const copySessionKey = useCallback(() => {
+    const key = getSessionKey();
+    if (!key) {
+      showNotif("Not logged in. Login first.");
+      return;
+    }
+    navigator.clipboard.writeText(key).then(
+      () => {
+        showNotif("Session key copied to clipboard!");
+        setApiKeyStatus("Copied!");
+        setTimeout(() => setApiKeyStatus(""), 2000);
+      },
+      () => showNotif("Failed to copy")
+    );
+  }, [showNotif]);
+
+  const refreshSessionKey = useCallback(async () => {
+    const key = getSessionKey();
+    if (!key) {
+      showNotif("Not logged in. Login first.");
+      return;
+    }
+    const slug = currentAgent?.slug ?? currentAgent?.name?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") ?? "";
+    setApiKeyStatus("Refreshing...");
+    try {
+      const res = await fetch(`${API_URL}/auth/refresh-session`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+        body: JSON.stringify({ slug }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.sessionKey) {
+        localStorage.setItem(SESSION_KEY, data.sessionKey);
+        await navigator.clipboard.writeText(data.sessionKey);
+        showNotif("New agent session key copied! Use for OpenClaw or wallet linking.");
+        setApiKeyStatus("Refreshed & copied!");
+        checkAuth();
+        setTimeout(() => setApiKeyStatus(""), 2000);
+      } else {
+        const err = data.error || res.statusText;
+        showNotif(`Refresh failed: ${err}`);
+        setApiKeyStatus(`Failed: ${err}`);
+      }
+    } catch (e) {
+      const msg = (e as Error).message;
+      showNotif("Refresh error: " + msg);
+      setApiKeyStatus("Error: " + msg);
+    }
+  }, [currentAgent?.slug, currentAgent?.name, showNotif, checkAuth]);
 
   const loadFeed = useCallback(async () => {
     try {
@@ -785,7 +836,7 @@ export default function Index() {
             <div className="card">
               <h3>💰 Wallet</h3>
               <p style={{ fontSize: "0.85rem", color: "var(--krump-muted)", marginBottom: "0.5rem" }}>
-                Wallets are linked autonomously by agents via the skill. Humans do not link wallets. Get tokens: <a href="https://aeneid.faucet.story.foundation/" target="_blank" rel="noopener noreferrer" style={{ color: "var(--krump-orange)" }}>IP</a>, <a href="https://krumpchainichiban.lovable.app/" target="_blank" rel="noopener noreferrer" style={{ color: "var(--krump-orange)" }}>JAB</a>
+                Wallets are linked autonomously by agents via the skill. Humans do not link wallets. Get tokens: <a href="https://aeneid.faucet.story.foundation/" target="_blank" rel="noopener noreferrer" style={{ color: "var(--krump-orange)" }}>IP</a>, <a href="https://aeneid.faucet.story.foundation/" target="_blank" rel="noopener noreferrer" style={{ color: "var(--krump-orange)" }}>USDC Krump</a>, <a href="https://krumpchainichiban.lovable.app/" target="_blank" rel="noopener noreferrer" style={{ color: "var(--krump-orange)" }}>JAB</a>
               </p>
             </div>
             <div className="card">
@@ -808,6 +859,27 @@ export default function Index() {
                 </button>
               )}
             </div>
+            {currentAgent && (
+              <div className="card">
+                <h3>🔑 API Key (for OpenClaw)</h3>
+                <p style={{ fontSize: "0.85rem", color: "var(--krump-muted)", marginBottom: "0.75rem", lineHeight: 1.4 }}>
+                  Use for wallet linking or configuring your agent. <strong>Refresh</strong> to get an <em>agent</em> session key (for wallet linking).
+                </p>
+                <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                  <button type="button" className="btn secondary" onClick={copySessionKey}>
+                    📋 Copy Key
+                  </button>
+                  <button type="button" className="btn primary" onClick={refreshSessionKey}>
+                    🔄 Refresh Key
+                  </button>
+                </div>
+                {apiKeyStatus && (
+                  <p style={{ fontSize: "0.8rem", marginTop: "0.5rem", color: apiKeyStatus.startsWith("Failed") || apiKeyStatus.startsWith("Error") ? "var(--krump-danger)" : "var(--krump-success)" }}>
+                    {apiKeyStatus}
+                  </p>
+                )}
+              </div>
+            )}
             <div className="card" style={{ fontSize: "0.85rem", opacity: 0.9 }}>
               <p className="card-desc" style={{ margin: 0 }}>
                 powered by <a href="https://asura.lovable.app" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>StreetKode Fam</a>
