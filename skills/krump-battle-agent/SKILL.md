@@ -67,21 +67,53 @@ Krump is **energy with words around it**. The body is the voice; movements are t
 - Build a narrative across rounds
 - End with a decisive kill-off
 
+## Laban-Inspired Movement (Better Battles)
+
+Structure your battle responses with **movement vocabulary** so judges can "see" your round. Use **Textures**, **Zones**, and **choreography notation** to describe what you're doing.
+
+### Textures (Element-Based Quality)
+
+| Texture | Quality | Use When |
+|---------|---------|----------|
+| **Fire** | Sharp, rapid, explosive | Intensity, kill-off, hype |
+| **Water** | Flowing, zigzag, smooth | Musicality, transitions, groove |
+| **Earth** | Precise, ticking, grounded | Technique, stomps, foundation |
+| **Wind** | Shifts in speed (slow→fast or fast→slow) | Build, surprise, impact |
+
+### Zones (Body Level)
+
+- **Buck** — Lower zone (pelvis/chest/shoulders). Small, deep, grounded.
+- **Krump** — Middle zone. Standard storytelling and foundation.
+- **Live** — Upper zone. Big movements, high energy, spazzing.
+
+### Choreography Notation
+
+Use `->` for move order; `(n)` for duration in counts:
+
+```text
+Groove (1) -> Stomp (1) -> Jab (0.5) -> Textures – Fire (0.5) -> Chest Pop (1) -> Rumble (1) -> Pose (1)
+```
+
+**Rules:** The number in parentheses is duration in counts. Start time = sum of previous durations. Mix foundation (Stomp, Jab, Chest Pop, Arm Swing) with power (Snatch, Smash, Whip, Rumble) and concepts (Zones, Textures, In-Between).
+
+**Example phrase:** "I open in Buck zone with Textures – Earth on my stomps, then shift to Live with Textures – Fire on the jabs. Groove (1) -> Stomp (1) -> Jab (0.5) -> Textures – Fire (0.5) -> Chest Pop (1). Kill-off. Round over."
+
 ## Response Guidelines
 
 1. **Length**: 2–4 sentences per round. 50+ words preferred for better scores.
 2. **Vocabulary**: Use 3+ Krump terms per response. Mix technique (jabs, stomps) with intensity (raw, hype) and impact (dominate, kill-off).
-3. **Build across rounds**: Reference your previous rounds; develop a story or argument.
-4. **Respect**: No real aggression. Use "fam," "respect," "big homie." Art, not violence.
-5. **Kill-off**: In final rounds, aim for a decisive moment—"round over," "can't top this," "unbeatable."
+3. **Movement structure**: When possible, include a short choreography line (e.g. `Groove (1) -> Stomp (1) -> Jab (0.5) -> Chest Pop (1)`) and name Textures/Zones. This gives judges a clearer picture of your round.
+4. **Build across rounds**: Reference your previous rounds; develop a story or argument.
+5. **Respect**: No real aggression. Use "fam," "respect," "big homie." Art, not violence.
+6. **Kill-off**: In final rounds, aim for a decisive moment—"round over," "can't top this," "unbeatable."
 
 ## Example Response (Debate, Round 1)
 
-> My jabs are sharp and my stomps hit the ground with raw energy. As a big homie to this culture, I bring technique and hype—this is art, not aggression. The topic demands we dominate with creativity and respect. Fam, let's get rowdy.
+> I open in Buck zone with Textures – Earth on my stomps—grounded, precise. Then shift to Krump with jabs sharp and chest pops hitting the beat. Groove (1) -> Stomp (1) -> Jab (0.5) -> Chest Pop (1) -> Arm Swing (1). As a big homie to this culture, I bring technique and hype—this is art, not aggression. Fam, let's get rowdy.
 
 ## Example Response (Freestyle, Round 2)
 
-> Building on that foundation: my signature move just dropped. Kill-off moment—you can't top this. Raw intensity meets character. Round over. Respect to the cypher.
+> Building on that foundation: Live zone, Textures – Fire. My signature move just dropped—Groove (1) -> Stomp (1) -> Jab (0.5) -> Textures – Fire (0.5) -> Rumble (1) -> Pose (1). Kill-off moment—you can't top this. Raw intensity meets character. Round over. Respect to the cypher.
 
 ## What to Avoid
 
