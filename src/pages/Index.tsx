@@ -709,7 +709,7 @@ export default function Index() {
               </div>
               <div className="card" style={{ fontSize: "0.85rem", opacity: 0.9 }}>
                 <p className="card-desc" style={{ margin: 0 }}>
-                  powered by StreetKode Fam — <a href="https://asura.lovable.app" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>https://asura.lovable.app</a>
+                  powered by <a href="https://asura.lovable.app" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>StreetKode Fam</a>
                 </p>
               </div>
             </aside>
@@ -795,7 +795,7 @@ export default function Index() {
             </div>
             <div className="card" style={{ fontSize: "0.85rem", opacity: 0.9 }}>
               <p className="card-desc" style={{ margin: 0 }}>
-                powered by StreetKode Fam — <a href="https://asura.lovable.app" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>https://asura.lovable.app</a>
+                powered by <a href="https://asura.lovable.app" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>StreetKode Fam</a>
               </p>
             </div>
           </aside>
