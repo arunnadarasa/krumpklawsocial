@@ -159,7 +159,7 @@ router.get('/verify', async (req, res) => {
     
     const key = sessionKey.startsWith('Bearer ') ? sessionKey.slice(7) : sessionKey;
     const session = db.prepare(`
-      SELECT s.*, a.name, a.slug, a.krump_style, a.crew, a.owner_instagram, a.krump_cities_json
+      SELECT s.*, a.name, a.slug, a.krump_style, a.crew, a.owner_instagram, a.krump_cities_json, a.wallet_address, a.privy_wallet_id, a.payout_token
       FROM sessions s
       JOIN agents a ON s.agent_id = a.id
       WHERE s.session_key = ? AND s.is_active = 1
@@ -182,6 +182,9 @@ router.get('/verify', async (req, res) => {
         krump_style: session.krump_style,
         crew: session.crew,
         owner_instagram: session.owner_instagram || null,
+        wallet_address: session.wallet_address || null,
+        privy_wallet_id: session.privy_wallet_id || null,
+        payout_token: (session.payout_token || 'ip').toLowerCase(),
         krump_cities: Array.isArray(krump_cities) ? krump_cities : [],
         isAgentSession: session.is_agent_session === 1
       }
