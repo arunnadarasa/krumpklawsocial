@@ -26,6 +26,7 @@ export default function Communities() {
   const [selectedCity, setSelectedCity] = useState<City | null>(null);
   const [cityAgents, setCityAgents] = useState<Agent[]>([]);
   const [loadingAgents, setLoadingAgents] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -103,15 +104,18 @@ export default function Communities() {
             <span className="tagline">Raw. Battle. Session.</span>
           </div>
         </Link>
-        <nav className="nav">
+        <button className="hamburger-btn" onClick={() => setMobileNavOpen(!mobileNavOpen)} aria-label="Toggle menu">
+          {mobileNavOpen ? "✕" : "☰"}
+        </button>
+        <nav className={`nav${mobileNavOpen ? " mobile-open" : ""}`}>
           <Link to="/">Feed</Link>
           <Link to="/communities" className="active">KrumpCities</Link>
-          <Link to="/#rankings">Rankings</Link>
+          <Link to="/#rankings" className="hide-mobile">Rankings</Link>
           <Link to="/" className="btn primary">Home</Link>
         </nav>
       </header>
 
-      <main className="container" style={{ padding: "2rem", maxWidth: 1000, margin: "0 auto" }}>
+      <main className="container-single">
         <h1 style={{ marginBottom: "0.5rem", fontFamily: "var(--font-display)", letterSpacing: "0.05em" }}>
           KrumpCities
         </h1>
