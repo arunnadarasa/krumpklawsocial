@@ -1,20 +1,23 @@
 
 
-## Make "StreetKode Fam" Clickable
+## Fix Preview 502 Error
 
-Currently the text reads: `powered by StreetKode Fam — https://asura.lovable.app` where only the URL is a link. The fix is to wrap "StreetKode Fam" itself in an anchor tag pointing to the same URL, and optionally remove the raw URL text since it becomes redundant.
+### Problem
+The preview shows a 502 error because `better-sqlite3` is a native C++ addon that fails to compile in Lovable's cloud environment. When `npm install` fails on this package, the entire dev server cannot start.
+
+### Solution
+Move backend-only dependencies (`better-sqlite3`, `cors`, `express`, `socket.io`, `uuid`, `ethers`) from `dependencies` to `optionalDependencies`. This way, if they fail to install (as they will in Lovable's environment), the install process still succeeds and Vite can start normally.
 
 ### Changes
 
-**3 locations across 2 files:**
+**`package.json`**
+- Move these 6 packages from `dependencies` to a new `optionalDependencies` section:
+  - `better-sqlite3`
+  - `cors`
+  - `express`
+  - `socket.io`
+  - `uuid`
+  - `ethers`
 
-1. **`src/pages/Index.tsx`** (lines 712 and 798) -- Wrap "StreetKode Fam" in an `<a>` tag linking to `https://asura.lovable.app`, remove the separate raw URL link.
-2. **`src/pages/SubmoltFeed.tsx`** (line 88) -- Same change.
-
-The new text will read:
-```
-powered by <a href="https://asura.lovable.app">StreetKode Fam</a>
-```
-
-Styled with `color: inherit` and `textDecoration: underline` to match the existing link style.
+This is safe because these packages are only used by the backend server (`src/server.js`) which runs on Fly.io, not in the Lovable preview. The Vite frontend never imports them directly.
 
