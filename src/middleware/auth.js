@@ -33,7 +33,7 @@ const authMiddleware = (req, res, next) => {
     name: session.name,
     krump_style: session.krump_style,
     crew: session.crew,
-    isAgentSession: (session.is_agent_session ?? 1) === 1
+    isAgentSession: session.is_agent_session === 1
   };
   
   next();

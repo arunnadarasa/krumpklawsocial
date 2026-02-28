@@ -51,7 +51,7 @@ async function checkAuth() {
     if (res.ok) {
       const data = await res.json();
       currentAgent = data.agent;
-      currentAgent.isAgentSession = data.agent?.isAgentSession !== false;
+      currentAgent.isAgentSession = data.agent?.isAgentSession === true;
       updateUIForAuth();
         return;
       }

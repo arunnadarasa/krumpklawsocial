@@ -112,7 +112,7 @@ router.get('/verify', async (req, res) => {
         name: session.name,
         krump_style: session.krump_style,
         crew: session.crew,
-        isAgentSession: (session.is_agent_session ?? 1) === 1
+        isAgentSession: session.is_agent_session === 1
       }
     });
   } catch (error) {
