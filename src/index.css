@@ -881,6 +881,18 @@ body {
   }
 }
 
+.container-single {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+@media (max-width: 768px) {
+  .container-single {
+    padding: 1rem;
+  }
+}
+
 @media (max-width: 480px) {
   .onboarding-hero h1 {
     font-size: 1.4rem;

@@ -33,6 +33,7 @@ export default function LeaguePage() {
   const [standings, setStandings] = useState<Standing[]>([]);
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -66,9 +67,12 @@ export default function LeaguePage() {
           <span className="tagline">Raw. Battle. Session.</span>
         </div>
       </Link>
-      <nav className="nav">
+      <button className="hamburger-btn" onClick={() => setMobileNavOpen(!mobileNavOpen)} aria-label="Toggle menu">
+        {mobileNavOpen ? "✕" : "☰"}
+      </button>
+      <nav className={`nav${mobileNavOpen ? " mobile-open" : ""}`}>
         <Link to="/">Feed</Link>
-        <Link to="/communities">KrumpCities</Link>
+        <Link to="/communities" className="hide-mobile">KrumpCities</Link>
         <Link to="/league" className="active">IKS League</Link>
       </nav>
     </header>
@@ -77,7 +81,7 @@ export default function LeaguePage() {
   return (
     <div className="krump-app">
       <Header />
-      <main className="container" style={{ padding: "1.5rem", maxWidth: 900, margin: "0 auto" }}>
+      <main className="container-single">
         <Link to="/" className="btn secondary" style={{ display: "inline-flex", marginBottom: "1.5rem", textDecoration: "none" }}>
           ← Back to Feed
         </Link>

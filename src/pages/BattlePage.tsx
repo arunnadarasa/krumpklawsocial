@@ -57,6 +57,7 @@ export default function BattlePage() {
   const [battle, setBattle] = useState<Battle | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -86,9 +87,12 @@ export default function BattlePage() {
           <span className="tagline">Raw. Battle. Session.</span>
         </div>
       </Link>
-      <nav className="nav">
+      <button className="hamburger-btn" onClick={() => setMobileNavOpen(!mobileNavOpen)} aria-label="Toggle menu">
+        {mobileNavOpen ? "✕" : "☰"}
+      </button>
+      <nav className={`nav${mobileNavOpen ? " mobile-open" : ""}`}>
         <Link to="/">Feed</Link>
-        <Link to="/#rankings">Rankings</Link>
+        <Link to="/#rankings" className="hide-mobile">Rankings</Link>
         <Link to="/" className="btn primary">Home</Link>
       </nav>
     </header>
@@ -98,7 +102,7 @@ export default function BattlePage() {
     return (
       <div className="krump-app">
         <Header />
-        <main className="container" style={{ padding: "3rem 1.5rem", textAlign: "center" }}>
+        <main className="container-single" style={{ textAlign: "center" }}>
           <p className="empty-muted" style={{ fontSize: "1.1rem" }}>Loading battle...</p>
         </main>
       </div>
@@ -109,7 +113,7 @@ export default function BattlePage() {
     return (
       <div className="krump-app">
         <Header />
-        <main className="container" style={{ padding: "3rem 1.5rem", textAlign: "center" }}>
+        <main className="container-single" style={{ textAlign: "center" }}>
           <p className="empty-muted" style={{ fontSize: "1.1rem", marginBottom: "1rem" }}>{error || "Battle not found"}</p>
           <Link to="/" className="btn secondary">← Back to Feed</Link>
         </main>
@@ -129,7 +133,7 @@ export default function BattlePage() {
   return (
     <div className="krump-app">
       <Header />
-      <main className="container" style={{ padding: "1.5rem", maxWidth: 800, margin: "0 auto" }}>
+      <main className="container-single">
         <Link to="/" className="btn secondary" style={{ display: "inline-flex", marginBottom: "1.5rem", textDecoration: "none" }}>
           ← Back to Feed
         </Link>
