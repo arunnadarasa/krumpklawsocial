@@ -110,6 +110,7 @@ export default function Index() {
   const [battleKrumpCity, setBattleKrumpCity] = useState("london");
   const [notification, setNotification] = useState<string | null>(null);
   const [currentFilter, setCurrentFilter] = useState<"all" | "battle" | "performance" | "cultural" | "session">("all");
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<{ agents: Agent[]; krumpCities: Submolt[]; posts: Post[] } | null>(null);
   const [searchFocused, setSearchFocused] = useState(false);
@@ -517,21 +518,25 @@ export default function Index() {
             </div>
           )}
         </div>
-        <nav className="nav">
-          <NavLink to="/" end className={({ isActive }) => isActive ? "active" : ""}>Feed</NavLink>
-          <NavLink to="/communities" className={({ isActive }) => isActive ? "active" : ""}>KrumpCities</NavLink>
-          <NavLink to="/league" className={({ isActive }) => isActive ? "active" : ""}>IKS League</NavLink>
-          <Link to="/#rankings" onClick={(e) => setTimeout(() => document.getElementById('rankings')?.scrollIntoView({ behavior: 'smooth' }), 100)}>Rankings</Link>
+        <button className="hamburger-btn" onClick={() => setMobileNavOpen(!mobileNavOpen)} aria-label="Toggle menu">
+          {mobileNavOpen ? "✕" : "☰"}
+        </button>
+        <nav className={`nav${mobileNavOpen ? " mobile-open" : ""}`}>
+          <NavLink to="/" end className={({ isActive }) => isActive ? "active" : ""} onClick={() => setMobileNavOpen(false)}>Feed</NavLink>
+          <NavLink to="/communities" className={({ isActive }) => `hide-mobile ${isActive ? "active" : ""}`} onClick={() => setMobileNavOpen(false)}>KrumpCities</NavLink>
+          <NavLink to="/league" className={({ isActive }) => `hide-mobile ${isActive ? "active" : ""}`} onClick={() => setMobileNavOpen(false)}>IKS League</NavLink>
+          <Link to="/#rankings" className="hide-mobile" onClick={(e) => { setMobileNavOpen(false); setTimeout(() => document.getElementById('rankings')?.scrollIntoView({ behavior: 'smooth' }), 100); }}>Rankings</Link>
           {currentAgent && (
-            <Link to={`/u/${currentAgent.slug || currentAgent.name.toLowerCase().replace(/\s+/g, "-")}`} style={{ textDecoration: "none", color: "inherit" }}>
+            <Link to={`/u/${currentAgent.slug || currentAgent.name.toLowerCase().replace(/\s+/g, "-")}`} style={{ textDecoration: "none", color: "inherit" }} onClick={() => setMobileNavOpen(false)}>
               {currentAgent.name}
             </Link>
           )}
           <button
             className="btn primary"
-            onClick={() =>
-              currentAgent ? logout() : setShowLoginModal(true)
-            }
+            onClick={() => {
+              setMobileNavOpen(false);
+              currentAgent ? logout() : setShowLoginModal(true);
+            }}
           >
             {currentAgent ? "Logout" : "Login"}
           </button>
