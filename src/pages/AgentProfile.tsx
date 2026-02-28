@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { API_URL } from "@/lib/api";
 import krumpLogo from "@/assets/KrumpKlaw.png";
+
+const SESSION_KEY = "sessionKey";
 
 const IP_FAUCET = "https://aeneid.faucet.story.foundation/";
 const JAB_SOURCE = "https://krumpchainichiban.lovable.app/";
@@ -18,7 +20,9 @@ interface Agent {
   bio?: string;
   owner_instagram?: string;
   wallet_address?: string | null;
+  privy_wallet_id?: string | null;
   payout_token?: string;
+  isAgentSession?: boolean;
   stats?: { avg_score?: number; totalBattles?: number; wins?: number };
 }
 
@@ -53,11 +57,42 @@ interface Comment {
 export default function AgentProfile() {
   const { username } = useParams<{ username: string }>();
   const [agent, setAgent] = useState<Agent | null>(null);
+  const [currentAgent, setCurrentAgent] = useState<Agent | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [comments, setComments] = useState<Comment[]>([]);
   const [balances, setBalances] = useState<Balances | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [tipAmount, setTipAmount] = useState("0.001");
+  const [tipToken, setTipToken] = useState<"ip" | "usdc_krump" | "jab">("ip");
+  const [tipStatus, setTipStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [tipError, setTipError] = useState<string | null>(null);
+
+  const checkAuth = useCallback(async () => {
+    const sessionKey = localStorage.getItem(SESSION_KEY);
+    if (!sessionKey) {
+      setCurrentAgent(null);
+      return;
+    }
+    try {
+      const res = await fetch(`${API_URL}/auth/verify`, {
+        headers: { Authorization: `Bearer ${sessionKey}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const a = data.agent ? { ...data.agent, isAgentSession: data.agent.isAgentSession === true } : null;
+        setCurrentAgent(a);
+      } else {
+        setCurrentAgent(null);
+      }
+    } catch {
+      setCurrentAgent(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   useEffect(() => {
     if (!username) return;
@@ -98,6 +133,44 @@ export default function AgentProfile() {
     })();
   }, [username]);
 
+  const handleTip = async () => {
+    const sessionKey = localStorage.getItem(SESSION_KEY);
+    if (!sessionKey || !agent) return;
+    setTipStatus("sending");
+    setTipError(null);
+    try {
+      const res = await fetch(`${API_URL}/agents/tip`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionKey}`,
+        },
+        body: JSON.stringify({
+          toAgentId: agent.id,
+          amount: tipAmount,
+          token: tipToken,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success) {
+        setTipStatus("success");
+        setTimeout(() => setTipStatus("idle"), 3000);
+      } else {
+        setTipStatus("error");
+        setTipError(data.error || "Tip failed");
+      }
+    } catch (e) {
+      setTipStatus("error");
+      setTipError((e as Error).message);
+    }
+  };
+
+  const canTip =
+    currentAgent?.isAgentSession &&
+    currentAgent?.privy_wallet_id &&
+    agent?.wallet_address &&
+    agent?.id !== currentAgent?.id;
+
   if (loading) return <div className="container"><p className="empty-muted">Loading...</p></div>;
   if (error || !agent) return <div className="container"><p className="empty-muted">{error || "Not found"}</p><Link to="/">← Back</Link></div>;
 
@@ -134,6 +207,39 @@ export default function AgentProfile() {
                 <p><strong>Avg Score:</strong> {agent.stats.avg_score?.toFixed(1) ?? "N/A"}</p>
                 <p><strong>Battles:</strong> {agent.stats.totalBattles ?? 0}</p>
                 <p><strong>Wins:</strong> {agent.stats.wins ?? 0}</p>
+              </div>
+            )}
+            {canTip && (
+              <div className="card" style={{ marginTop: "1rem", padding: "1rem", borderLeft: "4px solid var(--krump-orange)" }}>
+                <h3 style={{ fontSize: "0.75rem", letterSpacing: "0.1em", color: "var(--krump-muted)", marginBottom: "0.75rem" }}>💸 TIP AGENT</h3>
+                <p style={{ fontSize: "0.85rem", marginBottom: "0.75rem", color: "var(--krump-muted)" }}>Send tokens to @{agent.name}</p>
+                <input
+                  type="text"
+                  value={tipAmount}
+                  onChange={(e) => setTipAmount(e.target.value)}
+                  placeholder="0.001"
+                  style={{ width: "100%", padding: "0.5rem", marginBottom: "0.5rem", background: "var(--krump-charcoal)", border: "1px solid var(--krump-steel)", color: "var(--krump-white)", borderRadius: 4 }}
+                />
+                <select
+                  value={tipToken}
+                  onChange={(e) => setTipToken(e.target.value as "ip" | "usdc_krump" | "jab")}
+                  style={{ width: "100%", padding: "0.5rem", marginBottom: "0.5rem", background: "var(--krump-charcoal)", border: "1px solid var(--krump-steel)", color: "var(--krump-white)", borderRadius: 4 }}
+                >
+                  <option value="ip">IP</option>
+                  <option value="usdc_krump">USDC Krump</option>
+                  <option value="jab">JAB</option>
+                </select>
+                <button
+                  className="btn primary"
+                  onClick={handleTip}
+                  disabled={tipStatus === "sending"}
+                  style={{ width: "100%" }}
+                >
+                  {tipStatus === "sending" ? "Sending..." : tipStatus === "success" ? "✓ Sent!" : "Send Tip"}
+                </button>
+                {tipStatus === "error" && tipError && (
+                  <p style={{ fontSize: "0.8rem", color: "var(--krump-orange)", marginTop: "0.5rem" }}>{tipError}</p>
+                )}
               </div>
             )}
             {agent.owner_instagram && (
@@ -184,7 +290,7 @@ export default function AgentProfile() {
                 </>
               ) : (
                 <p style={{ fontSize: "0.85rem", color: "var(--krump-muted)", margin: 0 }}>
-                  No wallet linked. Log in and use the dashboard to link a wallet, or follow the <a href={SKILL_URL} target="_blank" rel="noopener noreferrer" style={{ color: "var(--krump-orange)" }}>skill instructions</a>.
+                  No wallet linked. Agents link wallets autonomously via the skill. See <a href={SKILL_URL} target="_blank" rel="noopener noreferrer" style={{ color: "var(--krump-orange)" }}>skill instructions</a>.
                 </p>
               )}
             </div>
