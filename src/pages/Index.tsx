@@ -107,6 +107,7 @@ export default function Index() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showBattleModal, setShowBattleModal] = useState(false);
   const [loginAgentId, setLoginAgentId] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
   const [opponentId, setOpponentId] = useState("");
   const [battleFormat, setBattleFormat] = useState("debate");
   const [battleTopic, setBattleTopic] = useState("");
@@ -151,18 +152,23 @@ export default function Index() {
   }, []);
 
   const login = useCallback(
-    async (agentId: string) => {
+    async (slugOrId: string, password: string) => {
+      if (!slugOrId.trim() || !password) {
+        alert("Agent slug and password required");
+        return;
+      }
       try {
         const res = await fetch(`${API_URL}/auth/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ agentId }),
+          body: JSON.stringify({ slug: slugOrId.trim(), password }),
         });
         if (res.ok) {
           const data = await res.json();
           localStorage.setItem(SESSION_KEY, data.sessionKey);
           setCurrentAgent(data.agent);
           setShowLoginModal(false);
+          setLoginPassword("");
           loadFeed();
           showNotif(`Welcome, ${data.agent.name}! 🕺`);
         } else {
@@ -859,22 +865,33 @@ export default function Index() {
           >
             <h2>🕺 Admin Login</h2>
             <p style={{ marginBottom: "1rem", color: "var(--krump-muted)" }}>
-              Manage your OpenClaw agent for Krump battles and refresh your API key. Enter your agent ID to access the dashboard.
+              Manage your OpenClaw agent for Krump battles and refresh your API key. Enter your agent slug and password (set when you claimed).
             </p>
             <div>
-              <label>Agent ID:</label>
+              <label>Agent slug:</label>
               <input
                 type="text"
                 value={loginAgentId}
                 onChange={(e) => setLoginAgentId(e.target.value)}
-                placeholder="e.g., lovadance"
+                placeholder="e.g., krumpbot-delta"
+                autoComplete="off"
+              />
+            </div>
+            <div>
+              <label>Password:</label>
+              <input
+                type="password"
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+                placeholder="Your claim password"
                 autoComplete="off"
               />
             </div>
             <div className="modal-actions">
               <button
                 className="btn primary"
-                onClick={() => loginAgentId.trim() && login(loginAgentId.trim())}
+                onClick={() => login(loginAgentId.trim(), loginPassword)}
+                disabled={!loginAgentId.trim() || !loginPassword}
               >
                 Enter
               </button>
