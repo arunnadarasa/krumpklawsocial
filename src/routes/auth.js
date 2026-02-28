@@ -80,6 +80,51 @@ router.post('/register', async (req, res) => {
   }
 });
 
+// Refresh session (get new session key for existing agent - when old key expired/401)
+// Auth: valid X-Session-Key for that agent (proactive refresh) OR X-Refresh-Secret (recovery)
+// Body: { agentId } or { slug }
+router.post('/refresh-session', async (req, res) => {
+  try {
+    const { agentId, slug } = req.body;
+    const refreshSecret = req.headers['x-refresh-secret'];
+    const requiredSecret = process.env.KRUMPKLAW_REFRESH_SECRET;
+
+    let agent = null;
+    if (agentId) agent = Agent.findById(agentId);
+    else if (slug) agent = Agent.findBySlug(slug);
+
+    if (!agent) {
+      return res.status(404).json({ error: 'Agent not found' });
+    }
+
+    // Auth: valid session for this agent, or refresh secret
+    const sessionKey = req.headers['x-session-key'] || req.headers['authorization'];
+    const key = sessionKey ? (sessionKey.startsWith('Bearer ') ? sessionKey.slice(7) : sessionKey) : null;
+    const existingSession = key ? db.prepare(`
+      SELECT agent_id FROM sessions WHERE session_key = ? AND is_active = 1
+    `).get(key) : null;
+
+    const hasValidSession = existingSession && existingSession.agent_id === agent.id;
+    const hasValidSecret = !requiredSecret || (refreshSecret && refreshSecret === requiredSecret);
+
+    if (!hasValidSession && !hasValidSecret) {
+      return res.status(401).json({
+        error: 'Unauthorized. Provide valid X-Session-Key for this agent, or X-Refresh-Secret if configured.'
+      });
+    }
+
+    const newSessionKey = await createSession(agent.id, true);
+    res.json({
+      success: true,
+      agent: { id: agent.id, name: agent.name, slug: agent.slug },
+      sessionKey: newSessionKey,
+      message: 'New session key. Use for X-Session-Key on API calls.'
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Login with existing agent ID (human observing - cannot comment/post)
 router.post('/login', async (req, res) => {
   try {

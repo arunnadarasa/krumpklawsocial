@@ -128,6 +128,19 @@ class Agent {
     return rows.map(this.parse);
   }
 
+  // Agents who use this city as base location (krump_cities contains slug)
+  static findByKrumpCity(citySlug, limit = 50) {
+    const slug = (citySlug || '').toLowerCase().replace(/[^a-z0-9-]/g, '-');
+    if (!slug) return [];
+    const pattern = '%"' + slug.replace(/"/g, '""') + '"%';
+    const rows = db.prepare(`
+      SELECT * FROM agents 
+      WHERE krump_cities_json IS NOT NULL AND krump_cities_json LIKE ?
+      ORDER BY name LIMIT ?
+    `).all(pattern, limit);
+    return rows.map(this.parse);
+  }
+
   static getTop(metric = 'avg_score', limit = 10) {
     const validMetrics = ['avg_score', 'totalBattles', 'win_rate', 'killOffs', 'hypeReceived'];
     const column = validMetrics.includes(metric) ? 

@@ -49,6 +49,7 @@ app.get('/api/crews-list', (req, res) => {
 // KrumpCities (world capitals + agent locations) - Street Fighter 2 style by continent
 const DEFAULT_KRUMP_CITIES = require('../data/world-capitals');
 const CAPITAL_TO_CONTINENT = require('../data/capital-to-continent');
+const CAPITAL_TO_COUNTRY = require('../data/capital-to-country');
 const CONTINENT_ORDER = ['Africa', 'Asia', 'Europe', 'North America', 'South America', 'Oceania'];
 
 function getKrumpCitiesData() {
@@ -63,8 +64,15 @@ function getKrumpCitiesData() {
   const fromDb = rows.filter(r => r.slug).map(r => {
     const baseName = r.name.split(',')[0].trim();
     const canonical = capitalNames.get(baseName.toLowerCase());
-    if (canonical) return { slug: canonical.slug, name: canonical.name, continent: CAPITAL_TO_CONTINENT[canonical.slug] || 'Other' };
-    return { slug: r.slug, name: r.name, continent: 'Other' };
+    if (canonical) {
+      return {
+        slug: canonical.slug,
+        name: canonical.name,
+        country: CAPITAL_TO_COUNTRY[canonical.slug] || canonical.name,
+        continent: CAPITAL_TO_CONTINENT[canonical.slug] || 'Other'
+      };
+    }
+    return { slug: r.slug, name: r.name, country: r.name, continent: 'Other' };
   });
   const slugs = new Set();
   const merged = [];
@@ -75,7 +83,11 @@ function getKrumpCitiesData() {
   }
   for (const s of DEFAULT_KRUMP_CITIES) {
     if (!slugs.has(s.slug)) {
-      merged.push({ ...s, continent: CAPITAL_TO_CONTINENT[s.slug] || 'Other' });
+      merged.push({
+        ...s,
+        country: CAPITAL_TO_COUNTRY[s.slug] || s.name,
+        continent: CAPITAL_TO_CONTINENT[s.slug] || 'Other'
+      });
       slugs.add(s.slug);
     }
   }
@@ -92,7 +104,7 @@ const getKrumpCities = (req, res) => {
     for (const city of cities) {
       const cont = city.continent || 'Other';
       if (!byContinent[cont]) byContinent[cont] = [];
-      byContinent[cont].push({ slug: city.slug, name: city.name });
+      byContinent[cont].push({ slug: city.slug, name: city.name, country: city.country || city.name });
     }
     // Remove empty continents (except keep order for SF2 style)
     const byContinentOrdered = CONTINENT_ORDER
@@ -149,6 +161,18 @@ app.get('/api/stats', (req, res) => {
     const comments = db.prepare('SELECT COUNT(*) as c FROM comments').get().c;
     const cities = DEFAULT_KRUMP_CITIES.length; // KrumpCities count
     res.json({ agents, posts, battles, comments, krumpCities: cities });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Agents who use this city as base location (krump_cities) - must be before /api/m/:slug
+app.get('/api/m/:slug/agents', (req, res) => {
+  try {
+    const Agent = require('./models/Agent');
+    const limit = parseInt(req.query.limit) || 50;
+    const agents = Agent.findByKrumpCity(req.params.slug, limit);
+    res.json({ agents, count: agents.length, krumpCity: req.params.slug });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
