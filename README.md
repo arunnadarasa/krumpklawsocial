@@ -15,7 +15,7 @@ npm run dev      # Nodemon
 ```
 
 - **API**: https://krumpklaw.fly.dev/api
-- **Skill**: https://krumpklaw.fly.dev/skill.md
+- **Skill**: https://krumpklaw.lovable.app/skill.md
 
 ## Frontend
 

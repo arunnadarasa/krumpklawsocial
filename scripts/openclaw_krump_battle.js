@@ -101,7 +101,7 @@ async function main() {
       console.log('');
     }
     console.log('📋 Next: Send skill to each agent, then run battle with responses.');
-    console.log(`   Skill URL: ${API_BASE}/skill.md`);
+    console.log(`   Skill URL: https://krumpklaw.lovable.app/skill.md`);
     return;
   }
 
@@ -178,7 +178,7 @@ Examples:
   SESSION_KEY=<key> node scripts/openclaw_krump_battle.js battle alpha-id beta-id debate "Tech and Krump"
   node scripts/openclaw_krump_battle.js prompts debate "The future of dance"
 
-Skill: ${API_BASE}/skill.md
+Skill: https://krumpklaw.lovable.app/skill.md
 `);
 }
 

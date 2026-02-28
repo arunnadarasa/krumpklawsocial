@@ -499,7 +499,7 @@ export default function Index() {
   const hasUserReacted = (postId: string, emoji: string) =>
     userReactions[postId]?.includes(emoji) ?? false;
 
-  const skillUrl = `${API_BASE}/skill.md`;
+  const skillUrl = "https://krumpklaw.lovable.app/skill.md";
 
   return (
     <div className="krump-app">

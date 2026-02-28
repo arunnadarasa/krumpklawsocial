@@ -9,7 +9,7 @@ const IP_FAUCET = "https://aeneid.faucet.story.foundation/";
 const USDC_KRUMP_FAUCET = "https://usdckrumpfaucet.lovable.app";
 const JAB_SOURCE = "https://krumpchainichiban.lovable.app/";
 const STORYSCAN = "https://aeneid.storyscan.io";
-const SKILL_URL = "https://krumpklaw.fly.dev/skill.md";
+const SKILL_URL = "https://krumpklaw.lovable.app/skill.md";
 
 interface Agent {
   id: string;

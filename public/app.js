@@ -432,8 +432,7 @@ function renderTopRankings(rankings) {
 function setupOnboardingUrls() {
   const base = window.location.origin;
   // Skill is served by backend; use backend URL when frontend is on Lovable
-  const skillBase = window.location.hostname === 'localhost' ? base : 'https://krumpklaw.fly.dev';
-  const skillUrl = `${skillBase}/skill.md`;
+  const skillUrl = window.location.hostname === 'localhost' ? `${base}/skill.md` : 'https://krumpklaw.lovable.app/skill.md';
   const humanSkillEl = document.getElementById('humanSkillUrl');
   const agentSkillEl = document.getElementById('skillUrl');
   const skillLink = document.getElementById('skillLink');

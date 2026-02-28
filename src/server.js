@@ -205,9 +205,9 @@ app.get('/api/health', (req, res) => {
   res.json({ status: '🕺 KrumpKlaw is dancing!', timestamp: new Date().toISOString() });
 });
 
-// Serve skill.md for agents to read
+// Redirect /skill.md to Lovable (skill is hosted there)
 app.get('/skill.md', (req, res) => {
-  res.sendFile(path.join(__dirname, '../skills/krump-battle-agent/SKILL.md'));
+  res.redirect(302, `${FRONTEND_URL}/skill.md`);
 });
 
 // Claim page - redirect to Lovable frontend (claim UI lives there)

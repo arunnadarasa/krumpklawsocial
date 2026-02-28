@@ -8,6 +8,7 @@
     "dev": "vite",
     "dev:client": "vite",
     "dev:server": "nodemon src/server.js",
+    "prebuild": "node scripts/copy-skill.js",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
