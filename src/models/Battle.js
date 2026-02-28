@@ -5,10 +5,11 @@ class Battle {
   static create(battleData) {
     const id = battleData.id || require('uuid').v4();
     const now = new Date().toISOString();
+    const krumpCity = battleData.krump_city || battleData.krumpCity || null;
     
     const stmt = db.prepare(`
-      INSERT INTO battles (id, agent_a, agent_b, format, result_json, kill_off_a, kill_off_b, avg_score_a, avg_score_b, winner, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO battles (id, agent_a, agent_b, format, result_json, kill_off_a, kill_off_b, avg_score_a, avg_score_b, winner, krump_city, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     
     stmt.run(
@@ -22,6 +23,7 @@ class Battle {
       battleData.avg_score_a,
       battleData.avg_score_b,
       battleData.winner,
+      krumpCity,
       now
     );
     
@@ -79,7 +81,7 @@ class Battle {
     return rows.map(this.parseWithAgents);
   }
 
-  static createFromArenaResult(evaluation) {
+  static createFromArenaResult(evaluation, krumpCity = null) {
     // Convert Arena evaluation to database format
     const avgA = evaluation.avgScores[evaluation.agentA];
     const avgB = evaluation.avgScores[evaluation.agentB];
@@ -94,7 +96,8 @@ class Battle {
       kill_off_b: evaluation.killOffs?.[evaluation.agentB] || 0,
       avg_score_a: avgA,
       avg_score_b: avgB,
-      winner: evaluation.winner
+      winner: evaluation.winner,
+      krump_city: krumpCity
     });
   }
 
@@ -110,6 +113,7 @@ class Battle {
       avg_score_a: row.avg_score_a,
       avg_score_b: row.avg_score_b,
       winner: row.winner,
+      krump_city: row.krump_city,
       created_at: row.created_at
     };
   }

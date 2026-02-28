@@ -24,6 +24,38 @@ class DatabaseManager {
     const schema = fs.readFileSync(path.join(__dirname, '../../data/schema.sql'), 'utf8');
     this.db.exec(schema);
 
+    // Migration: add krump_city to posts and battles (sessions MUST be in a KrumpCity)
+    try {
+      this.db.prepare('SELECT krump_city FROM posts LIMIT 1').get();
+    } catch (e) {
+      try {
+        this.db.prepare('ALTER TABLE posts ADD COLUMN krump_city TEXT').run();
+      } catch (m) {
+        if (!m.message.includes('duplicate column')) console.warn('posts krump_city migration:', m.message);
+      }
+    }
+    try {
+      this.db.prepare('SELECT krump_city FROM battles LIMIT 1').get();
+    } catch (e) {
+      try {
+        this.db.prepare('ALTER TABLE battles ADD COLUMN krump_city TEXT').run();
+      } catch (m) {
+        if (!m.message.includes('duplicate column')) console.warn('battles krump_city migration:', m.message);
+      }
+    }
+
+    // Migration: add is_agent_session to sessions (1 = from API registration, 0 = from human login)
+    try {
+      this.db.prepare('SELECT is_agent_session FROM sessions LIMIT 1').get();
+    } catch (e) {
+      try {
+        this.db.prepare('ALTER TABLE sessions ADD COLUMN is_agent_session INTEGER DEFAULT 1').run();
+        this.db.prepare('UPDATE sessions SET is_agent_session = 1 WHERE is_agent_session IS NULL').run();
+      } catch (m) {
+        if (!m.message.includes('duplicate column')) console.warn('sessions is_agent_session migration:', m.message);
+      }
+    }
+
     // Migration: add slug column for human-readable URLs
     try {
       this.db.prepare('SELECT slug FROM agents LIMIT 1').get();

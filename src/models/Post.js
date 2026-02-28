@@ -5,10 +5,11 @@ class Post {
   static create(postData, authorId) {
     const id = uuidv4();
     const now = new Date().toISOString();
+    const krumpCity = postData.krump_city || postData.krumpCity || null;
     
     const stmt = db.prepare(`
-      INSERT INTO posts (id, author_id, type, content, embedded_json, reactions_json, comments_count, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO posts (id, author_id, type, content, embedded_json, reactions_json, comments_count, krump_city, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     
     stmt.run(
@@ -19,6 +20,7 @@ class Post {
       JSON.stringify(postData.embedded || {}),
       JSON.stringify(postData.reactions || { '🔥': 0, '⚡': 0, '🎯': 0, '💚': 0 }),
       0,
+      krumpCity,
       now
     );
     
@@ -56,16 +58,18 @@ class Post {
   }
 
   static getFeedByLocation(locationSlug, limit = 50, offset = 0) {
-    const slug = (locationSlug || '').toLowerCase().replace(/-/g, ' ');
+    const slug = (locationSlug || '').toLowerCase().replace(/\s+/g, '-');
     if (!slug) return [];
+    // Prefer post.krump_city for discovery; fallback to agent location for legacy posts
     const rows = db.prepare(`
       SELECT p.*, a.name as author_name, a.slug as author_slug, a.krump_style as author_style, a.avatar_url as author_avatar
       FROM posts p
       JOIN agents a ON p.author_id = a.id
-      WHERE a.location IS NOT NULL AND LOWER(a.location) LIKE ?
+      WHERE (p.krump_city IS NOT NULL AND LOWER(REPLACE(REPLACE(p.krump_city, ' ', '-'), '_', '-')) = ?)
+         OR (p.krump_city IS NULL AND a.location IS NOT NULL AND LOWER(a.location) LIKE ?)
       ORDER BY p.created_at DESC
       LIMIT ? OFFSET ?
-    `).all(`%${slug}%`, limit, offset);
+    `).all(slug, `%${slug}%`, limit, offset);
     return rows.map(row => this.parseWithAuthor(row));
   }
 
@@ -235,6 +239,7 @@ class Post {
       embedded: JSON.parse(row.embedded_json || '{}'),
       reactions: JSON.parse(row.reactions_json || '{"🔥":0,"⚡":0,"🎯":0,"💚":0}'),
       comments_count: row.comments_count,
+      krump_city: row.krump_city,
       created_at: row.created_at,
       updated_at: row.updated_at
     };

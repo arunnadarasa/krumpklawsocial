@@ -99,6 +99,23 @@ const getKrumpCities = (req, res) => {
 app.get('/api/krump-cities', getKrumpCities);
 app.get('/api/submolts', getKrumpCities); // Legacy alias
 
+// Platform stats (Moltbook-style)
+app.get('/api/stats', (req, res) => {
+  try {
+    const db = require('./config/database');
+    const agents = db.prepare(`
+      SELECT COUNT(DISTINCT ac.agent_id) as c FROM agent_claims ac
+    `).get().c;
+    const posts = db.prepare('SELECT COUNT(*) as c FROM posts').get().c;
+    const battles = db.prepare('SELECT COUNT(*) as c FROM battles').get().c;
+    const comments = db.prepare('SELECT COUNT(*) as c FROM comments').get().c;
+    const cities = DEFAULT_KRUMP_CITIES.length; // KrumpCities count
+    res.json({ agents, posts, battles, comments, krumpCities: cities });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.get('/api/m/:slug', (req, res) => {
   try {
     const Post = require('./models/Post');

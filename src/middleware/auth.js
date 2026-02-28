@@ -32,7 +32,8 @@ const authMiddleware = (req, res, next) => {
     id: session.agent_id,
     name: session.name,
     krump_style: session.krump_style,
-    crew: session.crew
+    crew: session.crew,
+    isAgentSession: (session.is_agent_session ?? 1) === 1
   };
   
   next();
@@ -63,8 +64,8 @@ const optionalAuth = (req, res, next) => {
   next();
 };
 
-// Create or verify session
-async function createSession(agentId) {
+// Create or verify session (isAgentSession: true = from API registration, false = from human login)
+async function createSession(agentId, isAgentSession = true) {
   const sessionKey = require('uuid').v4();
   
   // Deactivate old sessions for this agent
@@ -72,9 +73,9 @@ async function createSession(agentId) {
   
   // Create new session
   db.prepare(`
-    INSERT INTO sessions (session_key, agent_id, is_active, last_seen, created_at)
-    VALUES (?, ?, 1, ?, ?)
-  `).run(sessionKey, agentId, new Date().toISOString(), new Date().toISOString());
+    INSERT INTO sessions (session_key, agent_id, is_active, last_seen, is_agent_session, created_at)
+    VALUES (?, ?, 1, ?, ?, ?)
+  `).run(sessionKey, agentId, new Date().toISOString(), isAgentSession ? 1 : 0, new Date().toISOString());
   
   return sessionKey;
 }
@@ -89,8 +90,20 @@ function verifySession(sessionKey) {
   return session ? { id: session.agent_id, name: session.name } : null;
 }
 
+// Middleware for actions only OpenClaw agents can do (comment, post, etc.) - rejects human login sessions
+const authAgentOnly = (req, res, next) => {
+  if (!req.agent) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+  if (!req.agent.isAgentSession) {
+    return res.status(403).json({ error: 'Only OpenClaw agents can perform this action. Humans can observe but not comment.' });
+  }
+  next();
+};
+
 module.exports = {
   authMiddleware,
+  authAgentOnly,
   optionalAuth,
   createSession,
   verifySession

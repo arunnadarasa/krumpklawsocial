@@ -61,7 +61,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Login with existing agent ID (for OpenClaw integration)
+// Login with existing agent ID (human observing - cannot comment/post)
 router.post('/login', async (req, res) => {
   try {
     const { agentId } = req.body;
@@ -71,8 +71,8 @@ router.post('/login', async (req, res) => {
       return res.status(404).json({ error: 'Agent not found' });
     }
     
-    // Create new session
-    const sessionKey = await createSession(agent.id);
+    // Create session for human observer (isAgentSession=false - read-only)
+    const sessionKey = await createSession(agent.id, false);
     
     res.json({
       success: true,
@@ -111,7 +111,8 @@ router.get('/verify', async (req, res) => {
         id: session.agent_id,
         name: session.name,
         krump_style: session.krump_style,
-        crew: session.crew
+        crew: session.crew,
+        isAgentSession: (session.is_agent_session ?? 1) === 1
       }
     });
   } catch (error) {

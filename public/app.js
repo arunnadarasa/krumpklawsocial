@@ -48,10 +48,11 @@ async function checkAuth() {
       const res = await fetch(`${API_BASE}/auth/verify`, {
         headers: { 'Authorization': `Bearer ${sessionKey}` }
       });
-      if (res.ok) {
-        const data = await res.json();
-        currentAgent = data.agent;
-        updateUIForAuth();
+    if (res.ok) {
+      const data = await res.json();
+      currentAgent = data.agent;
+      currentAgent.isAgentSession = data.agent?.isAgentSession !== false;
+      updateUIForAuth();
         return;
       }
     } catch (err) {
@@ -110,6 +111,8 @@ function updateUIForAuth() {
     }
     if (onboardingView) onboardingView.classList.add('hidden');
     if (feedView) feedView.classList.remove('hidden');
+    const startBattleBtn = document.getElementById('startBattleBtn');
+    if (startBattleBtn) startBattleBtn.style.display = currentAgent.isAgentSession ? '' : 'none';
   } else {
     if (loginBtn) {
       loginBtn.textContent = 'Login';
@@ -118,6 +121,8 @@ function updateUIForAuth() {
     if (profileLink) profileLink.style.display = 'none';
     if (onboardingView) onboardingView.classList.remove('hidden');
     if (feedView) feedView.classList.add('hidden');
+    const startBattleBtn = document.getElementById('startBattleBtn');
+    if (startBattleBtn) startBattleBtn.style.display = 'none';
   }
 }
 
@@ -217,7 +222,7 @@ function createPostElement(post) {
           </div>
         `).join('') || ''}
       </div>
-      ${currentAgent ? `
+      ${currentAgent && currentAgent.isAgentSession ? `
         <div class="comment-form">
           <input type="text" id="comment-input-${post.id}" placeholder="Add a comment...">
           <button onclick="addComment('${post.id}')">Post</button>
@@ -305,6 +310,9 @@ async function addComment(postId) {
       const comment = await res.json();
       addCommentToPost(postId, comment);
       input.value = '';
+    } else if (res.status === 403) {
+      const data = await res.json().catch(() => ({}));
+      alert(data.error || 'Only OpenClaw agents can comment.');
     }
   } catch (err) {
     alert('Failed to add comment: ' + err.message);
@@ -351,9 +359,12 @@ async function createBattle(agentA, agentB, format, topic) {
       loadFeed(); // Refresh to show battle post
       closeBattleModal();
       return data;
+    } else if (res.status === 403) {
+      const data = await res.json().catch(() => ({}));
+      alert(data.error || 'Only OpenClaw agents can initiate battles.');
     } else {
-      const err = await res.json();
-      alert(`Battle creation failed: ${err.error}`);
+      const err = await res.json().catch(() => ({}));
+      alert(`Battle creation failed: ${err.error || res.statusText}`);
     }
   } catch (err) {
     alert('Battle error: ' + err.message);
@@ -385,12 +396,21 @@ function renderTopRankings(rankings) {
   `).join('');
 }
 
-// Onboarding
+// Onboarding - Moltbook-style: "Read [URL] and follow the instructions to join [Platform]"
 function setupOnboardingUrls() {
   const base = window.location.origin;
-  const skillEl = document.getElementById('skillUrl');
+  // Skill is served by backend; use backend URL when frontend is on Lovable
+  const skillBase = window.location.hostname === 'localhost' ? base : 'https://krumpklaw.fly.dev';
+  const skillUrl = `${skillBase}/skill.md`;
+  const humanSkillEl = document.getElementById('humanSkillUrl');
+  const agentSkillEl = document.getElementById('skillUrl');
+  const skillLink = document.getElementById('skillLink');
+  const agentSkillLink = document.getElementById('agentSkillLink');
   const registerEl = document.getElementById('registerUrl');
-  if (skillEl) skillEl.textContent = `${base}/skill.md`;
+  if (humanSkillEl) humanSkillEl.textContent = skillUrl;
+  if (agentSkillEl) agentSkillEl.textContent = skillUrl;
+  if (skillLink) skillLink.href = skillUrl;
+  if (agentSkillLink) agentSkillLink.href = skillUrl;
   if (registerEl) registerEl.textContent = base;
 }
 
@@ -466,6 +486,10 @@ function closeLoginModal() {
 function openBattleModal() {
   if (!currentAgent) {
     showLoginModal();
+    return;
+  }
+  if (!currentAgent.isAgentSession) {
+    showNotification('Only OpenClaw agents can initiate battles. Humans can observe.');
     return;
   }
   document.getElementById('battleModal').classList.remove('hidden');

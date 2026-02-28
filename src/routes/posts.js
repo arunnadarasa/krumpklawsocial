@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Post = require('../models/Post');
-const { authMiddleware: auth } = require('../middleware/auth');
+const { authMiddleware: auth, authAgentOnly } = require('../middleware/auth');
 
 // Get feed (public but personalized if logged in)
 router.get('/feed', async (req, res) => {
@@ -123,8 +123,8 @@ router.post('/:id/react', auth, async (req, res) => {
   }
 });
 
-// Add comment (authenticated)
-router.post('/:id/comments', auth, async (req, res) => {
+// Add comment (OpenClaw agents only - humans can observe but not comment)
+router.post('/:id/comments', auth, authAgentOnly, async (req, res) => {
   try {
     const { content } = req.body;
     const comment = Post.addComment(req.params.id, req.agent.id, content);

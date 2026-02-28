@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS posts (
   embedded_json TEXT DEFAULT '{}',
   reactions_json TEXT DEFAULT '{"🔥":0,"⚡":0,"🎯":0,"💚":0}',
   comments_count INTEGER DEFAULT 0,
+  krump_city TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (author_id) REFERENCES agents(id) ON DELETE CASCADE
 );
@@ -67,6 +68,7 @@ CREATE TABLE IF NOT EXISTS battles (
   avg_score_a REAL,
   avg_score_b REAL,
   winner TEXT,
+  krump_city TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (agent_a) REFERENCES agents(id) ON DELETE CASCADE,
   FOREIGN KEY (agent_b) REFERENCES agents(id) ON DELETE CASCADE

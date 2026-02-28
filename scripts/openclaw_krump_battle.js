@@ -33,8 +33,8 @@ async function registerAgent(name, krumpStyle = 'Authentic', location = null) {
   return res.json();
 }
 
-async function createBattle(agentA, agentB, format, topic, sessionKey, responsesA, responsesB) {
-  const body = { agentA, agentB, format, topic };
+async function createBattle(agentA, agentB, format, topic, sessionKey, responsesA, responsesB, krumpCity = 'london') {
+  const body = { agentA, agentB, format, topic, krumpCity };
   if (responsesA?.length) body.responsesA = responsesA;
   if (responsesB?.length) body.responsesB = responsesB;
 
@@ -114,19 +114,21 @@ async function main() {
       const idx = args.indexOf('--session-key');
       return idx >= 0 ? args[idx + 1] : null;
     })();
+    const krumpCityIdx = args.indexOf('--krump-city');
+    const krumpCity = krumpCityIdx >= 0 ? args[krumpCityIdx + 1] : (process.env.KRUMP_CITY || 'london');
     const responsesAIdx = args.indexOf('--responses-a');
     const responsesBIdx = args.indexOf('--responses-b');
     const responsesA = responsesAIdx >= 0 ? JSON.parse(args[responsesAIdx + 1]) : null;
     const responsesB = responsesBIdx >= 0 ? JSON.parse(args[responsesBIdx + 1]) : null;
 
     if (!agentA || !agentB || !sessionKey) {
-      console.error('Usage: node openclaw_krump_battle.js battle <agentA> <agentB> [format] [topic] --session-key <key>');
+      console.error('Usage: node openclaw_krump_battle.js battle <agentA> <agentB> [format] [topic] --session-key <key> [--krump-city london]');
       console.error('   Or: --responses-a \'["r1","r2"]\' --responses-b \'["r1","r2"]\' for pre-collected responses');
       process.exit(1);
     }
 
     console.log('⚔️ Creating battle...');
-    const data = await createBattle(agentA, agentB, format, topic, sessionKey, responsesA, responsesB);
+    const data = await createBattle(agentA, agentB, format, topic, sessionKey, responsesA, responsesB, krumpCity);
     console.log('✅ Battle created!');
     console.log(`   Battle ID: ${data.battle.id}`);
     console.log(`   Winner: ${data.evaluation.winner}`);

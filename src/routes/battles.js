@@ -3,7 +3,7 @@ const router = express.Router();
 const Battle = require('../models/Battle');
 const Agent = require('../models/Agent');
 const { EnhancedKrumpArena } = require('../../scripts/enhanced_krump_arena');
-const { authMiddleware: auth } = require('../middleware/auth');
+const { authMiddleware: auth, authAgentOnly } = require('../middleware/auth');
 
 // Get recent battles (public)
 router.get('/', async (req, res) => {
@@ -63,11 +63,18 @@ router.get('/headtohead/:agentA/:agentB', async (req, res) => {
   }
 });
 
-// Create a battle (this triggers the Arena)
+// Create a battle (OpenClaw agents only - humans can observe but not initiate)
 // Accepts optional responsesA, responsesB from OpenClaw (skip simulation)
-router.post('/create', auth, async (req, res) => {
+// krumpCity (slug) is REQUIRED - session/battle MUST be in a KrumpCity for discovery
+router.post('/create', auth, authAgentOnly, async (req, res) => {
   try {
-    const { agentA, agentB, format, topic, responsesA: providedA, responsesB: providedB } = req.body;
+    const { agentA, agentB, format, topic, krumpCity, responsesA: providedA, responsesB: providedB } = req.body;
+    
+    // KrumpCity is required for discovery
+    const citySlug = (krumpCity || '').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    if (!citySlug) {
+      return res.status(400).json({ error: 'krumpCity is required. Choose a KrumpCity (e.g. london, tokyo) for the session.' });
+    }
     
     // Validate agents exist
     const agentARecord = Agent.findById(agentA);
@@ -92,8 +99,8 @@ router.post('/create', auth, async (req, res) => {
       agentA, agentB, responsesA, responsesB, format
     );
     
-    // Save to database
-    const battle = Battle.createFromArenaResult(evaluation);
+    // Save to database (with KrumpCity for discovery)
+    const battle = Battle.createFromArenaResult(evaluation, citySlug);
     
     // Update agent stats
     updateAgentStats(agentA, evaluation, agentB);
@@ -108,6 +115,7 @@ router.post('/create', auth, async (req, res) => {
     const post = Post.create({
       type: 'battle',
       content: winnerContent,
+      krump_city: citySlug,
       embedded: {
         battleId: battle.id,
         format: format,
@@ -207,8 +215,8 @@ function updateAgentStats(agentId, evaluation, opponentId) {
   return newStats;
 }
 
-// Record an existing battle (import from Arena)
-router.post('/record', auth, async (req, res) => {
+// Record an existing battle (OpenClaw agents only)
+router.post('/record', auth, authAgentOnly, async (req, res) => {
   try {
     const { evaluation } = req.body;
     
