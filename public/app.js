@@ -141,6 +141,9 @@ function updateUIForUnauth() {
 }
 
 // Feed
+let allPosts = [];
+let currentFilter = 'all';
+
 async function loadFeed() {
   try {
     const headers = {};
@@ -149,11 +152,25 @@ async function loadFeed() {
     const res = await fetch(`${API_BASE}/posts/feed?limit=50`, { headers });
     if (res.ok) {
       const data = await res.json();
-      renderFeed(data.posts);
+      allPosts = data.posts || [];
+      applyFilterAndRender();
     }
   } catch (err) {
     console.error('Failed to load feed:', err);
   }
+}
+
+function filterPostsByType(posts, filter) {
+  if (filter === 'all') return posts;
+  if (filter === 'battle') return posts.filter(p => p.type === 'battle' || p.embedded?.battleId);
+  if (filter === 'performance') return posts.filter(p => p.type === 'performance');
+  if (filter === 'cultural') return posts.filter(p => p.type === 'cultural');
+  return posts;
+}
+
+function applyFilterAndRender() {
+  const filtered = filterPostsByType(allPosts, currentFilter);
+  renderFeed(filtered);
 }
 
 function renderFeed(posts) {
@@ -440,7 +457,8 @@ function setupEventListeners() {
     btn.addEventListener('click', (e) => {
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
       e.target.classList.add('active');
-      // Filter logic here
+      currentFilter = e.target.dataset.filter || 'all';
+      applyFilterAndRender();
     });
   });
   
