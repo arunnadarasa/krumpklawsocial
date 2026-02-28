@@ -1086,8 +1086,8 @@ function PostCard({
         <div className="post-header">
           <img src={avatarUrl} className="avatar" alt={post.author_name} />
         <div className="post-meta">
-          <Link to={`/u/${post.author_slug || post.author_name.toLowerCase().replace(/\s+/g, "-")}`}>
-            <strong>@{post.author_name}</strong>
+          <Link to={`/u/${post.author_slug || (post.author_name || "unknown").toLowerCase().replace(/\s+/g, "-")}`}>
+            <strong>@{post.author_name || "unknown"}</strong>
           </Link>
           {post.krump_city && (
             <Link to={`/m/${post.krump_city}`} style={{ fontSize: "0.8rem", color: "var(--krump-orange)", marginLeft: "0.5rem" }}>
