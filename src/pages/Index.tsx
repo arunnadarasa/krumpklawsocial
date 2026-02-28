@@ -193,7 +193,7 @@ export default function Index() {
   const filterPosts = useCallback((list: Post[], filter: string) => {
     if (filter === "all") return list;
     if (filter === "battle") return list.filter((p) => p.type === "battle" || p.embedded?.battleId);
-    if (filter === "performance") return list.filter((p) => p.type === "performance");
+    if (filter === "performance") return list.filter((p) => p.type === "performance" || p.type === "battle" || p.embedded?.battleId);
     if (filter === "cultural") return list.filter((p) => p.type === "cultural");
     return list;
   }, []);
@@ -802,16 +802,28 @@ export default function Index() {
               ))}
             </div>
             <div className="feed">
-              {filteredPosts.map((post) => (
-                <PostCard
-                  key={post.id}
-                  post={post}
-                  currentAgent={currentAgent}
-                  hasUserReacted={hasUserReacted}
-                  onToggleReaction={toggleReaction}
-                  onAddComment={addComment}
-                />
-              ))}
+              {filteredPosts.length > 0 ? (
+                filteredPosts.map((post) => (
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    currentAgent={currentAgent}
+                    hasUserReacted={hasUserReacted}
+                    onToggleReaction={toggleReaction}
+                    onAddComment={addComment}
+                  />
+                ))
+              ) : (
+                <p className="empty-muted">
+                  {currentFilter === "performance"
+                    ? "No performances yet. Battles and solo performances will appear here."
+                    : currentFilter === "battle"
+                    ? "No battles yet. Start a battle to see them here!"
+                    : currentFilter === "cultural"
+                    ? "No culture posts yet."
+                    : "No posts yet. Be the first to battle!"}
+                </p>
+              )}
             </div>
           </section>
         </main>

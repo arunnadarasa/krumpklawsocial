@@ -173,6 +173,19 @@ body {
   }
 }
 
+/* Battle rounds: side-by-side on desktop, stacked on mobile */
+.battle-rounds-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  align-items: stretch;
+}
+@media (max-width: 640px) {
+  .battle-rounds-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .sidebar .card {
   background: var(--krump-concrete);
   padding: 1.5rem;

@@ -239,7 +239,7 @@ export default function BattlePage() {
         {/* Rounds */}
         {battle.result?.rounds?.length ? (
           <div>
-            <h2 style={{ marginBottom: "1rem", fontSize: "1.1rem", color: "var(--krump-orange)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+            <h2 style={{ marginBottom: "1.25rem", fontSize: "1.1rem", color: "var(--krump-orange)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
               Rounds
             </h2>
             {battle.result.rounds.map((r) => {
@@ -251,58 +251,62 @@ export default function BattlePage() {
                 <div
                   key={r.round}
                   style={{
-                    marginBottom: "1.5rem",
-                    padding: "1.25rem",
+                    marginBottom: "2rem",
+                    padding: "1.5rem",
                     background: "var(--krump-charcoal)",
                     borderRadius: 12,
                     border: "1px solid var(--krump-steel)",
                   }}
                 >
-                  <h3 style={{ margin: "0 0 1rem", color: "var(--krump-orange)", fontSize: "0.9rem", letterSpacing: "0.08em" }}>
+                  <h3 style={{ margin: "0 0 1.25rem", color: "var(--krump-orange)", fontSize: "0.95rem", letterSpacing: "0.08em", fontWeight: 700 }}>
                     Round {r.round}
                   </h3>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                  <div className="battle-rounds-grid">
                     <div
                       style={{
-                        padding: "1rem",
+                        padding: "1.25rem",
                         background: "var(--krump-concrete)",
-                        borderRadius: 8,
+                        borderRadius: 10,
                         borderLeft: `4px solid ${roundWinnerA ? "var(--krump-orange)" : "var(--krump-steel)"}`,
+                        display: "flex",
+                        flexDirection: "column",
                       }}
                     >
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.75rem" }}>
                         <AgentAvatar name={nameA} />
                         <Link
                           to={`/u/${slugify(nameA)}`}
-                          style={{ fontWeight: 700, color: "inherit", textDecoration: "none" }}
+                          style={{ fontWeight: 700, color: "inherit", textDecoration: "none", fontSize: "1rem" }}
                         >
                           {nameA}
                         </Link>
-                        {roundWinnerA && <span style={{ fontSize: "0.8rem" }}>↑</span>}
-                        <span style={{ marginLeft: "auto", fontSize: "0.9rem", color: "var(--krump-muted)" }}>{roundScoreA}</span>
+                        {roundWinnerA && <span style={{ fontSize: "0.85rem", color: "var(--krump-orange)" }}>↑</span>}
+                        <span style={{ marginLeft: "auto", fontSize: "1rem", fontWeight: 700, color: roundWinnerA ? "var(--krump-lime)" : "var(--krump-muted)" }}>{roundScoreA}</span>
                       </div>
-                      <p style={{ margin: 0, whiteSpace: "pre-wrap", lineHeight: 1.6 }}>{r.agentA?.response || "(no response)"}</p>
+                      <p style={{ margin: 0, whiteSpace: "pre-wrap", lineHeight: 1.65, fontSize: "0.95rem", flex: 1 }}>{r.agentA?.response || "(no response)"}</p>
                     </div>
                     <div
                       style={{
-                        padding: "1rem",
+                        padding: "1.25rem",
                         background: "var(--krump-concrete)",
-                        borderRadius: 8,
+                        borderRadius: 10,
                         borderLeft: `4px solid ${roundWinnerB ? "var(--krump-orange)" : "var(--krump-steel)"}`,
+                        display: "flex",
+                        flexDirection: "column",
                       }}
                     >
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.75rem" }}>
                         <AgentAvatar name={nameB} />
                         <Link
                           to={`/u/${slugify(nameB)}`}
-                          style={{ fontWeight: 700, color: "inherit", textDecoration: "none" }}
+                          style={{ fontWeight: 700, color: "inherit", textDecoration: "none", fontSize: "1rem" }}
                         >
                           {nameB}
                         </Link>
-                        {roundWinnerB && <span style={{ fontSize: "0.8rem" }}>↑</span>}
-                        <span style={{ marginLeft: "auto", fontSize: "0.9rem", color: "var(--krump-muted)" }}>{roundScoreB}</span>
+                        {roundWinnerB && <span style={{ fontSize: "0.85rem", color: "var(--krump-orange)" }}>↑</span>}
+                        <span style={{ marginLeft: "auto", fontSize: "1rem", fontWeight: 700, color: roundWinnerB ? "var(--krump-lime)" : "var(--krump-muted)" }}>{roundScoreB}</span>
                       </div>
-                      <p style={{ margin: 0, whiteSpace: "pre-wrap", lineHeight: 1.6 }}>{r.agentB?.response || "(no response)"}</p>
+                      <p style={{ margin: 0, whiteSpace: "pre-wrap", lineHeight: 1.65, fontSize: "0.95rem", flex: 1 }}>{r.agentB?.response || "(no response)"}</p>
                     </div>
                   </div>
                 </div>
