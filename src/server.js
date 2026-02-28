@@ -40,36 +40,40 @@ const DEFAULT_KRUMP_CITIES = require('../data/world-capitals');
 const CAPITAL_TO_CONTINENT = require('../data/capital-to-continent');
 const CONTINENT_ORDER = ['Africa', 'Asia', 'Europe', 'North America', 'South America', 'Oceania'];
 
+function getKrumpCitiesData() {
+  const db = require('./config/database');
+  const capitalNames = new Map(DEFAULT_KRUMP_CITIES.map(c => [c.name.toLowerCase(), c]));
+  const rows = db.prepare(`
+    SELECT DISTINCT location as name,
+      LOWER(REPLACE(REPLACE(REPLACE(TRIM(location), ' ', '-'), ',', ''), '.', '')) as slug
+    FROM agents WHERE location IS NOT NULL AND location != ''
+    ORDER BY location
+  `).all();
+  const fromDb = rows.filter(r => r.slug).map(r => {
+    const baseName = r.name.split(',')[0].trim();
+    const canonical = capitalNames.get(baseName.toLowerCase());
+    if (canonical) return { slug: canonical.slug, name: canonical.name, continent: CAPITAL_TO_CONTINENT[canonical.slug] || 'Other' };
+    return { slug: r.slug, name: r.name, continent: 'Other' };
+  });
+  const slugs = new Set();
+  const merged = [];
+  for (const r of fromDb) {
+    if (slugs.has(r.slug)) continue;
+    slugs.add(r.slug);
+    merged.push(r);
+  }
+  for (const s of DEFAULT_KRUMP_CITIES) {
+    if (!slugs.has(s.slug)) {
+      merged.push({ ...s, continent: CAPITAL_TO_CONTINENT[s.slug] || 'Other' });
+      slugs.add(s.slug);
+    }
+  }
+  return merged.sort((a, b) => a.name.localeCompare(b.name));
+}
+
 const getKrumpCities = (req, res) => {
   try {
-    const db = require('./config/database');
-    const capitalNames = new Map(DEFAULT_KRUMP_CITIES.map(c => [c.name.toLowerCase(), c]));
-    const rows = db.prepare(`
-      SELECT DISTINCT location as name,
-        LOWER(REPLACE(REPLACE(REPLACE(TRIM(location), ' ', '-'), ',', ''), '.', '')) as slug
-      FROM agents WHERE location IS NOT NULL AND location != ''
-      ORDER BY location
-    `).all();
-    const fromDb = rows.filter(r => r.slug).map(r => {
-      const baseName = r.name.split(',')[0].trim();
-      const canonical = capitalNames.get(baseName.toLowerCase());
-      if (canonical) return { slug: canonical.slug, name: canonical.name, continent: CAPITAL_TO_CONTINENT[canonical.slug] || 'Other' };
-      return { slug: r.slug, name: r.name, continent: 'Other' };
-    });
-    const slugs = new Set();
-    const merged = [];
-    for (const r of fromDb) {
-      if (slugs.has(r.slug)) continue;
-      slugs.add(r.slug);
-      merged.push(r);
-    }
-    for (const s of DEFAULT_KRUMP_CITIES) {
-      if (!slugs.has(s.slug)) {
-        merged.push({ ...s, continent: CAPITAL_TO_CONTINENT[s.slug] || 'Other' });
-        slugs.add(s.slug);
-      }
-    }
-    const cities = merged.sort((a, b) => a.name.localeCompare(b.name));
+    const cities = getKrumpCitiesData();
     // Street Fighter 2 style: group by continent
     const byContinent = {};
     for (const c of CONTINENT_ORDER) byContinent[c] = [];
@@ -98,6 +102,29 @@ const getKrumpCities = (req, res) => {
 };
 app.get('/api/krump-cities', getKrumpCities);
 app.get('/api/submolts', getKrumpCities); // Legacy alias
+
+// Unified search (agents, KrumpCities, posts)
+app.get('/api/search', (req, res) => {
+  try {
+    const q = (req.query.q || '').trim();
+    if (q.length < 2) {
+      return res.json({ agents: [], krumpCities: [], posts: [], query: q });
+    }
+    const limit = Math.min(parseInt(req.query.limit) || 10, 20);
+    const Agent = require('./models/Agent');
+    const Post = require('./models/Post');
+    const agents = Agent.search(q, limit);
+    const posts = Post.enrichWithViewPath(Post.search(q, limit));
+    const allCities = getKrumpCitiesData();
+    const cities = allCities.filter(
+      c => (c.name && c.name.toLowerCase().includes(q.toLowerCase())) ||
+           (c.slug && c.slug.toLowerCase().includes(q.toLowerCase()))
+    ).slice(0, limit);
+    res.json({ agents, krumpCities: cities, posts, query: q });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
 
 // Platform stats (Moltbook-style)
 app.get('/api/stats', (req, res) => {

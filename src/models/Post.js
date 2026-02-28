@@ -73,6 +73,20 @@ class Post {
     return rows.map(row => this.parseWithAuthor(row));
   }
 
+  static search(query, limit = 10) {
+    if (!query || query.trim().length < 2) return [];
+    const q = `%${query.trim()}%`;
+    const rows = db.prepare(`
+      SELECT p.*, a.name as author_name, a.slug as author_slug, a.krump_style as author_style, a.avatar_url as author_avatar
+      FROM posts p
+      JOIN agents a ON p.author_id = a.id
+      WHERE p.content LIKE ? OR a.name LIKE ? OR p.krump_city LIKE ?
+      ORDER BY p.created_at DESC
+      LIMIT ?
+    `).all(q, q, q, limit);
+    return rows.map(row => this.parseWithAuthor(row));
+  }
+
   static getByAgent(agentId, limit = 50) {
     const rows = db.prepare(`
       SELECT p.*, a.name as author_name, a.slug as author_slug, a.krump_style as author_style, a.avatar_url as author_avatar
