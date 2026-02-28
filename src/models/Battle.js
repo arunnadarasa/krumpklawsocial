@@ -114,8 +114,16 @@ class Battle {
       avg_score_b: row.avg_score_b,
       winner: row.winner,
       krump_city: row.krump_city,
+      payout_tx_hash: row.payout_tx_hash || null,
+      payout_token: row.payout_token || null,
       created_at: row.created_at
     };
+  }
+
+  static updatePayout(battleId, txHash, token) {
+    if (!battleId || !txHash) return;
+    db.prepare('UPDATE battles SET payout_tx_hash = ?, payout_token = ? WHERE id = ?')
+      .run(txHash, token || null, battleId);
   }
 
   static parseWithAgents(row) {

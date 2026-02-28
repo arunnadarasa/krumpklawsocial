@@ -1,0 +1,202 @@
+/**
+ * Privy battle payout service
+ * When an agent loses a battle, transfer 0.0001 to the winner.
+ * Winner chooses token: ip (native), usdc_krump (ERC20), or jab (EVVM principal).
+ * Chain: Story Aeneid Testnet (1315) - https://aeneid.storyrpc.io
+ */
+
+const { AbiCoder, JsonRpcProvider, Contract, keccak256, getAddress } = require('ethers');
+
+const CHAIN_CAIP2 = 'eip155:1315';
+const RPC_URL = 'https://aeneid.storyrpc.io';
+const EVVM_CORE = '0xa6a02E8e17b819328DDB16A0ad31dD83Dd14BA3b';
+const JAB_TOKEN = '0x0000000000000000000000000000000000000001';
+const USDC_KRUMP = '0xd35890acdf3BFFd445C2c7fC57231bDE5cAFbde5';
+const EVVM_ID = 1140n;
+
+// 0.0001 in each token's units
+const AMOUNT_IP_WEI = '100000000000000';      // 18 decimals
+const AMOUNT_USDC_RAW = '100';                 // 6 decimals (0.0001 USDC)
+const AMOUNT_JAB_RAW = '100000000000000';     // 18 decimals
+
+const EVVM_CORE_ABI = [
+  'function getNextCurrentSyncNonce(address user) view returns (uint256)',
+  'function pay(address from, address to_address, string to_identity, address token, uint256 amount, uint256 priorityFee, address senderExecutor, uint256 nonce, bool isAsyncExec, bytes signature) external',
+];
+
+/**
+ * Call Privy wallet RPC (eth_sendTransaction, personal_sign, eth_accounts).
+ */
+async function privyRpc(walletId, appId, appSecret, method, params, options = {}) {
+  const auth = Buffer.from(`${appId}:${appSecret}`).toString('base64');
+  const body = { method, caip2: CHAIN_CAIP2, params };
+  if (options.sponsor !== false && (method === 'eth_sendTransaction' || method === 'eth_sendRawTransaction')) {
+    body.sponsor = true;
+  }
+  const res = await fetch(`https://api.privy.io/v1/wallets/${walletId}/rpc`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Basic ${auth}`,
+      'privy-app-id': appId,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const errMsg = data.error?.message || data.message || res.statusText;
+    throw new Error(errMsg);
+  }
+  return data?.data;
+}
+
+/**
+ * Transfer IP (native token) via Privy.
+ */
+async function transferIp(walletId, toAddress, appId, appSecret) {
+  const result = await privyRpc(walletId, appId, appSecret, 'eth_sendTransaction', {
+    transaction: { to: toAddress, value: AMOUNT_IP_WEI }
+  });
+  return { success: true, hash: result?.hash || result?.user_operation_hash };
+}
+
+/**
+ * Transfer USDC Krump (ERC20) via Privy.
+ */
+async function transferUsdcKrump(walletId, toAddress, appId, appSecret) {
+  const iface = new (require('ethers').Interface)([
+    'function transfer(address to, uint256 amount)'
+  ]);
+  const data = iface.encodeFunctionData('transfer', [toAddress, AMOUNT_USDC_RAW]);
+  const result = await privyRpc(walletId, appId, appSecret, 'eth_sendTransaction', {
+    transaction: { to: USDC_KRUMP, data, value: '0' }
+  });
+  return { success: true, hash: result?.hash };
+}
+
+/**
+ * Transfer JAB (EVVM principal) via Privy: personal_sign + eth_sendTransaction.
+ */
+async function transferJab(walletId, fromAddress, toAddress, appId, appSecret) {
+  const provider = new JsonRpcProvider(RPC_URL);
+  const core = new Contract(EVVM_CORE, EVVM_CORE_ABI, provider);
+
+  const nonce = await core.getNextCurrentSyncNonce(fromAddress);
+  const priorityFee = 0n;
+  const amount = BigInt(AMOUNT_JAB_RAW);
+  const toAddr = getAddress(toAddress);
+  const coreAddr = getAddress(EVVM_CORE);
+
+  const coder = AbiCoder.defaultAbiCoder();
+  const encoded = coder.encode(
+    ['string', 'address', 'string', 'address', 'uint256', 'uint256'],
+    ['pay', toAddr, '', JAB_TOKEN, amount, priorityFee]
+  );
+  const hashPayload = keccak256(encoded);
+
+  const message = [
+    EVVM_ID.toString(),
+    coreAddr.toLowerCase(),
+    hashPayload.toLowerCase(),
+    fromAddress.toLowerCase(),
+    nonce.toString(),
+    'false'
+  ].join(',');
+
+  const signResult = await privyRpc(walletId, appId, appSecret, 'personal_sign', {
+    message,
+    encoding: 'utf-8'
+  }, { sponsor: false });
+  const signature = signResult?.signature;
+  if (!signature) throw new Error('No signature from personal_sign');
+
+  const iface = new (require('ethers').Interface)(EVVM_CORE_ABI);
+  const payData = iface.encodeFunctionData('pay', [
+    fromAddress,
+    toAddr,
+    '',
+    JAB_TOKEN,
+    amount,
+    priorityFee,
+    fromAddress,
+    nonce,
+    false,
+    signature.startsWith('0x') ? signature : '0x' + signature
+  ]);
+
+  const txResult = await privyRpc(walletId, appId, appSecret, 'eth_sendTransaction', {
+    transaction: { to: EVVM_CORE, data: payData, value: '0' }
+  });
+  return { success: true, hash: txResult?.hash || txResult?.user_operation_hash };
+}
+
+/**
+ * Transfer from loser's Privy wallet to winner's wallet.
+ * Uses winner's payout_token preference: ip, usdc_krump, or jab.
+ */
+async function transferBattlePayout(loserAgentId, winnerAgentId) {
+  const Agent = require('../models/Agent');
+  const appId = process.env.PRIVY_APP_ID;
+  const appSecret = process.env.PRIVY_APP_SECRET;
+
+  if (!appId || !appSecret) {
+    console.warn('Privy credentials not set - skipping battle payout');
+    return { skipped: true, reason: 'no_credentials' };
+  }
+
+  const loser = Agent.findById(loserAgentId);
+  const winner = Agent.findById(winnerAgentId);
+  if (!loser || !winner) return { error: 'Agent not found' };
+
+  const walletId = loser.privy_wallet_id;
+  const toAddress = winner.wallet_address;
+  if (!walletId || !toAddress) {
+    return { skipped: true, reason: !walletId ? 'loser_no_wallet' : 'winner_no_wallet' };
+  }
+
+  if (!/^0x[a-fA-F0-9]{40}$/.test(toAddress)) {
+    return { error: 'Invalid winner wallet address' };
+  }
+
+  const token = (winner.payout_token || 'ip').toLowerCase();
+  if (!['ip', 'usdc_krump', 'jab'].includes(token)) {
+    return { skipped: true, reason: 'invalid_payout_token' };
+  }
+
+  try {
+    let result;
+    if (token === 'ip') {
+      result = await transferIp(walletId, toAddress, appId, appSecret);
+    } else if (token === 'usdc_krump') {
+      result = await transferUsdcKrump(walletId, toAddress, appId, appSecret);
+    } else {
+      const fromAddress = await getLoserAddress(walletId, appId, appSecret);
+      if (!fromAddress) return { error: 'Could not get loser wallet address' };
+      result = await transferJab(walletId, fromAddress, toAddress, appId, appSecret);
+    }
+    return result;
+  } catch (err) {
+    console.error('Privy payout error:', err.message);
+    return { error: err.message };
+  }
+}
+
+async function getLoserAddress(walletId, appId, appSecret) {
+  try {
+    const result = await privyRpc(walletId, appId, appSecret, 'eth_accounts', {}, { sponsor: false });
+    const accounts = result?.result ?? result;
+    if (Array.isArray(accounts) && accounts[0]) return accounts[0];
+    if (typeof result === 'string') return result;
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+module.exports = {
+  transferBattlePayout,
+  CHAIN_CAIP2,
+  BATTLE_PAYOUT_WEI: AMOUNT_IP_WEI,
+  AMOUNT_USDC_RAW,
+  AMOUNT_JAB_RAW
+};

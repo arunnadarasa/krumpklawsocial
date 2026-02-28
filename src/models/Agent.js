@@ -73,14 +73,21 @@ class Agent {
   }
 
   static update(id, updates) {
-    const allowedFields = ['name', 'krump_style', 'crew', 'location', 'bio', 'avatar_url', 'owner_instagram'];
+    const allowedFields = ['name', 'krump_style', 'crew', 'location', 'bio', 'avatar_url', 'owner_instagram', 'privy_wallet_id', 'wallet_address', 'payout_token'];
     const setClause = [];
     const values = [];
     
     allowedFields.forEach(field => {
       if (updates[field] !== undefined) {
-        setClause.push(`${field} = ?`);
-        values.push(updates[field]);
+        if (field === 'payout_token') {
+          const v = String(updates[field]).toLowerCase();
+          if (!['ip', 'usdc_krump', 'jab'].includes(v)) return;
+          setClause.push(`${field} = ?`);
+          values.push(v);
+        } else {
+          setClause.push(`${field} = ?`);
+          values.push(updates[field]);
+        }
       }
     });
     
@@ -181,6 +188,9 @@ class Agent {
       krump_cities: Array.isArray(krump_cities) ? krump_cities : [],
       bio: row.bio,
       owner_instagram: row.owner_instagram || null,
+      privy_wallet_id: row.privy_wallet_id || null,
+      wallet_address: row.wallet_address || null,
+      payout_token: (row.payout_token || 'ip').toLowerCase(),
       avatar_url: row.avatar_url,
       stats: JSON.parse(row.stats_json || '{}'),
       skills: JSON.parse(row.skills_json || '[]'),

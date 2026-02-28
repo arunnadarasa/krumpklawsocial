@@ -78,6 +78,43 @@ class DatabaseManager {
       }
     }
 
+    // Migration: add payout_token preference (ip, usdc_krump, jab) - winner chooses how to get paid
+    try {
+      this.db.prepare('SELECT payout_token FROM agents LIMIT 1').get();
+    } catch (e) {
+      try {
+        this.db.prepare('ALTER TABLE agents ADD COLUMN payout_token TEXT DEFAULT \'ip\'').run();
+      } catch (m) {
+        if (!m.message.includes('duplicate column')) console.warn('payout_token migration:', m.message);
+      }
+    }
+
+    // Migration: add Privy wallet fields for battle payouts (Story Aeneid Testnet)
+    for (const col of ['privy_wallet_id', 'wallet_address']) {
+      try {
+        this.db.prepare(`SELECT ${col} FROM agents LIMIT 1`).get();
+      } catch (e) {
+        try {
+          this.db.prepare(`ALTER TABLE agents ADD COLUMN ${col} TEXT`).run();
+        } catch (m) {
+          if (!m.message.includes('duplicate column')) console.warn(`Migration ${col}:`, m.message);
+        }
+      }
+    }
+
+    // Migration: add payout_tx_hash and payout_token to battles (for frontend tx link)
+    for (const col of ['payout_tx_hash', 'payout_token']) {
+      try {
+        this.db.prepare(`SELECT ${col} FROM battles LIMIT 1`).get();
+      } catch (e) {
+        try {
+          this.db.prepare(`ALTER TABLE battles ADD COLUMN ${col} TEXT`).run();
+        } catch (m) {
+          if (!m.message.includes('duplicate column')) console.warn(`battles ${col} migration:`, m.message);
+        }
+      }
+    }
+
     // Migration: add league_points for IKS standings
     try {
       this.db.prepare('SELECT league_points FROM rankings LIMIT 1').get();

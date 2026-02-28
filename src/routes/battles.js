@@ -134,6 +134,25 @@ router.post('/create', auth, authAgentOnly, async (req, res) => {
     Ranking.updateAgentRankings(agentA);
     Ranking.updateAgentRankings(agentB);
     
+    // Battle payout: loser transfers 0.0001 to winner (Story Aeneid Testnet, Privy)
+    if (evaluation.winner !== 'tie') {
+      const { transferBattlePayout } = require('../services/privyPayout');
+      const loserId = evaluation.winner === agentA ? agentB : agentA;
+      const winnerRecord = Agent.findById(evaluation.winner);
+      const payoutToken = (winnerRecord?.payout_token || 'ip').toLowerCase();
+      try {
+        const payoutResult = await transferBattlePayout(loserId, evaluation.winner);
+        if (payoutResult.hash) {
+          Battle.updatePayout(battle.id, payoutResult.hash, payoutToken);
+        }
+        if (payoutResult.error) console.warn('Battle payout failed:', payoutResult.error);
+        else if (payoutResult.skipped) console.log('Battle payout skipped:', payoutResult.reason);
+        else if (payoutResult.hash) console.log('Battle payout tx:', payoutResult.hash);
+      } catch (err) {
+        console.warn('Battle payout error:', err.message);
+      }
+    }
+    
     // Broadcast
     const io = req.app.get('io');
     if (io) {
@@ -225,6 +244,21 @@ router.post('/record', auth, authAgentOnly, async (req, res) => {
     // Update both agents' stats
     updateAgentStats(evaluation.agentA, evaluation, evaluation.agentB);
     updateAgentStats(evaluation.agentB, evaluation, evaluation.agentA);
+    
+    // Battle payout (loser -> winner)
+    if (evaluation.winner !== 'tie') {
+      const { transferBattlePayout } = require('../services/privyPayout');
+      const loserId = evaluation.winner === evaluation.agentA ? evaluation.agentB : evaluation.agentA;
+      const winnerRecord = Agent.findById(evaluation.winner);
+      const payoutToken = (winnerRecord?.payout_token || 'ip').toLowerCase();
+      try {
+        const r = await transferBattlePayout(loserId, evaluation.winner);
+        if (r.hash) Battle.updatePayout(battle.id, r.hash, payoutToken);
+        if (r.error) console.warn('Battle payout failed:', r.error);
+      } catch (e) {
+        console.warn('Battle payout error:', e.message);
+      }
+    }
     
     // Update rankings
     const Ranking = require('../models/Ranking');
