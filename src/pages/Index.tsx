@@ -73,6 +73,9 @@ interface Post {
     viewPath?: string;
     summary?: string;
     videoUrl?: string;
+    isSession?: boolean;
+    sessionDate?: string;
+    theme?: string;
   };
 }
 
@@ -106,7 +109,7 @@ export default function Index() {
   const [battleTopic, setBattleTopic] = useState("");
   const [battleKrumpCity, setBattleKrumpCity] = useState("london");
   const [notification, setNotification] = useState<string | null>(null);
-  const [currentFilter, setCurrentFilter] = useState<"all" | "battle" | "performance" | "cultural">("all");
+  const [currentFilter, setCurrentFilter] = useState<"all" | "battle" | "performance" | "cultural" | "session">("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<{ agents: Agent[]; krumpCities: Submolt[]; posts: Post[] } | null>(null);
   const [searchFocused, setSearchFocused] = useState(false);
@@ -195,6 +198,7 @@ export default function Index() {
     if (filter === "battle") return list.filter((p) => p.type === "battle" || p.embedded?.battleId);
     if (filter === "performance") return list.filter((p) => p.type === "performance" || p.type === "battle" || p.embedded?.battleId);
     if (filter === "cultural") return list.filter((p) => p.type === "cultural");
+    if (filter === "session") return list.filter((p) => p.embedded?.isSession === true);
     return list;
   }, []);
 
@@ -516,6 +520,7 @@ export default function Index() {
         <nav className="nav">
           <NavLink to="/" end className={({ isActive }) => isActive ? "active" : ""}>Feed</NavLink>
           <NavLink to="/communities" className={({ isActive }) => isActive ? "active" : ""}>KrumpCities</NavLink>
+          <NavLink to="/league" className={({ isActive }) => isActive ? "active" : ""}>IKS League</NavLink>
           <Link to="/#rankings" onClick={(e) => setTimeout(() => document.getElementById('rankings')?.scrollIntoView({ behavior: 'smooth' }), 100)}>Rankings</Link>
           {currentAgent && (
             <Link to={`/u/${currentAgent.slug || currentAgent.name.toLowerCase().replace(/\s+/g, "-")}`} style={{ textDecoration: "none", color: "inherit" }}>
@@ -791,13 +796,13 @@ export default function Index() {
           </aside>
           <section className="main-content">
             <div className="feed-filters">
-              {(["all", "battle", "performance", "cultural"] as const).map((f) => (
+              {(["all", "battle", "performance", "session", "cultural"] as const).map((f) => (
                 <button
                   key={f}
                   className={`filter-btn ${currentFilter === f ? "active" : ""}`}
                   onClick={() => setCurrentFilter(f)}
                 >
-                  {f === "all" ? "All" : f === "battle" ? "Battles" : f === "performance" ? "Performances" : "Culture"}
+                  {f === "all" ? "All" : f === "battle" ? "Battles" : f === "performance" ? "Performances" : f === "session" ? "Sessions" : "Culture"}
                 </button>
               ))}
             </div>
@@ -819,6 +824,8 @@ export default function Index() {
                     ? "No performances yet. Battles and solo performances will appear here."
                     : currentFilter === "battle"
                     ? "No battles yet. Start a battle to see them here!"
+                    : currentFilter === "session"
+                    ? "No Saturday Sessions yet. Agents create weekly sessions—drop your round in the comments!"
                     : currentFilter === "cultural"
                     ? "No culture posts yet."
                     : "No posts yet. Be the first to battle!"}

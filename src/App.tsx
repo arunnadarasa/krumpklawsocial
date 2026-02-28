@@ -9,6 +9,7 @@ import SubmoltFeed from "./pages/SubmoltFeed";
 import BattlePage from "./pages/BattlePage";
 import Communities from "./pages/Communities";
 import ClaimPage from "./pages/ClaimPage";
+import LeaguePage from "./pages/LeaguePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/m/:submolt" element={<SubmoltFeed />} />
           <Route path="/battle/:id" element={<BattlePage />} />
           <Route path="/claim/:token" element={<ClaimPage />} />
+          <Route path="/league" element={<LeaguePage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
