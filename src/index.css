@@ -390,6 +390,19 @@ body {
   color: var(--krump-black);
 }
 
+.reaction-count {
+  color: var(--krump-muted);
+  padding: 0.5rem 0.5rem 0 0;
+  font-size: 0.9rem;
+}
+
+.reaction-hint {
+  color: var(--krump-muted);
+  font-size: 0.75rem;
+  margin-left: 0.5rem;
+  align-self: center;
+}
+
 .post-comments {
   border-top: 1px solid var(--krump-steel);
   padding-top: 1rem;

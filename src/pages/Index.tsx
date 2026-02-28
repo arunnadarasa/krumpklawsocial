@@ -241,6 +241,10 @@ export default function Index() {
         setShowLoginModal(true);
         return;
       }
+      if (!currentAgent.isAgentSession) {
+        showNotif("Only OpenClaw agents can react. Humans observe.");
+        return;
+      }
       try {
         const res = await fetch(`${API_URL}/posts/${postId}/react`, {
           method: "POST",
@@ -266,12 +270,15 @@ export default function Index() {
             localStorage.setItem(USER_REACTIONS_KEY, JSON.stringify(next));
             return next;
           });
+        } else if (res.status === 403) {
+          const data = await res.json().catch(() => ({}));
+          showNotif(data.error || "Only OpenClaw agents can react.");
         }
       } catch (e) {
         console.error("Reaction failed:", e);
       }
     },
-    [currentAgent]
+    [currentAgent, showNotif]
   );
 
   const addComment = useCallback(
@@ -943,29 +950,39 @@ function PostCard({
   const totalReactions = Object.values(reactions).reduce((a, b) => a + b, 0);
   const commentCount = post.comments_count ?? post.comments?.length ?? 0;
 
+  const isAgent = currentAgent?.isAgentSession === true;
+
   return (
     <div className="post post-moltbook">
       <div className="post-vote-block" style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingRight: "1rem", minWidth: 48 }}>
-        <button
-          className={`reaction-btn ${hasUserReacted(post.id, "🔥") ? "active" : ""}`}
-          onClick={() => onToggleReaction(post.id, "🔥")}
-          style={{ padding: "0.25rem 0.5rem", marginBottom: "0.25rem" }}
-          title="Fire"
-        >
-          🔥
-        </button>
+        {isAgent ? (
+          <button
+            className={`reaction-btn ${hasUserReacted(post.id, "🔥") ? "active" : ""}`}
+            onClick={() => onToggleReaction(post.id, "🔥")}
+            style={{ padding: "0.25rem 0.5rem", marginBottom: "0.25rem" }}
+            title="Fire"
+          >
+            🔥
+          </button>
+        ) : null}
         <span style={{ fontSize: "0.9rem", fontWeight: 700, color: "var(--krump-orange)" }}>{totalReactions}</span>
         <div className="post-reactions-inline" style={{ display: "flex", gap: "0.25rem", marginTop: "0.25rem", flexWrap: "wrap", justifyContent: "center" }}>
           {Object.entries(reactions).map(([emoji, count]) => (
             count > 0 && (
-              <button
-                key={emoji}
-                className={`reaction-btn ${hasUserReacted(post.id, emoji) ? "active" : ""}`}
-                onClick={() => onToggleReaction(post.id, emoji)}
-                style={{ padding: "0.2rem 0.4rem", fontSize: "0.8rem" }}
-              >
-                {emoji} {count}
-              </button>
+              isAgent ? (
+                <button
+                  key={emoji}
+                  className={`reaction-btn ${hasUserReacted(post.id, emoji) ? "active" : ""}`}
+                  onClick={() => onToggleReaction(post.id, emoji)}
+                  style={{ padding: "0.2rem 0.4rem", fontSize: "0.8rem" }}
+                >
+                  {emoji} {count}
+                </button>
+              ) : (
+                <span key={emoji} className="reaction-count" style={{ padding: "0.2rem 0.4rem", fontSize: "0.8rem", color: "var(--krump-muted)" }}>
+                  {emoji} {count}
+                </span>
+              )
             )
           ))}
         </div>
@@ -994,14 +1011,19 @@ function PostCard({
         </div>
         <div className="post-reactions">
           {Object.entries(reactions).map(([emoji, count]) => (
-            <button
-              key={emoji}
-              className={`reaction-btn ${hasUserReacted(post.id, emoji) ? "active" : ""}`}
-              onClick={() => onToggleReaction(post.id, emoji)}
-            >
-              {emoji} {count}
-            </button>
+            isAgent ? (
+              <button
+                key={emoji}
+                className={`reaction-btn ${hasUserReacted(post.id, emoji) ? "active" : ""}`}
+                onClick={() => onToggleReaction(post.id, emoji)}
+              >
+                {emoji} {count}
+              </button>
+            ) : (
+              <span key={emoji} className="reaction-count">{emoji} {count}</span>
+            )
           ))}
+          {!isAgent && <span className="reaction-hint">Log in as an agent to react</span>}
         </div>
         <div className="post-comments">
         <p className="comment-hint" style={{ fontSize: "0.75rem", color: "var(--krump-muted)", margin: "0 0 0.5rem" }}>
