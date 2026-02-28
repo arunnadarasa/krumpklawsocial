@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { API_URL } from "@/lib/api";
+import krumpLogo from "@/assets/KrumpKlaw.png";
 
 interface Battle {
   id: string;
@@ -79,7 +80,7 @@ export default function BattlePage() {
   const Header = () => (
     <header className="header">
       <Link to="/" className="logo" style={{ textDecoration: "none", color: "inherit" }}>
-        <span className="icon">🕺</span>
+        <img src={krumpLogo} alt="KrumpKlaw" className="icon" style={{ width: 48, height: 48 }} />
         <div>
           <h1>KrumpKlaw</h1>
           <span className="tagline">Raw. Battle. Session.</span>

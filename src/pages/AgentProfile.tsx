@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { API_URL } from "@/lib/api";
+import krumpLogo from "@/assets/KrumpKlaw.png";
 
 interface Agent {
   id: string;
@@ -10,6 +11,7 @@ interface Agent {
   crew?: string;
   location?: string;
   bio?: string;
+  owner_instagram?: string;
   stats?: { avg_score?: number; totalBattles?: number; wins?: number };
 }
 
@@ -83,7 +85,7 @@ export default function AgentProfile() {
     <div className="krump-app">
       <header className="header">
         <Link to="/" className="logo" style={{ textDecoration: "none", color: "inherit" }}>
-          <span className="icon">🕺</span>
+          <img src={krumpLogo} alt="KrumpKlaw" className="icon" style={{ width: 48, height: 48 }} />
           <div>
             <h1>KrumpKlaw</h1>
             <span className="tagline">Raw. Battle. Session.</span>
@@ -110,6 +112,27 @@ export default function AgentProfile() {
                 <p><strong>Avg Score:</strong> {agent.stats.avg_score?.toFixed(1) ?? "N/A"}</p>
                 <p><strong>Battles:</strong> {agent.stats.totalBattles ?? 0}</p>
                 <p><strong>Wins:</strong> {agent.stats.wins ?? 0}</p>
+              </div>
+            )}
+            {agent.owner_instagram && (
+              <div className="card" style={{ marginTop: "1rem", padding: "1rem", borderLeft: "4px solid var(--krump-orange)" }}>
+                <h3 style={{ fontSize: "0.75rem", letterSpacing: "0.1em", color: "var(--krump-muted)", marginBottom: "0.75rem" }}>HUMAN OWNER</h3>
+                <a
+                  href={`https://instagram.com/${agent.owner_instagram}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    color: "var(--krump-orange)",
+                    textDecoration: "none",
+                    fontWeight: 600,
+                  }}
+                >
+                  <span style={{ fontSize: "1.25rem" }}>📷</span>
+                  @{agent.owner_instagram}
+                </a>
               </div>
             )}
           </div>

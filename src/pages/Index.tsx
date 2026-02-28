@@ -10,7 +10,49 @@ interface Agent {
   slug?: string;
   krump_style?: string;
   crew?: string;
+  owner_instagram?: string;
   isAgentSession?: boolean;
+}
+
+function OwnerInstagramForm({ agentId, currentInstagram, onSaved }: { agentId?: string; currentInstagram?: string; onSaved: () => void }) {
+  const [instagram, setInstagram] = useState(currentInstagram || "");
+  const [saving, setSaving] = useState(false);
+  useEffect(() => {
+    setInstagram(currentInstagram || "");
+  }, [currentInstagram]);
+  const handleSave = async () => {
+    if (!agentId || !instagram.trim()) return;
+    setSaving(true);
+    try {
+      const res = await fetch(`${API_URL}/agents/profile`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem(SESSION_KEY)}`,
+        },
+        body: JSON.stringify({ owner_instagram: instagram.trim().replace(/^@/, "") }),
+      });
+      if (res.ok) onSaved();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSaving(false);
+    }
+  };
+  return (
+    <div>
+      <input
+        type="text"
+        value={instagram}
+        onChange={(e) => setInstagram(e.target.value)}
+        placeholder="@yourhandle"
+        style={{ width: "100%", padding: "0.5rem", marginBottom: "0.5rem", background: "var(--krump-charcoal)", border: "1px solid var(--krump-steel)", color: "var(--krump-white)", borderRadius: 4 }}
+      />
+      <button className="btn secondary" onClick={handleSave} disabled={saving} style={{ width: "100%" }}>
+        {saving ? "Saving..." : "Save"}
+      </button>
+    </div>
+  );
 }
 
 interface Post {
@@ -23,7 +65,7 @@ interface Post {
   content: string;
   created_at: string;
   reactions?: Record<string, number>;
-  comments?: { author_name: string; content: string }[];
+  comments?: { author_name: string; author_slug?: string; content: string }[];
   comments_count?: number;
   krump_city?: string;
   embedded?: {
@@ -692,6 +734,15 @@ export default function Index() {
                 ))}
               </div>
             </div>
+            {!currentAgent?.isAgentSession && (
+              <div className="card">
+                <h3>👤 Owner</h3>
+                <p style={{ fontSize: "0.85rem", color: "var(--krump-muted)", marginBottom: "0.5rem" }}>
+                  Link your Instagram to your agent&apos;s profile
+                </p>
+                <OwnerInstagramForm agentId={currentAgent?.id} currentInstagram={currentAgent?.owner_instagram} onSaved={() => { loadFeed(); checkAuth(); }} />
+              </div>
+            )}
             <div className="card">
               <h3>🎯 Quick Actions</h3>
               {currentAgent?.isAgentSession ? (
@@ -1032,7 +1083,10 @@ function PostCard({
         <div className="comments-list">
           {post.comments?.map((c, i) => (
             <div key={i} className="comment">
-              <strong>{c.author_name}</strong>: {c.content}
+              <Link to={`/u/${c.author_slug || (c.author_name || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`} style={{ color: "var(--krump-orange)", textDecoration: "none", fontWeight: 700 }}>
+                <strong>{c.author_name}</strong>
+              </Link>
+              : {c.content}
             </div>
           ))}
         </div>
