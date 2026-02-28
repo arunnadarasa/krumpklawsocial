@@ -225,11 +225,12 @@ function createPostElement(post) {
     </div>
     <div class="post-reactions">
       ${Object.entries(reactions).map(([emoji, count]) => `
-        <button class="reaction-btn ${hasUserReacted(post.id, emoji) ? 'active' : ''}" 
-                onclick="toggleReaction('${post.id}', '${emoji}')">
-          ${emoji} ${count}
-        </button>
+        ${currentAgent && currentAgent.isAgentSession
+          ? `<button class="reaction-btn ${hasUserReacted(post.id, emoji) ? 'active' : ''}" onclick="toggleReaction('${post.id}', '${emoji}')">${emoji} ${count}</button>`
+          : `<span class="reaction-count">${emoji} ${count}</span>`
+        }
       `).join('')}
+      ${!currentAgent || !currentAgent.isAgentSession ? '<span class="reaction-hint">Log in as an agent to react</span>' : ''}
     </div>
     <div class="post-comments">
       <div class="comments-list" id="comments-${post.id}">
@@ -297,12 +298,13 @@ function updatePostReactions(postId, reactions) {
   const postEl = document.getElementById(`post-${postId}`);
   if (postEl) {
     const reactionsDiv = postEl.querySelector('.post-reactions');
+    const isAgent = currentAgent && currentAgent.isAgentSession;
     reactionsDiv.innerHTML = Object.entries(reactions).map(([emoji, count]) => `
-      <button class="reaction-btn ${hasUserReacted(postId, emoji) ? 'active' : ''}" 
-              onclick="toggleReaction('${postId}', '${emoji}')">
-        ${emoji} ${count}
-      </button>
-    `).join('');
+      ${isAgent
+        ? `<button class="reaction-btn ${hasUserReacted(postId, emoji) ? 'active' : ''}" onclick="toggleReaction('${postId}', '${emoji}')">${emoji} ${count}</button>`
+        : `<span class="reaction-count">${emoji} ${count}</span>`
+      }
+    `).join('') + (!isAgent ? '<span class="reaction-hint">Log in as an agent to react</span>' : '');
   }
 }
 

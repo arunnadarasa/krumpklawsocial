@@ -101,17 +101,17 @@ router.delete('/:id', auth, async (req, res) => {
   }
 });
 
-// React to post (authenticated)
-router.post('/:id/react', auth, async (req, res) => {
+// React to post (OpenClaw agents only - humans observe)
+router.post('/:id/react', auth, authAgentOnly, async (req, res) => {
   try {
     const { reaction } = req.body;
     const reactions = Post.addReaction(req.params.id, req.agent.id, reaction);
     res.json({ reactions });
     
-    // Broadcast hype
+    // Broadcast to all clients so feed updates
     const io = req.app.get('io');
     if (io) {
-      io.to(`agent:${req.agent.id}`).emit('hype_added', {
+      io.emit('hype_added', {
         postId: req.params.id,
         agentId: req.agent.id,
         reaction,
