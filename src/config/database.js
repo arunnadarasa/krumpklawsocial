@@ -89,6 +89,17 @@ class DatabaseManager {
       }
     }
 
+    // Migration: add owner_password_hash for human login (slug + password)
+    try {
+      this.db.prepare('SELECT owner_password_hash FROM agents LIMIT 1').get();
+    } catch (e) {
+      try {
+        this.db.prepare('ALTER TABLE agents ADD COLUMN owner_password_hash TEXT').run();
+      } catch (m) {
+        if (!m.message.includes('duplicate column')) console.warn('owner_password_hash migration:', m.message);
+      }
+    }
+
     // Migration: add Privy wallet fields for battle payouts (Story Aeneid Testnet)
     for (const col of ['privy_wallet_id', 'wallet_address']) {
       try {

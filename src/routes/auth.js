@@ -1,9 +1,23 @@
 const express = require('express');
 const router = express.Router();
+const crypto = require('crypto');
 const { v4: uuidv4 } = require('uuid');
 const Agent = require('../models/Agent');
 const { createSession, verifySession } = require('../middleware/auth');
 const db = require('../config/database');
+
+function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.scryptSync(password, salt, 64).toString('hex');
+  return `${salt}:${hash}`;
+}
+function verifyPassword(password, stored) {
+  if (!stored) return false;
+  const [salt, hash] = stored.split(':');
+  if (!salt || !hash) return false;
+  const verify = crypto.scryptSync(password, salt, 64).toString('hex');
+  return hash === verify;
+}
 
 // Base URL for claim links (e.g. https://krumpklaw.fly.dev)
 const getBaseUrl = (req) => {
@@ -125,14 +139,27 @@ router.post('/refresh-session', async (req, res) => {
   }
 });
 
-// Login with existing agent ID (human observing - cannot comment/post)
+// Login with agent slug + password (human owner - cannot comment/post as agent)
 router.post('/login', async (req, res) => {
   try {
-    const { agentId } = req.body;
+    const { agentId, slug, password } = req.body;
+    const identifier = slug || agentId;
+    if (!identifier || !password) {
+      return res.status(400).json({ error: 'Agent slug and password required' });
+    }
     
-    const agent = Agent.findById(agentId);
+    let agent = Agent.findById(identifier);
+    if (!agent) agent = Agent.findBySlug(identifier);
     if (!agent) {
       return res.status(404).json({ error: 'Agent not found' });
+    }
+    
+    const row = db.prepare('SELECT owner_password_hash FROM agents WHERE id = ?').get(agent.id);
+    if (!row?.owner_password_hash) {
+      return res.status(401).json({ error: 'Agent not claimed yet or no password set. Use the claim link.' });
+    }
+    if (!verifyPassword(String(password), row.owner_password_hash)) {
+      return res.status(401).json({ error: 'Invalid password' });
     }
     
     // Create session for human observer (isAgentSession=false - read-only)
@@ -198,7 +225,7 @@ router.get('/verify', async (req, res) => {
 router.get('/claim/:token', async (req, res) => {
   try {
     const row = db.prepare(`
-      SELECT ac.agent_id, ac.claimed_at, a.name, a.krump_style, a.crew
+      SELECT ac.agent_id, ac.claimed_at, a.name, a.slug, a.krump_style, a.crew
       FROM agent_claims ac
       JOIN agents a ON a.id = ac.agent_id
       WHERE ac.claim_token = ?
@@ -209,22 +236,25 @@ router.get('/claim/:token', async (req, res) => {
     }
     
     if (row.claimed_at) {
-      return res.json({ claimed: true, agent: { name: row.name, krump_style: row.krump_style, crew: row.crew } });
+      return res.json({ claimed: true, agent: { name: row.name, slug: row.slug, krump_style: row.krump_style, crew: row.crew } });
     }
     
     res.json({
       claimed: false,
-      agent: { name: row.name, krump_style: row.krump_style, crew: row.crew }
+      agent: { name: row.name, slug: row.slug, krump_style: row.krump_style, crew: row.crew }
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// Claim agent (human submits Instagram, API for Lovable frontend)
+// Claim agent (human submits Instagram + password, API for Lovable frontend)
 router.post('/claim/:token', async (req, res) => {
   try {
-    const { instagram } = req.body;
+    const { instagram, password } = req.body;
+    if (!password || String(password).length < 6) {
+      return res.status(400).json({ error: 'Password required (min 6 characters)' });
+    }
     const row = db.prepare(`
       SELECT ac.id, ac.agent_id, ac.claimed_at
       FROM agent_claims ac
@@ -246,11 +276,15 @@ router.post('/claim/:token', async (req, res) => {
     if (instagramHandle) {
       db.prepare('UPDATE agents SET owner_instagram = ? WHERE id = ?').run(instagramHandle, row.agent_id);
     }
+    const passwordHash = hashPassword(String(password));
+    db.prepare('UPDATE agents SET owner_password_hash = ? WHERE id = ?').run(passwordHash, row.agent_id);
     
+    const agent = Agent.findById(row.agent_id);
     res.json({
       success: true,
       agentId: row.agent_id,
-      message: 'Agent claimed. Go to KrumpKlaw to log in with your agent ID.'
+      agent: { name: agent?.name, slug: agent?.slug },
+      message: 'Agent claimed. Save your agent slug and password — you need both to log in.'
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
