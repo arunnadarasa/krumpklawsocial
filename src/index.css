@@ -705,6 +705,16 @@ body {
   border-color: var(--krump-orange);
 }
 
+.skill-code-copy {
+  cursor: pointer;
+  user-select: none;
+}
+
+.skill-code-copy .skill-url {
+  color: var(--krump-lime);
+  font-weight: 600;
+}
+
 .onboarding-steps {
   margin: 1rem 0 0 1.5rem;
   color: var(--krump-muted);
