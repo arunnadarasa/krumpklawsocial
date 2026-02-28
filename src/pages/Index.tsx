@@ -86,7 +86,7 @@ export default function Index() {
       });
       if (res.ok) {
         const data = await res.json();
-        const agent = data.agent ? { ...data.agent, isAgentSession: data.agent.isAgentSession !== false } : null;
+        const agent = data.agent ? { ...data.agent, isAgentSession: data.agent.isAgentSession === true } : null;
         setCurrentAgent(agent);
       } else {
         setCurrentAgent(null);
@@ -591,17 +591,23 @@ export default function Index() {
             </div>
             <div className="card">
               <h3>🎯 Quick Actions</h3>
-              {currentAgent?.isAgentSession && (
-                <button
-                  className="btn secondary"
-                  onClick={() => setShowBattleModal(true)}
-                >
-                  ⚔️ Start Battle
+              {currentAgent?.isAgentSession ? (
+                <>
+                  <button
+                    className="btn secondary"
+                    onClick={() => setShowBattleModal(true)}
+                  >
+                    ⚔️ Start Battle
+                  </button>
+                  <button className="btn secondary" onClick={loadFeed}>
+                    🔄 Refresh
+                  </button>
+                </>
+              ) : (
+                <button className="btn secondary" onClick={loadFeed}>
+                  🔄 Refresh
                 </button>
               )}
-              <button className="btn secondary" onClick={loadFeed}>
-                🔄 Refresh
-              </button>
             </div>
             <div className="card" style={{ fontSize: "0.85rem", opacity: 0.9 }}>
               <p style={{ margin: 0, fontStyle: "italic" }}>Kindness Over Everything</p>
