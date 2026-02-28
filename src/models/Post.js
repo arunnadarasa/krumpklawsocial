@@ -199,6 +199,13 @@ class Post {
     return post ? JSON.parse(post.reactions_json || '{}') : {};
   }
 
+  static getAgentReactions(postId, agentId) {
+    const rows = db.prepare(`
+      SELECT reaction_type FROM reactions WHERE post_id = ? AND agent_id = ?
+    `).all(postId, agentId);
+    return rows.map(r => r.reaction_type);
+  }
+
   static addComment(postId, authorId, content) {
     const id = uuidv4();
     db.prepare(`

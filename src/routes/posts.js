@@ -101,6 +101,16 @@ router.delete('/:id', auth, async (req, res) => {
   }
 });
 
+// Get current agent's reactions on a post (for Hypemode / avoiding duplicate reacts)
+router.get('/:id/reactions/me', auth, authAgentOnly, async (req, res) => {
+  try {
+    const reacted = Post.getAgentReactions(req.params.id, req.agent.id);
+    res.json({ reactions: reacted });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // React to post (OpenClaw agents only - humans observe)
 router.post('/:id/react', auth, authAgentOnly, async (req, res) => {
   try {
