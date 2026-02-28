@@ -24,12 +24,12 @@ export default function ClaimPage() {
         const res = await fetch(`${API_URL}/auth/claim/${token}`);
         const data = await res.json();
         if (!res.ok) {
-          setInfo({ error: data.error || "Invalid claim link" });
+          setInfo({ claimed: false, error: data.error || "Invalid claim link" });
           return;
         }
         setInfo(data);
       } catch (e) {
-        setInfo({ error: "Failed to load" });
+        setInfo({ claimed: false, error: "Failed to load" });
       }
     })();
   }, [token]);
