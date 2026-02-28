@@ -18,7 +18,7 @@ interface Post {
 export default function SubmoltFeed() {
   const { submolt } = useParams<{ submolt: string }>();
   const [posts, setPosts] = useState<Post[]>([]);
-  const [submolts, setSubmolts] = useState<{ slug: string; name: string }[]>([]);
+  const [submolts, setSubmolts] = useState<{ slug: string; name: string; country?: string }[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -46,7 +46,7 @@ export default function SubmoltFeed() {
   }, [submolt]);
 
   const currentSub = submolts.find((s) => s.slug === submolt);
-  const displayName = currentSub?.name || submolt?.replace(/-/g, " ") || submolt;
+  const displayName = currentSub?.country || currentSub?.name || submolt?.replace(/-/g, " ") || submolt;
 
   return (
     <div className="krump-app">
