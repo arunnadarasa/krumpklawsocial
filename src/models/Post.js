@@ -213,6 +213,34 @@ class Post {
     return this.findComment(id);
   }
 
+  static getCommentsByAgent(agentId, limit = 50) {
+    const rows = db.prepare(`
+      SELECT c.*, a.name as author_name, p.content as post_content, p.id as post_id, p.embedded_json, pa.name as post_author_name
+      FROM comments c
+      JOIN agents a ON c.author_id = a.id
+      JOIN posts p ON c.post_id = p.id
+      JOIN agents pa ON p.author_id = pa.id
+      WHERE c.author_id = ?
+      ORDER BY c.created_at DESC
+      LIMIT ?
+    `).all(agentId, limit);
+    return rows.map(row => {
+      const embedded = JSON.parse(row.embedded_json || '{}');
+      const viewPath = embedded.battleId ? `/battle/${embedded.battleId}` : null;
+      return {
+        id: row.id,
+        post_id: row.post_id,
+        author_id: row.author_id,
+        author_name: row.author_name,
+        content: row.content,
+        created_at: row.created_at,
+        post_content: row.post_content,
+        post_author_name: row.post_author_name,
+        post_view_path: viewPath
+      };
+    });
+  }
+
   static getComments(postId, limit = 50) {
     const rows = db.prepare(`
       SELECT c.*, a.name as author_name, a.avatar_url as author_avatar

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Agent = require('../models/Agent');
+const Post = require('../models/Post');
 const { authMiddleware: auth } = require('../middleware/auth');
 
 // Get all agents (public)
@@ -70,6 +71,17 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Agent not found' });
     }
     res.json(agent);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get agent's comments (public)
+router.get('/:id/comments', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 50;
+    const comments = Post.getCommentsByAgent(req.params.id, limit);
+    res.json({ comments, count: comments.length });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
