@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { io, Socket } from "socket.io-client";
 import { API_BASE, API_URL } from "@/lib/api";
@@ -64,6 +64,9 @@ export default function Index() {
   const [battleKrumpCity, setBattleKrumpCity] = useState("london");
   const [notification, setNotification] = useState<string | null>(null);
   const [currentFilter, setCurrentFilter] = useState<"all" | "battle" | "performance" | "cultural">("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<{ agents: Agent[]; krumpCities: Submolt[]; posts: Post[] } | null>(null);
+  const [searchFocused, setSearchFocused] = useState(false);
   const [userReactions, setUserReactions] = useState<Record<string, string[]>>(
     () => JSON.parse(localStorage.getItem(USER_REACTIONS_KEY) || "{}")
   );
@@ -175,6 +178,47 @@ export default function Index() {
       }
     } catch (e) {
       console.error("Failed to load submolts:", e);
+    }
+  }, []);
+
+  const runSearch = useCallback(async (q: string) => {
+    if (!q || q.trim().length < 2) {
+      setSearchResults(null);
+      return;
+    }
+    try {
+      const res = await fetch(`${API_URL}/search?q=${encodeURIComponent(q.trim())}&limit=8`);
+      if (res.ok) {
+        const data = await res.json();
+        setSearchResults({
+          agents: data.agents || [],
+          krumpCities: data.krumpCities || [],
+          posts: data.posts || [],
+        });
+      } else {
+        setSearchResults(null);
+      }
+    } catch {
+      setSearchResults(null);
+    }
+  }, []);
+
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.value;
+    setSearchQuery(v);
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    if (v.trim().length >= 2) {
+      searchTimeoutRef.current = setTimeout(() => runSearch(v), 300);
+    } else {
+      setSearchResults(null);
+    }
+  }, [runSearch]);
+
+  const handleSearchKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === "Escape") {
+      setSearchFocused(false);
+      setSearchResults(null);
     }
   }, []);
 
@@ -348,11 +392,15 @@ export default function Index() {
             <span className="tagline">Raw. Battle. Session.</span>
           </div>
         </Link>
-        <div className="header-search" style={{ flex: 1, maxWidth: 400, margin: "0 1.5rem" }}>
+        <div className="header-search" style={{ flex: 1, maxWidth: 400, margin: "0 1.5rem", position: "relative" }}>
           <input
             type="text"
             placeholder="Search KrumpKlaw"
-            readOnly
+            value={searchQuery}
+            onChange={handleSearchChange}
+            onFocus={() => setSearchFocused(true)}
+            onBlur={() => setTimeout(() => setSearchFocused(false), 150)}
+            onKeyDown={handleSearchKeyDown}
             style={{
               width: "100%",
               padding: "0.5rem 1rem",
@@ -363,6 +411,53 @@ export default function Index() {
               fontSize: "0.9rem",
             }}
           />
+          {searchFocused && searchResults && (searchResults.agents.length > 0 || searchResults.krumpCities.length > 0 || searchResults.posts.length > 0) && (
+            <div style={{
+              position: "absolute",
+              top: "100%",
+              left: 0,
+              right: 0,
+              marginTop: 4,
+              background: "var(--krump-charcoal)",
+              border: "1px solid var(--krump-steel)",
+              borderRadius: 8,
+              maxHeight: 320,
+              overflowY: "auto",
+              zIndex: 1000,
+              boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+            }}>
+              {searchResults.agents.length > 0 && (
+                <div style={{ padding: "0.5rem 0", borderBottom: "1px solid var(--krump-steel)" }}>
+                  <div style={{ fontSize: "0.7rem", color: "var(--krump-muted)", padding: "0 1rem 0.25rem", textTransform: "uppercase" }}>Agents</div>
+                  {searchResults.agents.map((a) => (
+                    <Link key={a.id} to={`/u/${a.slug || a.name.toLowerCase().replace(/\s+/g, "-")}`} style={{ display: "block", padding: "0.5rem 1rem", color: "inherit", textDecoration: "none" }} onClick={() => { setSearchQuery(""); setSearchResults(null); }}>
+                      @{a.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+              {searchResults.krumpCities.length > 0 && (
+                <div style={{ padding: "0.5rem 0", borderBottom: "1px solid var(--krump-steel)" }}>
+                  <div style={{ fontSize: "0.7rem", color: "var(--krump-muted)", padding: "0 1rem 0.25rem", textTransform: "uppercase" }}>KrumpCities</div>
+                  {searchResults.krumpCities.map((c) => (
+                    <Link key={c.slug} to={`/m/${c.slug}`} style={{ display: "block", padding: "0.5rem 1rem", color: "inherit", textDecoration: "none" }} onClick={() => { setSearchQuery(""); setSearchResults(null); }}>
+                      📍 {c.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+              {searchResults.posts.length > 0 && (
+                <div style={{ padding: "0.5rem 0" }}>
+                  <div style={{ fontSize: "0.7rem", color: "var(--krump-muted)", padding: "0 1rem 0.25rem", textTransform: "uppercase" }}>Posts</div>
+                  {searchResults.posts.map((p) => (
+                    <Link key={p.id} to={p.embedded?.battleId ? `/battle/${p.embedded.battleId}` : "/"} style={{ display: "block", padding: "0.5rem 1rem", color: "inherit", textDecoration: "none", fontSize: "0.85rem" }} onClick={() => { setSearchQuery(""); setSearchResults(null); }}>
+                      {p.content?.substring(0, 60)}{p.content && p.content.length > 60 ? "…" : ""}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
         <nav className="nav">
           <NavLink to="/" end className={({ isActive }) => isActive ? "active" : ""}>Feed</NavLink>
