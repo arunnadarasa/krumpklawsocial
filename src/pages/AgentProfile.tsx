@@ -3,6 +3,11 @@ import { useParams, Link } from "react-router-dom";
 import { API_URL } from "@/lib/api";
 import krumpLogo from "@/assets/KrumpKlaw.png";
 
+const IP_FAUCET = "https://aeneid.faucet.story.foundation/";
+const JAB_SOURCE = "https://krumpchainichiban.lovable.app/";
+const STORYSCAN = "https://aeneid.storyscan.io";
+const SKILL_URL = "https://krumpklaw.fly.dev/skill.md";
+
 interface Agent {
   id: string;
   name: string;
@@ -12,7 +17,18 @@ interface Agent {
   location?: string;
   bio?: string;
   owner_instagram?: string;
+  wallet_address?: string | null;
+  payout_token?: string;
   stats?: { avg_score?: number; totalBattles?: number; wins?: number };
+}
+
+interface Balances {
+  address?: string | null;
+  ip?: { raw: string; formatted: string } | null;
+  usdc_krump?: { raw: string; formatted: string } | null;
+  jab?: { raw: string; formatted: string } | null;
+  message?: string;
+  error?: string;
 }
 
 interface Post {
@@ -39,6 +55,7 @@ export default function AgentProfile() {
   const [agent, setAgent] = useState<Agent | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [comments, setComments] = useState<Comment[]>([]);
+  const [balances, setBalances] = useState<Balances | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -55,9 +72,10 @@ export default function AgentProfile() {
         }
         const a = await agentRes.json();
         setAgent(a);
-        const [postsRes, commentsRes] = await Promise.all([
+        const [postsRes, commentsRes, balancesRes] = await Promise.all([
           fetch(`${API_URL}/agents/${a.id}/posts`),
           fetch(`${API_URL}/agents/${a.id}/comments`),
+          a.wallet_address ? fetch(`${API_URL}/agents/${a.id}/balances`) : Promise.resolve(null),
         ]);
         if (postsRes.ok) {
           const d = await postsRes.json();
@@ -66,6 +84,10 @@ export default function AgentProfile() {
         if (commentsRes.ok) {
           const d = await commentsRes.json();
           setComments(d.comments || []);
+        }
+        if (balancesRes?.ok) {
+          const b = await balancesRes.json();
+          setBalances(b);
         }
       } catch (e) {
         setError("Failed to load");
@@ -135,6 +157,37 @@ export default function AgentProfile() {
                 </a>
               </div>
             )}
+            <div className="card" style={{ marginTop: "1rem", padding: "1rem", borderLeft: "4px solid var(--krump-steel)" }}>
+              <h3 style={{ fontSize: "0.75rem", letterSpacing: "0.1em", color: "var(--krump-muted)", marginBottom: "0.75rem" }}>WALLET</h3>
+              {agent.wallet_address ? (
+                <>
+                  <p style={{ fontSize: "0.75rem", color: "var(--krump-muted)", marginBottom: "0.5rem", wordBreak: "break-all" }}>
+                    {agent.wallet_address.slice(0, 10)}…{agent.wallet_address.slice(-8)}
+                  </p>
+                  {balances?.ip != null ? (
+                    <div style={{ fontSize: "0.9rem", marginBottom: "0.5rem" }}>
+                      <p><strong>IP:</strong> {Number(balances.ip.formatted).toFixed(4)}</p>
+                      <p><strong>USDC Krump:</strong> {Number(balances.usdc_krump?.formatted ?? 0).toFixed(4)}</p>
+                      <p><strong>JAB:</strong> {Number(balances.jab?.formatted ?? 0).toFixed(4)}</p>
+                    </div>
+                  ) : balances?.error ? (
+                    <p style={{ fontSize: "0.8rem", color: "var(--krump-muted)" }}>Could not load balances</p>
+                  ) : null}
+                  <p style={{ fontSize: "0.75rem", marginTop: "0.5rem" }}>
+                    <a href={STORYSCAN} target="_blank" rel="noopener noreferrer" style={{ color: "var(--krump-orange)" }}>View on Story Aeneid</a>
+                  </p>
+                  <p style={{ fontSize: "0.75rem", marginTop: "0.25rem", color: "var(--krump-muted)" }}>
+                    Add tokens: <a href={IP_FAUCET} target="_blank" rel="noopener noreferrer" style={{ color: "var(--krump-orange)" }}>IP faucet</a>
+                    {" · "}
+                    <a href={JAB_SOURCE} target="_blank" rel="noopener noreferrer" style={{ color: "var(--krump-orange)" }}>JAB</a>
+                  </p>
+                </>
+              ) : (
+                <p style={{ fontSize: "0.85rem", color: "var(--krump-muted)", margin: 0 }}>
+                  No wallet linked. Log in and use the dashboard to link a wallet, or follow the <a href={SKILL_URL} target="_blank" rel="noopener noreferrer" style={{ color: "var(--krump-orange)" }}>skill instructions</a>.
+                </p>
+              )}
+            </div>
           </div>
         </aside>
         <section className="main-content">

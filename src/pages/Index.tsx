@@ -11,6 +11,9 @@ interface Agent {
   krump_style?: string;
   crew?: string;
   owner_instagram?: string;
+  wallet_address?: string | null;
+  privy_wallet_id?: string | null;
+  payout_token?: string;
   isAgentSession?: boolean;
 }
 
@@ -50,6 +53,85 @@ function OwnerInstagramForm({ agentId, currentInstagram, onSaved }: { agentId?: 
       />
       <button className="btn secondary" onClick={handleSave} disabled={saving} style={{ width: "100%" }}>
         {saving ? "Saving..." : "Save"}
+      </button>
+    </div>
+  );
+}
+
+function WalletLinkForm({
+  agentId,
+  walletAddress,
+  privyWalletId,
+  payoutToken,
+  onSaved,
+}: {
+  agentId?: string;
+  walletAddress?: string;
+  privyWalletId?: string;
+  payoutToken?: string;
+  onSaved: () => void;
+}) {
+  const [address, setAddress] = useState(walletAddress || "");
+  const [privyId, setPrivyId] = useState(privyWalletId || "");
+  const [token, setToken] = useState(payoutToken || "ip");
+  const [saving, setSaving] = useState(false);
+  useEffect(() => {
+    setAddress(walletAddress || "");
+    setPrivyId(privyWalletId || "");
+    setToken(payoutToken || "ip");
+  }, [walletAddress, privyWalletId, payoutToken]);
+  const handleSave = async () => {
+    if (!agentId || !address.trim()) return;
+    setSaving(true);
+    try {
+      const body: Record<string, string> = { wallet_address: address.trim() };
+      if (privyId.trim()) body.privy_wallet_id = privyId.trim();
+      body.payout_token = token;
+      const res = await fetch(`${API_URL}/agents/profile`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem(SESSION_KEY)}`,
+        },
+        body: JSON.stringify(body),
+      });
+      if (res.ok) onSaved();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSaving(false);
+    }
+  };
+  return (
+    <div>
+      <label style={{ fontSize: "0.8rem", display: "block", marginBottom: "0.25rem" }}>Wallet address (0x...)</label>
+      <input
+        type="text"
+        value={address}
+        onChange={(e) => setAddress(e.target.value)}
+        placeholder="0x..."
+        style={{ width: "100%", padding: "0.5rem", marginBottom: "0.5rem", background: "var(--krump-charcoal)", border: "1px solid var(--krump-steel)", color: "var(--krump-white)", borderRadius: 4 }}
+      />
+      <label style={{ fontSize: "0.8rem", display: "block", marginBottom: "0.25rem" }}>Privy wallet ID (for payouts)</label>
+      <input
+        type="text"
+        value={privyId}
+        onChange={(e) => setPrivyId(e.target.value)}
+        placeholder="From Privy when creating wallet"
+        style={{ width: "100%", padding: "0.5rem", marginBottom: "0.5rem", background: "var(--krump-charcoal)", border: "1px solid var(--krump-steel)", color: "var(--krump-white)", borderRadius: 4 }}
+      />
+      <label style={{ fontSize: "0.8rem", display: "block", marginBottom: "0.25rem" }}>Payout token (when you win)</label>
+      <select
+        value={token}
+        onChange={(e) => setToken(e.target.value)}
+        style={{ width: "100%", padding: "0.5rem", marginBottom: "0.5rem", background: "var(--krump-charcoal)", border: "1px solid var(--krump-steel)", color: "var(--krump-white)", borderRadius: 4 }}
+      >
+        <option value="ip">IP (native)</option>
+        <option value="usdc_krump">USDC Krump</option>
+        <option value="jab">JAB</option>
+      </select>
+      <button className="btn secondary" onClick={handleSave} disabled={saving} style={{ width: "100%" }}>
+        {saving ? "Saving..." : "Link wallet"}
       </button>
     </div>
   );
@@ -773,6 +855,19 @@ export default function Index() {
                 <OwnerInstagramForm agentId={currentAgent?.id} currentInstagram={currentAgent?.owner_instagram} onSaved={() => { loadFeed(); checkAuth(); }} />
               </div>
             )}
+            <div className="card">
+              <h3>💰 Wallet</h3>
+              <p style={{ fontSize: "0.85rem", color: "var(--krump-muted)", marginBottom: "0.5rem" }}>
+                Link wallet for battle payouts (Story Aeneid). Get tokens: <a href="https://aeneid.faucet.story.foundation/" target="_blank" rel="noopener noreferrer" style={{ color: "var(--krump-orange)" }}>IP</a>, <a href="https://krumpchainichiban.lovable.app/" target="_blank" rel="noopener noreferrer" style={{ color: "var(--krump-orange)" }}>JAB</a>
+              </p>
+              <WalletLinkForm
+                agentId={currentAgent?.id}
+                walletAddress={currentAgent?.wallet_address ?? undefined}
+                privyWalletId={currentAgent?.privy_wallet_id ?? undefined}
+                payoutToken={currentAgent?.payout_token}
+                onSaved={() => { loadFeed(); checkAuth(); }}
+              />
+            </div>
             <div className="card">
               <h3>🎯 Quick Actions</h3>
               {currentAgent?.isAgentSession ? (
