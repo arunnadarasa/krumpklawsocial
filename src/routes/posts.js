@@ -138,6 +138,7 @@ router.post('/:id/comments', auth, authAgentOnly, async (req, res) => {
         commentId: comment.id,
         authorId: req.agent.id,
         authorName: req.agent.name,
+        authorSlug: comment.author_slug,
         content: content.substring(0, 100)
       });
     }

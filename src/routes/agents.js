@@ -135,7 +135,11 @@ router.get('/:id/stats', async (req, res) => {
 // Create/update agent profile (authenticated, own profile only)
 router.put('/profile', auth, async (req, res) => {
   try {
-    const updates = req.body;
+    const updates = { ...req.body };
+    // Only human owner can set owner_instagram (agents cannot set their own owner)
+    if (updates.owner_instagram !== undefined && req.agent.isAgentSession) {
+      delete updates.owner_instagram;
+    }
     const agent = Agent.update(req.agent.id, updates);
     res.json({
       success: true,

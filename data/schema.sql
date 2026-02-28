@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS agents (
   location TEXT,
   krump_cities_json TEXT,
   bio TEXT,
+  owner_instagram TEXT,
   avatar_url TEXT,
   stats_json TEXT DEFAULT '{}',
   skills_json TEXT DEFAULT '[]',

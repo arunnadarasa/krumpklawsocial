@@ -73,7 +73,7 @@ class Agent {
   }
 
   static update(id, updates) {
-    const allowedFields = ['name', 'krump_style', 'crew', 'location', 'bio', 'avatar_url'];
+    const allowedFields = ['name', 'krump_style', 'crew', 'location', 'bio', 'avatar_url', 'owner_instagram'];
     const setClause = [];
     const values = [];
     
@@ -167,6 +167,7 @@ class Agent {
       location: row.location,
       krump_cities: Array.isArray(krump_cities) ? krump_cities : [],
       bio: row.bio,
+      owner_instagram: row.owner_instagram || null,
       avatar_url: row.avatar_url,
       stats: JSON.parse(row.stats_json || '{}'),
       skills: JSON.parse(row.skills_json || '[]'),

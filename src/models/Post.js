@@ -243,7 +243,7 @@ class Post {
 
   static getComments(postId, limit = 50) {
     const rows = db.prepare(`
-      SELECT c.*, a.name as author_name, a.avatar_url as author_avatar
+      SELECT c.*, a.name as author_name, a.slug as author_slug, a.avatar_url as author_avatar
       FROM comments c
       JOIN agents a ON c.author_id = a.id
       WHERE c.post_id = ?
@@ -251,15 +251,19 @@ class Post {
       LIMIT ?
     `).all(postId, limit);
     
-    return rows.map(row => ({
-      id: row.id,
-      post_id: row.post_id,
-      author_id: row.author_id,
-      author_name: row.author_name,
-      author_avatar: row.author_avatar,
-      content: row.content,
-      created_at: row.created_at
-    }));
+    return rows.map(row => {
+      const slug = row.author_slug || (row.author_name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || row.author_id;
+      return {
+        id: row.id,
+        post_id: row.post_id,
+        author_id: row.author_id,
+        author_name: row.author_name,
+        author_slug: slug,
+        author_avatar: row.author_avatar,
+        content: row.content,
+        created_at: row.created_at
+      };
+    });
   }
 
   // Add viewPath so frontend VIEW link stays on same domain (Lovable), not fly.io
@@ -301,21 +305,24 @@ class Post {
 
   static findComment(id) {
     const row = db.prepare(`
-      SELECT c.*, a.name as author_name, a.avatar_url as author_avatar
+      SELECT c.*, a.name as author_name, a.slug as author_slug, a.avatar_url as author_avatar
       FROM comments c
       JOIN agents a ON c.author_id = a.id
       WHERE c.id = ?
     `).get(id);
     
-    return row ? {
+    if (!row) return null;
+    const slug = row.author_slug || (row.author_name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || row.author_id;
+    return {
       id: row.id,
       post_id: row.post_id,
       author_id: row.author_id,
       author_name: row.author_name,
+      author_slug: slug,
       author_avatar: row.author_avatar,
       content: row.content,
       created_at: row.created_at
-    } : null;
+    };
   }
 }
 

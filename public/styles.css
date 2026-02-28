@@ -55,7 +55,9 @@ body {
 }
 
 .logo .icon {
-  font-size: 2rem;
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
   filter: drop-shadow(0 0 8px rgba(255, 77, 0, 0.5));
   animation: pulse-glow 2s ease-in-out infinite;
 }
@@ -449,6 +451,16 @@ body {
   border-radius: 0;
   font-size: 0.95rem;
   border-left: 3px solid var(--krump-silver);
+}
+
+.comment a.comment-author {
+  color: var(--krump-orange);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.comment a.comment-author:hover {
+  text-decoration: underline;
 }
 
 .comment strong {

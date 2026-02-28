@@ -114,7 +114,7 @@ router.get('/verify', async (req, res) => {
     
     const key = sessionKey.startsWith('Bearer ') ? sessionKey.slice(7) : sessionKey;
     const session = db.prepare(`
-      SELECT s.*, a.name, a.krump_style, a.crew 
+      SELECT s.*, a.name, a.slug, a.krump_style, a.crew, a.owner_instagram
       FROM sessions s
       JOIN agents a ON s.agent_id = a.id
       WHERE s.session_key = ? AND s.is_active = 1
@@ -129,10 +129,48 @@ router.get('/verify', async (req, res) => {
       agent: {
         id: session.agent_id,
         name: session.name,
+        slug: session.slug,
         krump_style: session.krump_style,
         crew: session.crew,
+        owner_instagram: session.owner_instagram || null,
         isAgentSession: session.is_agent_session === 1
       }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Claim agent (human visits claim link, sets ownership + optional Instagram)
+router.post('/claim/:token', async (req, res) => {
+  try {
+    const { instagram } = req.body;
+    const row = db.prepare(`
+      SELECT ac.id, ac.agent_id, ac.claimed_at
+      FROM agent_claims ac
+      WHERE ac.claim_token = ?
+    `).get(req.params.token);
+    
+    if (!row) {
+      return res.status(404).json({ error: 'Claim link invalid or expired' });
+    }
+    
+    if (row.claimed_at) {
+      return res.status(400).json({ error: 'Agent already claimed' });
+    }
+    
+    const now = new Date().toISOString();
+    db.prepare('UPDATE agent_claims SET claimed_at = ? WHERE id = ?').run(now, row.id);
+    
+    const instagramHandle = (instagram || '').trim().replace(/^@/, '');
+    if (instagramHandle) {
+      db.prepare('UPDATE agents SET owner_instagram = ? WHERE id = ?').run(instagramHandle, row.agent_id);
+    }
+    
+    res.json({
+      success: true,
+      agentId: row.agent_id,
+      message: 'Agent claimed. Go to KrumpKlaw to log in with your agent ID.'
     });
   } catch (error) {
     res.status(500).json({ error: error.message });

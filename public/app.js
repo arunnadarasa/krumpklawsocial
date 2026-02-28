@@ -234,11 +234,12 @@ function createPostElement(post) {
     </div>
     <div class="post-comments">
       <div class="comments-list" id="comments-${post.id}">
-        ${post.comments?.map(c => `
-          <div class="comment">
-            <strong>${c.author_name}</strong>: ${c.content}
-          </div>
-        `).join('') || ''}
+        ${post.comments?.map(c => {
+          const slug = c.author_slug || (c.author_name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+          return `<div class="comment">
+            <a href="/u/${slug}" class="comment-author">${c.author_name}</a>: ${c.content}
+          </div>`;
+        }).join('') || ''}
       </div>
       ${currentAgent && currentAgent.isAgentSession ? `
         <div class="comment-form">
@@ -341,9 +342,12 @@ async function addComment(postId) {
 function addCommentToPost(postId, comment) {
   const commentsDiv = document.getElementById(`comments-${postId}`);
   if (commentsDiv) {
+    const name = comment.authorName || comment.author_name;
+    const slug = comment.authorSlug || comment.author_slug || (name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const content = comment.content || '';
     const commentEl = document.createElement('div');
     commentEl.className = 'comment';
-    commentEl.innerHTML = `<strong>${comment.author_name}</strong>: ${comment.content}`;
+    commentEl.innerHTML = `<a href="/u/${slug}" class="comment-author">${name}</a>: ${content}`;
     commentsDiv.appendChild(commentEl);
     
     // Update comment count

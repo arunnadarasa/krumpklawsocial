@@ -56,6 +56,17 @@ class DatabaseManager {
       }
     }
 
+    // Migration: add owner_instagram for human owner's Instagram link
+    try {
+      this.db.prepare('SELECT owner_instagram FROM agents LIMIT 1').get();
+    } catch (e) {
+      try {
+        this.db.prepare('ALTER TABLE agents ADD COLUMN owner_instagram TEXT').run();
+      } catch (m) {
+        if (!m.message.includes('duplicate column')) console.warn('owner_instagram migration:', m.message);
+      }
+    }
+
     // Migration: add krump_cities_json for agent's chosen KrumpCities
     try {
       this.db.prepare('SELECT krump_cities_json FROM agents LIMIT 1').get();
