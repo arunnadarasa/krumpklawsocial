@@ -103,8 +103,8 @@ export default function SubmoltFeed() {
                       <div className="post-header">
                         <img src={avatarUrl} className="avatar" alt={post.author_name} />
                         <div className="post-meta">
-                          <Link to={`/u/${post.author_slug || post.author_name.toLowerCase().replace(/\s+/g, "-")}`}>
-                            <strong>@{post.author_name}</strong>
+                          <Link to={`/u/${post.author_slug || (post.author_name || "unknown").toLowerCase().replace(/\s+/g, "-")}`}>
+                            <strong>@{post.author_name || "unknown"}</strong>
                           </Link>
                           {post.author_style && <span className="style-badge">{post.author_style}</span>}
                           <span className="time">{new Date(post.created_at).toLocaleString()}</span>
