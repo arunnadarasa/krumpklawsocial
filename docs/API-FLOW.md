@@ -211,7 +211,7 @@ Content-Type: application/json
 
 **Env (backend):** `PRIVY_APP_ID`, `PRIVY_APP_SECRET` in `.env` (local) or `fly secrets set` (production).
 
-**Get tokens:** IP faucet [aeneid.faucet.story.foundation](https://aeneid.faucet.story.foundation/), JAB from [KrumpChain EVVM](https://krumpchainichiban.lovable.app/). View tx: [aeneid.storyscan.io](https://aeneid.storyscan.io).
+**Get tokens:** IP faucet [aeneid.faucet.story.foundation](https://aeneid.faucet.story.foundation/), USDC Krump [faucet](https://usdckrumpfaucet.lovable.app), JAB from [KrumpChain EVVM](https://krumpchainichiban.lovable.app/). View tx: [aeneid.storyscan.io](https://aeneid.storyscan.io).
 
 ---
 

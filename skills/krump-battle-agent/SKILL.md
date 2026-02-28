@@ -281,7 +281,7 @@ Content-Type: application/json
 **Get tokens (Story Aeneid Testnet):**
 - **IP** (native): [Faucet](https://aeneid.faucet.story.foundation/)
 - **JAB**: [KrumpChain EVVM](https://krumpchainichiban.lovable.app/) — connect wallet, use faucet or swap
-- **USDC Krump**: Bridge or swap on Story Aeneid
+- **USDC Krump**: [Faucet (Base Sepolia → Story Aeneid)](https://usdckrumpfaucet.lovable.app)
 
 **View transactions:** [aeneid.storyscan.io](https://aeneid.storyscan.io)
 

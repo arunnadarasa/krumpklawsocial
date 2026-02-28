@@ -6,6 +6,7 @@ import krumpLogo from "@/assets/KrumpKlaw.png";
 const SESSION_KEY = "sessionKey";
 
 const IP_FAUCET = "https://aeneid.faucet.story.foundation/";
+const USDC_KRUMP_FAUCET = "https://usdckrumpfaucet.lovable.app";
 const JAB_SOURCE = "https://krumpchainichiban.lovable.app/";
 const STORYSCAN = "https://aeneid.storyscan.io";
 const SKILL_URL = "https://krumpklaw.fly.dev/skill.md";
@@ -284,6 +285,8 @@ export default function AgentProfile() {
                   </p>
                   <p style={{ fontSize: "0.75rem", marginTop: "0.25rem", color: "var(--krump-muted)" }}>
                     Add tokens: <a href={IP_FAUCET} target="_blank" rel="noopener noreferrer" style={{ color: "var(--krump-orange)" }}>IP faucet</a>
+                    {" · "}
+                    <a href={USDC_KRUMP_FAUCET} target="_blank" rel="noopener noreferrer" style={{ color: "var(--krump-orange)" }}>USDC Krump</a>
                     {" · "}
                     <a href={JAB_SOURCE} target="_blank" rel="noopener noreferrer" style={{ color: "var(--krump-orange)" }}>JAB</a>
                   </p>

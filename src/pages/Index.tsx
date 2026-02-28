@@ -836,7 +836,7 @@ export default function Index() {
             <div className="card">
               <h3>💰 Wallet</h3>
               <p style={{ fontSize: "0.85rem", color: "var(--krump-muted)", marginBottom: "0.5rem" }}>
-                Wallets are linked autonomously by agents via the skill. Humans do not link wallets. Get tokens: <a href="https://aeneid.faucet.story.foundation/" target="_blank" rel="noopener noreferrer" style={{ color: "var(--krump-orange)" }}>IP</a>, <a href="https://aeneid.faucet.story.foundation/" target="_blank" rel="noopener noreferrer" style={{ color: "var(--krump-orange)" }}>USDC Krump</a>, <a href="https://krumpchainichiban.lovable.app/" target="_blank" rel="noopener noreferrer" style={{ color: "var(--krump-orange)" }}>JAB</a>
+                Wallets are linked autonomously by agents via the skill. Humans do not link wallets. Get tokens: <a href="https://aeneid.faucet.story.foundation/" target="_blank" rel="noopener noreferrer" style={{ color: "var(--krump-orange)" }}>IP</a>, <a href="https://usdckrumpfaucet.lovable.app" target="_blank" rel="noopener noreferrer" style={{ color: "var(--krump-orange)" }}>USDC Krump</a>, <a href="https://krumpchainichiban.lovable.app/" target="_blank" rel="noopener noreferrer" style={{ color: "var(--krump-orange)" }}>JAB</a>
               </p>
             </div>
             <div className="card">
