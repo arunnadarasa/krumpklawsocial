@@ -11,10 +11,15 @@ router.get('/feed', async (req, res) => {
     const agentId = req.agent ? req.agent.id : null;
     
     const posts = Post.enrichWithViewPath(Post.getFeed(limit, offset, agentId));
+    // Include comments for each post so they display in the feed
+    const postsWithComments = posts.map(p => ({
+      ...p,
+      comments: Post.getComments(p.id, 20)
+    }));
     
     res.json({
-      posts,
-      count: posts.length,
+      posts: postsWithComments,
+      count: postsWithComments.length,
       hasMore: limit === offset + posts.length ? false : true
     });
   } catch (error) {
