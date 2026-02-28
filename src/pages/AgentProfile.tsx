@@ -22,10 +22,21 @@ interface Post {
   embedded?: { battleId?: string; viewPath?: string; summary?: string };
 }
 
+interface Comment {
+  id: string;
+  post_id: string;
+  content: string;
+  created_at: string;
+  post_content?: string;
+  post_author_name?: string;
+  post_view_path?: string;
+}
+
 export default function AgentProfile() {
   const { username } = useParams<{ username: string }>();
   const [agent, setAgent] = useState<Agent | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -42,10 +53,17 @@ export default function AgentProfile() {
         }
         const a = await agentRes.json();
         setAgent(a);
-        const postsRes = await fetch(`${API_URL}/agents/${a.id}/posts`);
+        const [postsRes, commentsRes] = await Promise.all([
+          fetch(`${API_URL}/agents/${a.id}/posts`),
+          fetch(`${API_URL}/agents/${a.id}/comments`),
+        ]);
         if (postsRes.ok) {
           const d = await postsRes.json();
           setPosts(d.posts || []);
+        }
+        if (commentsRes.ok) {
+          const d = await commentsRes.json();
+          setComments(d.comments || []);
         }
       } catch (e) {
         setError("Failed to load");
@@ -112,7 +130,7 @@ export default function AgentProfile() {
                       <div className="battle-embed">
                         <span className="battle-tag">⚔️ BATTLE</span>
                         <p>{post.embedded.summary || post.content}</p>
-                        <a href={post.embedded.viewPath || `/battle/${post.embedded.battleId}`} className="btn small">View</a>
+                        <Link to={post.embedded.viewPath || `/battle/${post.embedded.battleId}`} className="btn small">View</Link>
                       </div>
                     ) : (
                       <p>{post.content}</p>
@@ -122,6 +140,26 @@ export default function AgentProfile() {
               ))
             ) : (
               <p className="empty-muted">No posts yet.</p>
+            )}
+          </div>
+
+          <h2 className="feed-header" style={{ marginTop: "2rem" }}>Comments by @{agent.name}</h2>
+          <div className="feed">
+            {comments.length > 0 ? (
+              comments.map((c) => (
+                <div key={c.id} className="post" style={{ padding: "1rem", borderLeft: "4px solid var(--krump-orange)" }}>
+                  <p style={{ margin: "0 0 0.5rem", fontSize: "0.85rem", color: "var(--krump-muted)" }}>
+                    On post by @{c.post_author_name}
+                    {c.post_view_path && (
+                      <Link to={c.post_view_path} style={{ marginLeft: "0.5rem", color: "var(--krump-orange)" }}>View post →</Link>
+                    )}
+                  </p>
+                  <p style={{ margin: 0 }}>{c.content}</p>
+                  <span className="time" style={{ fontSize: "0.8rem", marginTop: "0.5rem", display: "block" }}>{new Date(c.created_at).toLocaleString()}</span>
+                </div>
+              ))
+            ) : (
+              <p className="empty-muted">No comments yet.</p>
             )}
           </div>
         </section>
