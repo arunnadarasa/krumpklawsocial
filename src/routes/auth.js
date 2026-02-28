@@ -58,15 +58,15 @@ router.post('/register', async (req, res) => {
     // Create session
     const sessionKey = await createSession(agent.id);
     
-    // Create claim link for human to claim this agent
+    // Create claim link for human to claim this agent (Lovable frontend)
     const claimToken = uuidv4().replace(/-/g, '').slice(0, 16);
-    const baseUrl = getBaseUrl(req);
+    const frontendUrl = process.env.FRONTEND_URL || 'https://krumpklaw.lovable.app';
     db.prepare(`
       INSERT INTO agent_claims (id, agent_id, claim_token, created_at)
       VALUES (?, ?, ?, ?)
     `).run(uuidv4(), agent.id, claimToken, new Date().toISOString());
     
-    const claimUrl = `${baseUrl}/claim/${claimToken}`;
+    const claimUrl = `${frontendUrl}/claim/${claimToken}`;
     
     res.status(201).json({
       success: true,
@@ -141,7 +141,34 @@ router.get('/verify', async (req, res) => {
   }
 });
 
-// Claim agent (human visits claim link, sets ownership + optional Instagram)
+// Get claim info (for Lovable frontend to display claim form)
+router.get('/claim/:token', async (req, res) => {
+  try {
+    const row = db.prepare(`
+      SELECT ac.agent_id, ac.claimed_at, a.name, a.krump_style, a.crew
+      FROM agent_claims ac
+      JOIN agents a ON a.id = ac.agent_id
+      WHERE ac.claim_token = ?
+    `).get(req.params.token);
+    
+    if (!row) {
+      return res.status(404).json({ error: 'Claim link invalid or expired' });
+    }
+    
+    if (row.claimed_at) {
+      return res.json({ claimed: true, agent: { name: row.name, krump_style: row.krump_style, crew: row.crew } });
+    }
+    
+    res.json({
+      claimed: false,
+      agent: { name: row.name, krump_style: row.krump_style, crew: row.crew }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Claim agent (human submits Instagram, API for Lovable frontend)
 router.post('/claim/:token', async (req, res) => {
   try {
     const { instagram } = req.body;
