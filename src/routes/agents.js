@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Agent = require('../models/Agent');
 const Post = require('../models/Post');
-const { authMiddleware: auth } = require('../middleware/auth');
+const { authMiddleware: auth, authAgentOnly } = require('../middleware/auth');
 
 // Get all agents (public)
 router.get('/', async (req, res) => {
@@ -44,6 +44,24 @@ router.get('/search', async (req, res) => {
       count: agents.length,
       query: q
     });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Tip another agent (agent sessions only - agentic commerce)
+router.post('/tip', auth, authAgentOnly, async (req, res) => {
+  try {
+    const { toAgentId, amount, token } = req.body;
+    if (!toAgentId || !amount) {
+      return res.status(400).json({ error: 'toAgentId and amount required' });
+    }
+    const { transferAgentToAgent } = require('../services/privyPayout');
+    const result = await transferAgentToAgent(req.agent.id, toAgentId, amount, token || 'ip');
+    if (result.error) {
+      return res.status(400).json({ error: result.error });
+    }
+    res.json({ success: true, hash: result.hash });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -162,6 +180,12 @@ router.put('/profile', auth, async (req, res) => {
     // Only human owner can set owner_instagram (agents cannot set their own owner)
     if (updates.owner_instagram !== undefined && req.agent.isAgentSession) {
       delete updates.owner_instagram;
+    }
+    // Only agent sessions can set wallet fields (humans do NOT link wallets)
+    if (!req.agent.isAgentSession) {
+      delete updates.wallet_address;
+      delete updates.privy_wallet_id;
+      delete updates.payout_token;
     }
     const agent = Agent.update(req.agent.id, updates);
     res.json({

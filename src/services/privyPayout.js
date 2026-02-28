@@ -11,7 +11,7 @@ const CHAIN_CAIP2 = 'eip155:1315';
 const RPC_URL = 'https://aeneid.storyrpc.io';
 const EVVM_CORE = '0xa6a02E8e17b819328DDB16A0ad31dD83Dd14BA3b';
 const JAB_TOKEN = '0x0000000000000000000000000000000000000001';
-const USDC_KRUMP = '0xd35890acdf3BFFd445C2c7fC57231bDE5cAFbde5';
+const USDC_KRUMP = '0x41c1bd92AcdfD245213Fd367a2e4A9C45db9cf77';
 const EVVM_ID = 1140n;
 
 // 0.0001 in each token's units
@@ -50,12 +50,21 @@ async function privyRpc(walletId, appId, appSecret, method, params, options = {}
   return data?.data;
 }
 
+/** Parse amount to raw units. IP/JAB: 18 decimals. USDC: 6 decimals. */
+function parseAmount(value, token) {
+  const n = parseFloat(String(value).replace(/,/g, ''));
+  if (Number.isNaN(n) || n <= 0) return null;
+  if (token === 'usdc_krump') return String(Math.round(n * 1e6));
+  return String(Math.round(n * 1e18));
+}
+
 /**
  * Transfer IP (native token) via Privy.
  */
-async function transferIp(walletId, toAddress, appId, appSecret) {
+async function transferIp(walletId, toAddress, amountWei, appId, appSecret) {
+  const value = amountWei || AMOUNT_IP_WEI;
   const result = await privyRpc(walletId, appId, appSecret, 'eth_sendTransaction', {
-    transaction: { to: toAddress, value: AMOUNT_IP_WEI }
+    transaction: { to: toAddress, value }
   });
   return { success: true, hash: result?.hash || result?.user_operation_hash };
 }
@@ -63,27 +72,28 @@ async function transferIp(walletId, toAddress, appId, appSecret) {
 /**
  * Transfer USDC Krump (ERC20) via Privy.
  */
-async function transferUsdcKrump(walletId, toAddress, appId, appSecret) {
+async function transferUsdcKrump(walletId, toAddress, amountRaw, appId, appSecret) {
+  const amount = amountRaw || AMOUNT_USDC_RAW;
   const iface = new (require('ethers').Interface)([
     'function transfer(address to, uint256 amount)'
   ]);
-  const data = iface.encodeFunctionData('transfer', [toAddress, AMOUNT_USDC_RAW]);
+  const data = iface.encodeFunctionData('transfer', [toAddress, amount]);
   const result = await privyRpc(walletId, appId, appSecret, 'eth_sendTransaction', {
     transaction: { to: USDC_KRUMP, data, value: '0' }
   });
-  return { success: true, hash: result?.hash };
+  return { success: true, hash: result?.hash || result?.user_operation_hash };
 }
 
 /**
  * Transfer JAB (EVVM principal) via Privy: personal_sign + eth_sendTransaction.
  */
-async function transferJab(walletId, fromAddress, toAddress, appId, appSecret) {
+async function transferJab(walletId, fromAddress, toAddress, amountRaw, appId, appSecret) {
   const provider = new JsonRpcProvider(RPC_URL);
   const core = new Contract(EVVM_CORE, EVVM_CORE_ABI, provider);
 
   const nonce = await core.getNextCurrentSyncNonce(fromAddress);
   const priorityFee = 0n;
-  const amount = BigInt(AMOUNT_JAB_RAW);
+  const amount = BigInt(amountRaw || AMOUNT_JAB_RAW);
   const toAddr = getAddress(toAddress);
   const coreAddr = getAddress(EVVM_CORE);
 
@@ -166,17 +176,62 @@ async function transferBattlePayout(loserAgentId, winnerAgentId) {
   try {
     let result;
     if (token === 'ip') {
-      result = await transferIp(walletId, toAddress, appId, appSecret);
+      result = await transferIp(walletId, toAddress, AMOUNT_IP_WEI, appId, appSecret);
     } else if (token === 'usdc_krump') {
-      result = await transferUsdcKrump(walletId, toAddress, appId, appSecret);
+      result = await transferUsdcKrump(walletId, toAddress, AMOUNT_USDC_RAW, appId, appSecret);
     } else {
       const fromAddress = await getLoserAddress(walletId, appId, appSecret);
       if (!fromAddress) return { error: 'Could not get loser wallet address' };
-      result = await transferJab(walletId, fromAddress, toAddress, appId, appSecret);
+      result = await transferJab(walletId, fromAddress, toAddress, AMOUNT_JAB_RAW, appId, appSecret);
     }
     return result;
   } catch (err) {
     console.error('Privy payout error:', err.message);
+    return { error: err.message };
+  }
+}
+
+/**
+ * Agent-to-agent transfer (tip, payment). Sender must have privy_wallet_id, recipient wallet_address.
+ */
+async function transferAgentToAgent(fromAgentId, toAgentId, amount, token) {
+  const Agent = require('../models/Agent');
+  const appId = process.env.PRIVY_APP_ID;
+  const appSecret = process.env.PRIVY_APP_SECRET;
+
+  if (!appId || !appSecret) return { error: 'Privy not configured' };
+
+  const from = Agent.findById(fromAgentId) || Agent.findBySlug(fromAgentId);
+  const to = Agent.findById(toAgentId) || Agent.findBySlug(toAgentId);
+  if (!from || !to) return { error: 'Agent not found' };
+  if (from.id === to.id) return { error: 'Cannot tip yourself' };
+
+  const walletId = from.privy_wallet_id;
+  const toAddress = to.wallet_address;
+  if (!walletId || !toAddress) {
+    return { error: !walletId ? 'You need a Privy wallet to send' : 'Recipient has no wallet linked' };
+  }
+  if (!/^0x[a-fA-F0-9]{40}$/.test(toAddress)) return { error: 'Invalid recipient address' };
+
+  const t = (token || 'ip').toLowerCase();
+  if (!['ip', 'usdc_krump', 'jab'].includes(t)) return { error: 'Invalid token' };
+
+  const amountRaw = parseAmount(amount, t);
+  if (!amountRaw) return { error: 'Invalid amount' };
+
+  try {
+    let result;
+    if (t === 'ip') {
+      result = await transferIp(walletId, toAddress, amountRaw, appId, appSecret);
+    } else if (t === 'usdc_krump') {
+      result = await transferUsdcKrump(walletId, toAddress, amountRaw, appId, appSecret);
+    } else {
+      const fromAddress = await getLoserAddress(walletId, appId, appSecret);
+      if (!fromAddress) return { error: 'Could not get sender wallet address' };
+      result = await transferJab(walletId, fromAddress, toAddress, amountRaw, appId, appSecret);
+    }
+    return result;
+  } catch (err) {
     return { error: err.message };
   }
 }
@@ -195,6 +250,8 @@ async function getLoserAddress(walletId, appId, appSecret) {
 
 module.exports = {
   transferBattlePayout,
+  transferAgentToAgent,
+  parseAmount,
   CHAIN_CAIP2,
   BATTLE_PAYOUT_WEI: AMOUNT_IP_WEI,
   AMOUNT_USDC_RAW,

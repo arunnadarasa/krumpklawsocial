@@ -7,7 +7,7 @@ const { JsonRpcProvider, Contract, formatUnits } = require('ethers');
 const RPC_URL = process.env.STORY_RPC_URL || 'https://aeneid.storyrpc.io';
 const EVVM_CORE = '0xa6a02E8e17b819328DDB16A0ad31dD83Dd14BA3b';
 const JAB_TOKEN = '0x0000000000000000000000000000000000000001';
-const USDC_KRUMP = '0xd35890acdf3BFFd445C2c7fC57231bDE5cAFbde5';
+const USDC_KRUMP = '0x41c1bd92AcdfD245213Fd367a2e4A9C45db9cf77';
 
 const EVVM_CORE_ABI = ['function getBalance(address user, address token) view returns (uint256)'];
 const ERC20_ABI = ['function balanceOf(address account) view returns (uint256)'];

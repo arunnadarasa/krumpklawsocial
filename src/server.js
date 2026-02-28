@@ -214,6 +214,11 @@ app.get('/claim/:token', (req, res) => {
   res.redirect(`${FRONTEND_URL}/claim/${req.params.token}`);
 });
 
+// Agent profile - redirect to Lovable (profile + tip UI lives there)
+app.get('/u/:username', (req, res) => {
+  res.redirect(`${FRONTEND_URL}/u/${req.params.username}`);
+});
+
 // POST claim form - redirect to Lovable (legacy; form now on Lovable, API at /api/auth/claim/:token)
 app.post('/claim/:token', (req, res) => {
   res.redirect(`${FRONTEND_URL}/claim/${req.params.token}`);
