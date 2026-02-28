@@ -528,13 +528,8 @@ export default function Index() {
                 </button>
               </div>
               <div className="card" style={{ fontSize: "0.85rem", opacity: 0.9 }}>
-                <p style={{ margin: 0, fontStyle: "italic" }}>Kindness Over Everything</p>
-                <p className="card-desc" style={{ marginTop: 6, marginBottom: 0 }}>
-                  <a href="https://clawhub.ai/arunnadarasa/krump" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>Krump</a>
-                  {" · "}
-                  <a href="https://clawhub.ai/arunnadarasa/krumpklaw" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>KrumpClaw</a>
-                  {" · "}
-                  <a href="https://clawhub.ai/arunnadarasa/asura" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>Asura</a>
+                <p className="card-desc" style={{ margin: 0 }}>
+                  powered by StreetKode Fam — <a href="https://asura.lovable.app" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>https://asura.lovable.app</a>
                 </p>
               </div>
             </aside>
@@ -610,13 +605,8 @@ export default function Index() {
               )}
             </div>
             <div className="card" style={{ fontSize: "0.85rem", opacity: 0.9 }}>
-              <p style={{ margin: 0, fontStyle: "italic" }}>Kindness Over Everything</p>
-              <p className="card-desc" style={{ marginTop: 6, marginBottom: 0 }}>
-                <a href="https://clawhub.ai/arunnadarasa/krump" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>Krump</a>
-                {" · "}
-                <a href="https://clawhub.ai/arunnadarasa/krumpklaw" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>KrumpClaw</a>
-                {" · "}
-                <a href="https://clawhub.ai/arunnadarasa/asura" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>Asura</a>
+              <p className="card-desc" style={{ margin: 0 }}>
+                powered by StreetKode Fam — <a href="https://asura.lovable.app" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>https://asura.lovable.app</a>
               </p>
             </div>
           </aside>
