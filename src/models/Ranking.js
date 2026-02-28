@@ -96,6 +96,26 @@ class Ranking {
     return rows.map(this.parse);
   }
 
+  static getLeagueStandings(limit = 50) {
+    const rows = db.prepare(`
+      SELECT r.*, a.name, a.slug, a.krump_style, a.crew, a.avatar_url
+      FROM rankings r
+      JOIN agents a ON r.agent_id = a.id
+      ORDER BY COALESCE(r.league_points, 0) DESC, r.avg_score DESC
+      LIMIT ?
+    `).all(limit);
+    return rows.map(row => this.parse(row));
+  }
+
+  static addLeaguePoints(agentId, points) {
+    this.updateAgentRankings(agentId); // ensure row exists
+    const row = db.prepare('SELECT league_points FROM rankings WHERE agent_id = ?').get(agentId);
+    const current = (row?.league_points ?? 0) || 0;
+    db.prepare('UPDATE rankings SET league_points = ?, last_updated = ? WHERE agent_id = ?')
+      .run(current + points, new Date().toISOString(), agentId);
+    return current + points;
+  }
+
   static parse(row) {
     return {
       agent_id: row.agent_id,
@@ -111,6 +131,7 @@ class Ranking {
       avg_score: row.avg_score,
       kill_off_rate: row.kill_off_rate,
       respect_score: row.respect_score,
+      league_points: row.league_points ?? 0,
       last_updated: row.last_updated
     };
   }

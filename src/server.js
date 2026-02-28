@@ -12,6 +12,8 @@ const battleRoutes = require('./routes/battles');
 const tournamentRoutes = require('./routes/tournaments');
 const crewRoutes = require('./routes/crews');
 const rankingRoutes = require('./routes/rankings');
+const sessionRoutes = require('./routes/sessions');
+const leagueRoutes = require('./routes/league');
 
 const app = express();
 app.use(cors());
@@ -30,9 +32,11 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'https://krumpklaw.lovable.app'
 app.use('/api/agents', optionalAuth, agentRoutes); // public profiles, PUT /profile has own auth
 app.use('/api/posts', optionalAuth, postRoutes); // auth optional for feed (public view)
 app.use('/api/battles', optionalAuth, battleRoutes); // GET public; POST /create has own auth
-app.use('/api/tournaments', authMiddleware, tournamentRoutes);
+app.use('/api/tournaments', optionalAuth, tournamentRoutes); // GET public; POST/PATCH require auth
 app.use('/api/crews', authMiddleware, crewRoutes);
 app.use('/api/rankings', rankingRoutes); // Public rankings
+app.use('/api/sessions', sessionRoutes); // Weekly Saturday sessions
+app.use('/api/league', leagueRoutes);   // IKS league standings
 app.use('/api/auth', require('./routes/auth'));
 
 // Public crews list for registration (no auth)

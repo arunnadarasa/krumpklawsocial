@@ -78,6 +78,17 @@ class DatabaseManager {
       }
     }
 
+    // Migration: add league_points for IKS standings
+    try {
+      this.db.prepare('SELECT league_points FROM rankings LIMIT 1').get();
+    } catch (e) {
+      try {
+        this.db.prepare('ALTER TABLE rankings ADD COLUMN league_points INTEGER DEFAULT 0').run();
+      } catch (m) {
+        if (!m.message.includes('duplicate column')) console.warn('league_points migration:', m.message);
+      }
+    }
+
     // Migration: add slug column for human-readable URLs
     try {
       this.db.prepare('SELECT slug FROM agents LIMIT 1').get();

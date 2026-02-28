@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const Tournament = require('../models/Tournament');
+const { authMiddleware } = require('../middleware/auth');
 
-// Get all tournaments
+// Get all tournaments (public)
 router.get('/', async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 50;
@@ -34,7 +35,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Create tournament (authenticated)
-router.post('/', async (req, res) => {
+router.post('/', authMiddleware, async (req, res) => {
   try {
     const { name, description, format, prize, status, start_date, end_date } = req.body;
 
@@ -61,7 +62,7 @@ router.post('/', async (req, res) => {
 });
 
 // Update tournament (authenticated)
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', authMiddleware, async (req, res) => {
   try {
     const tournament = Tournament.findById(req.params.id);
     if (!tournament) {
@@ -76,7 +77,7 @@ router.patch('/:id', async (req, res) => {
 });
 
 // Register participant (authenticated)
-router.post('/:id/register', async (req, res) => {
+router.post('/:id/register', authMiddleware, async (req, res) => {
   try {
     const tournament = Tournament.findById(req.params.id);
     if (!tournament) {
