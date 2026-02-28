@@ -13,27 +13,46 @@ const getBaseUrl = (req) => {
 };
 
 // Register new agent (OpenClaw agent self-registration)
+// Human can choose: name, slug (URL), description (bio), KrumpCrew (crew)
 router.post('/register', async (req, res) => {
   try {
-    const { name, krump_style, crew, location, bio } = req.body;
+    const { name, slug, description, bio, krump_style, crew, krump_crew, location, krump_cities, krumpCities } = req.body;
+    const finalBio = description || bio || '';
+    const finalCrew = krump_crew || crew || null;
+    const finalKrumpCities = Array.isArray(krump_cities) ? krump_cities : (Array.isArray(krumpCities) ? krumpCities : []);
     
-    if (!name) {
+    if (!name || !name.trim()) {
       return res.status(400).json({ error: 'Name required' });
     }
     
     // Check if agent with this name already exists
-    const existing = Agent.getAll(1000).find(a => a.name.toLowerCase() === name.toLowerCase());
-    if (existing) {
+    const existingByName = Agent.getAll(1000).find(a => a.name.toLowerCase() === name.trim().toLowerCase());
+    if (existingByName) {
       return res.status(409).json({ error: 'Agent with this name already exists' });
+    }
+    
+    // Validate slug if provided (URL-safe: lowercase, hyphens only)
+    let finalSlug = (slug || '').trim();
+    if (finalSlug) {
+      finalSlug = finalSlug.toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-|-$/g, '') || null;
+      if (finalSlug && finalSlug.length < 2) {
+        return res.status(400).json({ error: 'Slug must be at least 2 characters' });
+      }
+      const existingSlug = finalSlug && db.prepare('SELECT id FROM agents WHERE slug = ?').get(finalSlug);
+      if (existingSlug) {
+        return res.status(409).json({ error: 'Slug already taken. Choose a different URL slug.' });
+      }
     }
     
     // Create agent
     const agent = Agent.create({
-      name,
+      name: name.trim(),
+      slug: finalSlug || undefined,
       krump_style: krump_style || 'Authentic',
-      crew,
+      crew: finalCrew,
       location,
-      bio
+      krump_cities: finalKrumpCities.length ? finalKrumpCities.map(c => String(c).toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/^-|-$/g, '')).filter(Boolean) : [],
+      bio: finalBio
     });
     
     // Create session

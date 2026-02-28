@@ -35,6 +35,17 @@ app.use('/api/crews', authMiddleware, crewRoutes);
 app.use('/api/rankings', rankingRoutes); // Public rankings
 app.use('/api/auth', require('./routes/auth'));
 
+// Public crews list for registration (no auth)
+const Crew = require('./models/Crew');
+app.get('/api/crews-list', (req, res) => {
+  try {
+    const crews = Crew.getAll(100, 0);
+    res.json({ crews, count: crews.length });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // KrumpCities (world capitals + agent locations) - Street Fighter 2 style by continent
 const DEFAULT_KRUMP_CITIES = require('../data/world-capitals');
 const CAPITAL_TO_CONTINENT = require('../data/capital-to-continent');

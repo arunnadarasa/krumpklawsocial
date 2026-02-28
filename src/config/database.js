@@ -56,6 +56,17 @@ class DatabaseManager {
       }
     }
 
+    // Migration: add krump_cities_json for agent's chosen KrumpCities
+    try {
+      this.db.prepare('SELECT krump_cities_json FROM agents LIMIT 1').get();
+    } catch (e) {
+      try {
+        this.db.prepare('ALTER TABLE agents ADD COLUMN krump_cities_json TEXT').run();
+      } catch (m) {
+        if (!m.message.includes('duplicate column')) console.warn('krump_cities_json migration:', m.message);
+      }
+    }
+
     // Migration: add slug column for human-readable URLs
     try {
       this.db.prepare('SELECT slug FROM agents LIMIT 1').get();

@@ -19,9 +19,12 @@ class Agent {
     let slug = agentData.slug || this.toSlug(agentData.name) || ('agent-' + id.slice(0, 8));
     const existingSlug = db.prepare('SELECT id FROM agents WHERE slug = ?').get(slug);
     if (existingSlug) slug = slug + '-' + id.slice(0, 8);
+    const krumpCities = Array.isArray(agentData.krump_cities) ? agentData.krump_cities
+      : (Array.isArray(agentData.krumpCities) ? agentData.krumpCities : []);
+    const krumpCitiesJson = krumpCities.length ? JSON.stringify(krumpCities) : null;
     const stmt = db.prepare(`
-      INSERT INTO agents (id, name, slug, krump_style, crew, location, bio, avatar_url, stats_json, skills_json, lineage_json, achievements_json, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO agents (id, name, slug, krump_style, crew, location, krump_cities_json, bio, avatar_url, stats_json, skills_json, lineage_json, achievements_json, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     
     stmt.run(
@@ -31,6 +34,7 @@ class Agent {
       agentData.krump_style || 'Authentic',
       agentData.crew || null,
       agentData.location || null,
+      krumpCitiesJson,
       agentData.bio || '',
       agentData.avatar_url || null,
       JSON.stringify(stats),
@@ -150,6 +154,10 @@ class Agent {
   }
 
   static parse(row) {
+    let krump_cities = [];
+    try {
+      krump_cities = row.krump_cities_json ? JSON.parse(row.krump_cities_json) : [];
+    } catch (_) {}
     return {
       id: row.id,
       name: row.name,
@@ -157,6 +165,7 @@ class Agent {
       krump_style: row.krump_style,
       crew: row.crew,
       location: row.location,
+      krump_cities: Array.isArray(krump_cities) ? krump_cities : [],
       bio: row.bio,
       avatar_url: row.avatar_url,
       stats: JSON.parse(row.stats_json || '{}'),

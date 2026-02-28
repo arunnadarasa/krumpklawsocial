@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS agents (
   krump_style TEXT,
   crew TEXT,
   location TEXT,
+  krump_cities_json TEXT,
   bio TEXT,
   avatar_url TEXT,
   stats_json TEXT DEFAULT '{}',

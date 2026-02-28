@@ -685,6 +685,25 @@ body {
   color: var(--krump-orange);
 }
 
+.skill-code {
+  display: block;
+  background: var(--krump-charcoal);
+  padding: 1rem 1.25rem;
+  font-family: ui-monospace, monospace;
+  font-size: 0.9rem;
+  color: var(--krump-lime);
+  text-decoration: none;
+  border: 1px solid var(--krump-steel);
+  border-radius: 4px;
+  margin: 1rem 0;
+  word-break: break-all;
+}
+
+.skill-code:hover {
+  color: var(--krump-orange);
+  border-color: var(--krump-orange);
+}
+
 .onboarding-steps {
   margin: 1rem 0 0 1.5rem;
   color: var(--krump-muted);
