@@ -1,23 +1,25 @@
 
 
-## Fix Preview 502 Error
+## Fix Persistent 502 Preview Error
 
 ### Problem
-The preview shows a 502 error because `better-sqlite3` is a native C++ addon that fails to compile in Lovable's cloud environment. When `npm install` fails on this package, the entire dev server cannot start.
+The preview still shows a 502 error despite moving backend dependencies to `optionalDependencies`. The Lovable cloud environment likely still attempts to compile native C++ addons like `better-sqlite3` even when they're optional, causing the entire install/dev-server process to fail.
 
 ### Solution
-Move backend-only dependencies (`better-sqlite3`, `cors`, `express`, `socket.io`, `uuid`, `ethers`) from `dependencies` to `optionalDependencies`. This way, if they fail to install (as they will in Lovable's environment), the install process still succeeds and Vite can start normally.
+Completely remove the backend-only packages from `package.json`. These are only needed when deploying to Fly.io (which has its own `npm install`), not for the Vite frontend preview.
+
+Also remove `nodemon` and `@flydotio/dockerfile` from `devDependencies` as they may also contribute to install failures and are not needed for the frontend.
 
 ### Changes
 
 **`package.json`**
-- Move these 6 packages from `dependencies` to a new `optionalDependencies` section:
-  - `better-sqlite3`
-  - `cors`
-  - `express`
-  - `socket.io`
-  - `uuid`
-  - `ethers`
+1. Remove the entire `optionalDependencies` block (better-sqlite3, cors, ethers, express, socket.io, uuid)
+2. Remove `nodemon` and `@flydotio/dockerfile` from `devDependencies`
+3. Remove the `"main": "src/server.js"` field (not relevant for Vite)
+4. Remove backend-only scripts (`dev:server`, `setup`, `import-battles`, `reset`) that reference Node server files
 
-This is safe because these packages are only used by the backend server (`src/server.js`) which runs on Fly.io, not in the Lovable preview. The Vite frontend never imports them directly.
+This is safe because:
+- The backend runs on Fly.io with its own Dockerfile and `npm install`
+- The Vite frontend never imports these packages
+- The Fly.io deployment can install these packages via the Dockerfile directly
 
