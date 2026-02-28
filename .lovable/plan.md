@@ -1,43 +1,41 @@
 
 
-## Fix Build Errors and Make Mobile Responsive
+## Make Desktop Responsive
 
-### 1. Fix ClaimPage.tsx Build Error
+### Problem
+The Battle, League, and Communities pages use the `.container` CSS class which forces a `grid-template-columns: 300px 1fr` layout meant for the feed page with its sidebar. Since these pages have no sidebar, the content gets pushed into a narrow column. They also have restrictive inline `maxWidth` values (800-1000px) that waste screen space on desktop.
 
-The `setInfo` calls on lines 27 and 32 pass objects missing the required `claimed` property. Fix by adding `claimed: false` to both error state objects.
+### Changes
 
-### 2. Mobile Responsive Improvements
+**1. Add a single-column container class in `src/index.css`**
 
-The site already has some responsive CSS but needs several fixes for proper mobile display:
+A new `.container-single` class that provides a wide, centered layout without the 2-column grid:
+- No grid, just `max-width: 1200px` with auto margins and `2rem` padding
+- A mobile override at 768px reducing padding to `1rem`
 
-**Header (the biggest issue on mobile):**
-- The header tries to show logo + search bar + full nav links all in one row -- this overflows on mobile
-- Hide the search bar on small screens or move it below the header
-- Collapse nav links into a hamburger menu on mobile, or show only essential items (Login button)
-- Reduce logo text size on mobile
+**2. Update `src/pages/BattlePage.tsx`**
+- Change `className="container"` to `className="container-single"` on all `<main>` elements
+- Remove the inline `maxWidth: 800` constraint so content fills the wider container
 
-**CSS changes in `src/index.css`:**
-- Add mobile media queries for the header: stack logo and nav vertically, hide search on small screens
-- Make the nav wrap or collapse on screens under 768px
-- Hide non-essential nav links on mobile (KrumpCities, IKS League, Rankings) and show only Feed + Login
-- Reduce header padding on mobile
-- Make modals full-width on mobile with smaller padding
-- Ensure the stats bar wraps properly (already has `flex-wrap`)
-- Make onboarding hero text smaller on mobile
-- Ensure code blocks don't overflow horizontally
+**3. Update `src/pages/LeaguePage.tsx`**
+- Change `className="container"` to `className="container-single"`
+- Remove the inline `maxWidth: 900` constraint
 
-**Inline style fixes in `src/pages/Index.tsx`:**
-- Make the search bar container hide on mobile via a CSS class instead of inline styles
-- Ensure the post vote block layout works on narrow screens
+**4. Update `src/pages/Communities.tsx`**
+- Change `className="container"` to `className="container-single"`
+- Remove the inline `maxWidth: 1000` constraint
 
-### Technical Details
+**5. Add hamburger menu to all three pages**
 
-**Files to modify:**
-1. `src/pages/ClaimPage.tsx` -- Add `claimed: false` to error state objects (lines 27, 32)
-2. `src/index.css` -- Add mobile media queries for header, nav, search, modals, onboarding hero, and post layout
-3. `src/pages/Index.tsx` -- Add CSS class to search container, add mobile hamburger menu toggle state and minimal mobile nav
+Each page has its own hardcoded header that doesn't collapse on mobile. Add the same hamburger pattern from Index.tsx:
+- Import `useState`, add `mobileNavOpen` toggle state
+- Add hamburger button (hidden on desktop, shown on mobile)
+- Add `mobile-open` class toggle on the `nav` element
+- Mark non-essential nav links with `hide-mobile` class
 
-**Key mobile breakpoints:**
-- Under 768px: Collapse nav, hide search, stack header elements
-- Under 480px: Further reduce font sizes and padding
+### Files Modified
+1. `src/index.css` -- Add `.container-single` class with mobile override
+2. `src/pages/BattlePage.tsx` -- Use `.container-single`, remove maxWidth, add hamburger nav
+3. `src/pages/LeaguePage.tsx` -- Use `.container-single`, remove maxWidth, add hamburger nav
+4. `src/pages/Communities.tsx` -- Use `.container-single`, remove maxWidth, add hamburger nav
 
