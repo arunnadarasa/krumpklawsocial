@@ -33,6 +33,215 @@ router.get('/agent/:agentId', async (req, res) => {
   }
 });
 
+// ---------- Battle invites (cross-user: each side submits own responses) ----------
+const db = require('../config/database');
+
+function getInviteById(id) {
+  const row = db.prepare('SELECT * FROM battle_invites WHERE id = ?').get(id);
+  if (!row) return null;
+  return {
+    id: row.id,
+    agent_a_id: row.agent_a_id,
+    agent_b_id: row.agent_b_id,
+    format: row.format,
+    topic: row.topic || null,
+    krump_city: row.krump_city || null,
+    status: row.status,
+    responses_a: row.responses_a ? JSON.parse(row.responses_a) : null,
+    responses_b: row.responses_b ? JSON.parse(row.responses_b) : null,
+    battle_id: row.battle_id || null,
+    created_at: row.created_at,
+    updated_at: row.updated_at
+  };
+}
+
+// Create invite (Agent A invites Agent B)
+router.post('/invites', auth, authAgentOnly, async (req, res) => {
+  try {
+    const { opponentAgentId, format, topic, krumpCity } = req.body;
+    const inviterId = req.agent.id;
+    if (!opponentAgentId || !format) {
+      return res.status(400).json({ error: 'opponentAgentId and format are required' });
+    }
+    const opponent = Agent.findById(opponentAgentId);
+    if (!opponent) return res.status(400).json({ error: 'Opponent agent not found' });
+    if (opponent.id === inviterId) return res.status(400).json({ error: 'Cannot invite yourself' });
+    const citySlug = (krumpCity || '').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') || null;
+    const id = require('uuid').v4();
+    const now = new Date().toISOString();
+    db.prepare(`
+      INSERT INTO battle_invites (id, agent_a_id, agent_b_id, format, topic, krump_city, status, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?)
+    `).run(id, inviterId, opponentAgentId, format, topic || null, citySlug, now, now);
+    const invite = getInviteById(id);
+    const { KRUMP_FORMATS } = require('../../scripts/enhanced_krump_arena');
+    const formatConfig = KRUMP_FORMATS?.[format];
+    const roundCount = formatConfig && formatConfig.rounds != null ? formatConfig.rounds : 3;
+    res.status(201).json({ ...invite, roundCount });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// List invites for the authenticated agent (for=me means where I am agent_b or agent_a)
+router.get('/invites', auth, authAgentOnly, async (req, res) => {
+  try {
+    const forMe = req.query.for === 'me';
+    const agentId = req.agent.id;
+    const rows = forMe
+      ? db.prepare(`
+          SELECT * FROM battle_invites WHERE (agent_a_id = ? OR agent_b_id = ?) AND status IN ('pending','accepted','awaiting_responses')
+          ORDER BY created_at DESC
+        `).all(agentId, agentId)
+      : db.prepare('SELECT * FROM battle_invites ORDER BY created_at DESC LIMIT 50').all();
+    const invites = rows.map(r => getInviteById(r.id));
+    res.json({ invites, count: invites.length });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get one invite (participant only)
+router.get('/invites/:id', auth, authAgentOnly, async (req, res) => {
+  try {
+    const invite = getInviteById(req.params.id);
+    if (!invite) return res.status(404).json({ error: 'Invite not found' });
+    const me = req.agent.id;
+    if (invite.agent_a_id !== me && invite.agent_b_id !== me) {
+      return res.status(403).json({ error: 'Not a participant of this invite' });
+    }
+    const { KRUMP_FORMATS } = require('../../scripts/enhanced_krump_arena');
+    const formatConfig = KRUMP_FORMATS?.[invite.format];
+    const roundCount = formatConfig && formatConfig.rounds != null ? formatConfig.rounds : 3;
+    res.json({ ...invite, roundCount });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Accept invite (Agent B)
+router.post('/invites/:id/accept', auth, authAgentOnly, async (req, res) => {
+  try {
+    const invite = getInviteById(req.params.id);
+    if (!invite) return res.status(404).json({ error: 'Invite not found' });
+    if (invite.agent_b_id !== req.agent.id) return res.status(403).json({ error: 'Only the invited agent can accept' });
+    if (invite.status !== 'pending') return res.status(400).json({ error: 'Invite is not pending' });
+    const now = new Date().toISOString();
+    db.prepare('UPDATE battle_invites SET status = ?, updated_at = ? WHERE id = ?').run('accepted', now, invite.id);
+    const updated = getInviteById(invite.id);
+    const { KRUMP_FORMATS } = require('../../scripts/enhanced_krump_arena');
+    const formatConfig = KRUMP_FORMATS?.[invite.format];
+    const roundCount = formatConfig && formatConfig.rounds != null ? formatConfig.rounds : 3;
+    res.json({ ...updated, roundCount });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Submit my responses (Agent A or B) - when both in, server evaluates and creates battle
+router.post('/invites/:id/responses', auth, authAgentOnly, async (req, res) => {
+  try {
+    const { responses } = req.body;
+    if (!Array.isArray(responses) || responses.length === 0) {
+      return res.status(400).json({ error: 'responses array is required and must be non-empty' });
+    }
+    const invite = getInviteById(req.params.id);
+    if (!invite) return res.status(404).json({ error: 'Invite not found' });
+    const me = req.agent.id;
+    if (invite.agent_a_id !== me && invite.agent_b_id !== me) {
+      return res.status(403).json({ error: 'Not a participant of this invite' });
+    }
+    if (invite.status === 'evaluated') return res.status(400).json({ error: 'Battle already evaluated', battleId: invite.battle_id });
+    if (invite.status === 'cancelled' || invite.status === 'expired') return res.status(400).json({ error: 'Invite is no longer active' });
+
+    const now = new Date().toISOString();
+    const normalized = responses.map(r => typeof r === 'string' ? r : (r && r.text ? r.text : String(r)));
+    if (invite.agent_a_id === me) {
+      if (invite.responses_a) return res.status(400).json({ error: 'You already submitted responses' });
+      db.prepare('UPDATE battle_invites SET responses_a = ?, updated_at = ? WHERE id = ?').run(JSON.stringify(normalized), now, invite.id);
+    } else {
+      if (invite.responses_b) return res.status(400).json({ error: 'You already submitted responses' });
+      db.prepare('UPDATE battle_invites SET responses_b = ?, updated_at = ? WHERE id = ?').run(JSON.stringify(normalized), now, invite.id);
+    }
+    const updated = getInviteById(invite.id);
+
+    if (updated.responses_a && updated.responses_b) {
+      const arena = new EnhancedKrumpArena();
+      const evaluation = await arena.evaluateBattle(invite.agent_a_id, invite.agent_b_id, updated.responses_a, updated.responses_b, invite.format);
+      evaluation.id = require('uuid').v4();
+      evaluation.topic = invite.topic || '';
+      evaluation.krump_city = invite.krump_city;
+      evaluation.responsesA = updated.responses_a;
+      evaluation.responsesB = updated.responses_b;
+
+      const battle = Battle.createFromArenaResult(evaluation, invite.krump_city);
+      updateAgentStats(invite.agent_a_id, evaluation, invite.agent_b_id);
+      updateAgentStats(invite.agent_b_id, evaluation, invite.agent_a_id);
+
+      const agentARec = Agent.findById(invite.agent_a_id);
+      const agentBRec = Agent.findById(invite.agent_b_id);
+      const winnerName = evaluation.winner === 'tie' ? 'Tie' : (evaluation.winner === invite.agent_a_id ? (agentARec?.name || invite.agent_a_id) : (agentBRec?.name || invite.agent_b_id));
+      const summary = arena.generatePostReport(evaluation, true, {
+        agentAName: agentARec?.name || invite.agent_a_id,
+        agentBName: agentBRec?.name || invite.agent_b_id,
+        winnerName
+      });
+      const winnerContent = evaluation.winner === 'tie'
+        ? `Tie in ${evaluation.format} battle! Both averaged ${evaluation.avgScores[invite.agent_a_id].toFixed(1)}`
+        : `${winnerName} wins in ${evaluation.format} battle! Avg: ${evaluation.avgScores[evaluation.winner].toFixed(1)} vs ${evaluation.avgScores[evaluation.winner === invite.agent_a_id ? invite.agent_b_id : invite.agent_a_id].toFixed(1)}`;
+      const Post = require('../models/Post');
+      const postPayload = {
+        type: 'battle',
+        content: winnerContent,
+        krump_city: evaluation.krump_city || null,
+        embedded: { battleId: battle.id, format: evaluation.format, topic: evaluation.topic || '', summary },
+        reactions: { '🔥': 0, '⚡': 0, '🎯': 0, '💚': 0 }
+      };
+      Post.create(postPayload, invite.agent_a_id);
+      Post.create(postPayload, invite.agent_b_id);
+
+      if (evaluation.winner !== 'tie') {
+        const { transferBattlePayout } = require('../services/privyPayout');
+        const loserId = evaluation.winner === invite.agent_a_id ? invite.agent_b_id : invite.agent_a_id;
+        const winnerRecord = Agent.findById(evaluation.winner);
+        const payoutToken = (winnerRecord?.payout_token || 'ip').toLowerCase();
+        try {
+          const r = await transferBattlePayout(loserId, evaluation.winner);
+          if (r.hash) Battle.updatePayout(battle.id, r.hash, payoutToken);
+          if (r.error) console.warn('[KrumpPayout] invite battle failed', r.error);
+        } catch (e) { console.warn('[KrumpPayout] exception', e.message); }
+      }
+      const Ranking = require('../models/Ranking');
+      Ranking.updateAgentRankings(invite.agent_a_id);
+      Ranking.updateAgentRankings(invite.agent_b_id);
+
+      db.prepare('UPDATE battle_invites SET status = ?, battle_id = ?, updated_at = ? WHERE id = ?').run('evaluated', battle.id, now, invite.id);
+      return res.json({ status: 'evaluated', battleId: battle.id, invite: getInviteById(invite.id) });
+    }
+
+    res.json({ status: updated.responses_a && updated.responses_b ? 'evaluated' : 'awaiting_responses', invite: updated });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Cancel invite (either participant)
+router.post('/invites/:id/cancel', auth, authAgentOnly, async (req, res) => {
+  try {
+    const invite = getInviteById(req.params.id);
+    if (!invite) return res.status(404).json({ error: 'Invite not found' });
+    if (invite.agent_a_id !== req.agent.id && invite.agent_b_id !== req.agent.id) return res.status(403).json({ error: 'Not a participant' });
+    if (invite.status === 'evaluated') return res.status(400).json({ error: 'Battle already completed' });
+    const now = new Date().toISOString();
+    db.prepare('UPDATE battle_invites SET status = ?, updated_at = ? WHERE id = ?').run('cancelled', now, invite.id);
+    res.json({ ...getInviteById(invite.id), message: 'Invite cancelled' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ---------- End battle invites ----------
+
 // Get battle by ID (public) - with agent names and formatted scores
 router.get('/:id', async (req, res) => {
   try {

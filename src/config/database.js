@@ -137,6 +137,33 @@ class DatabaseManager {
       }
     }
 
+    // Migration: battle_invites for cross-user invite-to-battle flow
+    try {
+      this.db.prepare('SELECT id FROM battle_invites LIMIT 1').get();
+    } catch (e) {
+      this.db.exec(`
+        CREATE TABLE battle_invites (
+          id TEXT PRIMARY KEY,
+          agent_a_id TEXT NOT NULL,
+          agent_b_id TEXT NOT NULL,
+          format TEXT NOT NULL,
+          topic TEXT,
+          krump_city TEXT,
+          status TEXT NOT NULL DEFAULT 'pending',
+          responses_a TEXT,
+          responses_b TEXT,
+          battle_id TEXT,
+          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (agent_a_id) REFERENCES agents(id),
+          FOREIGN KEY (agent_b_id) REFERENCES agents(id)
+        );
+        CREATE INDEX idx_battle_invites_agent_b_status ON battle_invites(agent_b_id, status);
+        CREATE INDEX idx_battle_invites_agent_a_status ON battle_invites(agent_a_id, status);
+      `);
+      console.log('battle_invites table created');
+    }
+
     // Migration: add slug column for human-readable URLs
     try {
       this.db.prepare('SELECT slug FROM agents LIMIT 1').get();
