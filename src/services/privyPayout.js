@@ -25,11 +25,16 @@ const EVVM_CORE_ABI = [
 ];
 
 /**
- * Call Privy wallet RPC (eth_sendTransaction, personal_sign, eth_accounts).
+ * Call Privy wallet RPC (eth_sendTransaction, personal_sign).
+ * Note: Privy wallet RPC does not support eth_accounts; use agent's stored wallet_address for JAB.
  */
 async function privyRpc(walletId, appId, appSecret, method, params, options = {}) {
   const auth = Buffer.from(`${appId}:${appSecret}`).toString('base64');
-  const body = { method, caip2: CHAIN_CAIP2, params };
+  // personal_sign does not accept caip2/chain_type (Privy returns "Unrecognized key(s): 'caip2'")
+  const isChainSpecific = method === 'eth_sendTransaction' || method === 'eth_sendRawTransaction' || method === 'eth_signTransaction';
+  const body = isChainSpecific
+    ? { method, caip2: CHAIN_CAIP2, chain_type: 'ethereum', params }
+    : { method, params };
   if (options.sponsor !== false && (method === 'eth_sendTransaction' || method === 'eth_sendRawTransaction')) {
     body.sponsor = true;
   }
@@ -48,6 +53,10 @@ async function privyRpc(walletId, appId, appSecret, method, params, options = {}
     const errDetail = data.error?.code != null ? ` code=${data.error.code}` : '';
     const errExtra = typeof data.error?.details === 'string' ? ` details=${data.error.details}` : (data.error?.details ? ` details=${JSON.stringify(data.error.details)}` : '');
     console.warn('[KrumpPayout] Privy API error status=%s%s %s%s', res.status, errDetail, errMsg, errExtra);
+    console.warn('[KrumpPayout] Privy error body (method=%s): %s', method, JSON.stringify(data));
+    if (data.error?.code === 'policy_violation' && method === 'personal_sign') {
+      console.warn('[KrumpPayout] JAB requires wallet policy to allow personal_sign. Add an ALLOW rule for method personal_sign to the wallet policy (see docs/PRIVY-WALLET-GUIDE.md).');
+    }
     throw new Error(errMsg + errDetail + errExtra);
   }
   return data?.data;
@@ -61,14 +70,22 @@ function parseAmount(value, token) {
   return String(Math.round(n * 1e18));
 }
 
+/** Decimal string to hex (0x-prefixed) for eth_sendTransaction value. */
+function toHexWei(decimalWei) {
+  const n = BigInt(decimalWei);
+  return '0x' + n.toString(16);
+}
+
 /**
  * Transfer IP (native token) via Privy.
+ * Privy/eth_sendTransaction expect value in hex (Ethereum JSON-RPC convention).
  */
 async function transferIp(walletId, toAddress, amountWei, appId, appSecret) {
-  const value = amountWei || AMOUNT_IP_WEI;
+  const valueWei = amountWei || AMOUNT_IP_WEI;
+  const value = toHexWei(valueWei);
   const result = await privyRpc(walletId, appId, appSecret, 'eth_sendTransaction', {
     transaction: { to: toAddress, value }
-  });
+  }, { sponsor: false });
   return { success: true, hash: result?.hash || result?.user_operation_hash };
 }
 
@@ -82,8 +99,8 @@ async function transferUsdcKrump(walletId, toAddress, amountRaw, appId, appSecre
   ]);
   const data = iface.encodeFunctionData('transfer', [toAddress, amount]);
   const result = await privyRpc(walletId, appId, appSecret, 'eth_sendTransaction', {
-    transaction: { to: USDC_KRUMP, data, value: '0' }
-  });
+    transaction: { to: USDC_KRUMP, data, value: '0x0' }
+  }, { sponsor: false });
   return { success: true, hash: result?.hash || result?.user_operation_hash };
 }
 
@@ -116,6 +133,7 @@ async function transferJab(walletId, fromAddress, toAddress, amountRaw, appId, a
     'false'
   ].join(',');
 
+  console.warn('[KrumpPayout] JAB: requesting personal_sign (message length=%d)', message.length);
   const signResult = await privyRpc(walletId, appId, appSecret, 'personal_sign', {
     message,
     encoding: 'utf-8'
@@ -137,9 +155,10 @@ async function transferJab(walletId, fromAddress, toAddress, amountRaw, appId, a
     signature.startsWith('0x') ? signature : '0x' + signature
   ]);
 
+  console.warn('[KrumpPayout] JAB: sending eth_sendTransaction (Core.pay)');
   const txResult = await privyRpc(walletId, appId, appSecret, 'eth_sendTransaction', {
-    transaction: { to: EVVM_CORE, data: payData, value: '0' }
-  });
+    transaction: { to: EVVM_CORE, data: payData, value: '0x0' }
+  }, { sponsor: false });
   return { success: true, hash: txResult?.hash || txResult?.user_operation_hash };
 }
 
@@ -152,17 +171,8 @@ async function transferBattlePayout(loserAgentId, winnerAgentId) {
   const appId = process.env.PRIVY_APP_ID;
   const appSecret = process.env.PRIVY_APP_SECRET;
 
-  // #region agent log
-  try {
-    fetch('http://127.0.0.1:7476/ingest/f39bfd8c-08e1-4a03-8cb8-804e3f1c18e3',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'eb9737'},body:JSON.stringify({sessionId:'eb9737',location:'privyPayout.js:transferBattlePayout-entry',message:'transferBattlePayout called',data:{loserAgentId,winnerAgentId,hasAppId:!!appId,hasAppSecret:!!appSecret},timestamp:Date.now(),hypothesisId:'H3'})}).catch(()=>{});
-  } catch (_) {}
-  // #endregion
-
   if (!appId || !appSecret) {
     console.warn('[KrumpPayout] skipped reason=no_credentials (PRIVY_APP_ID or PRIVY_APP_SECRET not set on server)');
-    // #region agent log
-    try { fetch('http://127.0.0.1:7476/ingest/f39bfd8c-08e1-4a03-8cb8-804e3f1c18e3',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'eb9737'},body:JSON.stringify({sessionId:'eb9737',location:'privyPayout.js:skip',message:'Payout skipped',data:{reason:'no_credentials'},timestamp:Date.now(),hypothesisId:'H1'})}).catch(()=>{}); } catch (_) {}
-    // #endregion
     return { skipped: true, reason: 'no_credentials' };
   }
 
@@ -170,9 +180,6 @@ async function transferBattlePayout(loserAgentId, winnerAgentId) {
   const winner = Agent.findById(winnerAgentId);
   if (!loser || !winner) {
     console.warn('[KrumpPayout] skipped reason=agent_not_found loserFound=%s winnerFound=%s', !!loser, !!winner);
-    // #region agent log
-    try { fetch('http://127.0.0.1:7476/ingest/f39bfd8c-08e1-4a03-8cb8-804e3f1c18e3',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'eb9737'},body:JSON.stringify({sessionId:'eb9737',location:'privyPayout.js:error',message:'Agent not found',data:{loserFound:!!loser,winnerFound:!!winner},timestamp:Date.now(),hypothesisId:'H5'})}).catch(()=>{}); } catch (_) {}
-    // #endregion
     return { error: 'Agent not found' };
   }
 
@@ -181,9 +188,6 @@ async function transferBattlePayout(loserAgentId, winnerAgentId) {
   if (!walletId || !toAddress) {
     const reason = !walletId ? 'loser_no_wallet' : 'winner_no_wallet';
     console.warn('[KrumpPayout] skipped reason=%s (loser has privy_wallet_id=%s, winner has wallet_address=%s)', reason, !!walletId, !!toAddress);
-    // #region agent log
-    try { fetch('http://127.0.0.1:7476/ingest/f39bfd8c-08e1-4a03-8cb8-804e3f1c18e3',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'eb9737'},body:JSON.stringify({sessionId:'eb9737',location:'privyPayout.js:skip',message:'Payout skipped',data:{reason,hasWalletId:!!walletId,hasToAddress:!!toAddress},timestamp:Date.now(),hypothesisId:'H2'})}).catch(()=>{}); } catch (_) {}
-    // #endregion
     return { skipped: true, reason };
   }
 
@@ -194,35 +198,26 @@ async function transferBattlePayout(loserAgentId, winnerAgentId) {
   const token = (winner.payout_token || 'ip').toLowerCase();
   if (!['ip', 'usdc_krump', 'jab'].includes(token)) {
     console.warn('[KrumpPayout] skipped reason=invalid_payout_token token=%s', token);
-    // #region agent log
-    try { fetch('http://127.0.0.1:7476/ingest/f39bfd8c-08e1-4a03-8cb8-804e3f1c18e3',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'eb9737'},body:JSON.stringify({sessionId:'eb9737',location:'privyPayout.js:skip',message:'Payout skipped',data:{reason:'invalid_payout_token',token},timestamp:Date.now(),hypothesisId:'H2'})}).catch(()=>{}); } catch (_) {}
-    // #endregion
     return { skipped: true, reason: 'invalid_payout_token' };
   }
 
   try {
-    // #region agent log
-    try { fetch('http://127.0.0.1:7476/ingest/f39bfd8c-08e1-4a03-8cb8-804e3f1c18e3',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'eb9737'},body:JSON.stringify({sessionId:'eb9737',location:'privyPayout.js:transfer-attempt',message:'Attempting transfer',data:{token},timestamp:Date.now(),hypothesisId:'H4'})}).catch(()=>{}); } catch (_) {}
-    // #endregion
     let result;
     if (token === 'ip') {
       result = await transferIp(walletId, toAddress, AMOUNT_IP_WEI, appId, appSecret);
     } else if (token === 'usdc_krump') {
       result = await transferUsdcKrump(walletId, toAddress, AMOUNT_USDC_RAW, appId, appSecret);
     } else {
-      const fromAddress = await getLoserAddress(walletId, appId, appSecret);
-      if (!fromAddress) return { error: 'Could not get loser wallet address' };
+      // JAB: use loser's stored wallet_address (Privy wallet RPC does not support eth_accounts)
+      const fromAddress = loser.wallet_address || null;
+      if (!fromAddress || !/^0x[a-fA-F0-9]{40}$/.test(fromAddress)) {
+        return { error: 'Could not get loser wallet address (agent must have wallet_address linked for JAB payouts)' };
+      }
       result = await transferJab(walletId, fromAddress, toAddress, AMOUNT_JAB_RAW, appId, appSecret);
     }
-    // #region agent log
-    if (result && result.hash) { try { fetch('http://127.0.0.1:7476/ingest/f39bfd8c-08e1-4a03-8cb8-804e3f1c18e3',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'eb9737'},body:JSON.stringify({sessionId:'eb9737',location:'privyPayout.js:success',message:'Payout success',data:{hash:result.hash},timestamp:Date.now(),hypothesisId:'H4'})}).catch(()=>{}); } catch (_) {} }
-    // #endregion
     return result;
   } catch (err) {
     console.warn('[KrumpPayout] transfer failed error=%s', err.message);
-    // #region agent log
-    try { fetch('http://127.0.0.1:7476/ingest/f39bfd8c-08e1-4a03-8cb8-804e3f1c18e3',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'eb9737'},body:JSON.stringify({sessionId:'eb9737',location:'privyPayout.js:error',message:'Transfer failed',data:{error:err.message},timestamp:Date.now(),hypothesisId:'H4'})}).catch(()=>{}); } catch (_) {}
-    // #endregion
     return { error: err.message };
   }
 }
@@ -262,25 +257,16 @@ async function transferAgentToAgent(fromAgentId, toAgentId, amount, token) {
     } else if (t === 'usdc_krump') {
       result = await transferUsdcKrump(walletId, toAddress, amountRaw, appId, appSecret);
     } else {
-      const fromAddress = await getLoserAddress(walletId, appId, appSecret);
-      if (!fromAddress) return { error: 'Could not get sender wallet address' };
+      // JAB: use sender's stored wallet_address (Privy wallet RPC does not support eth_accounts)
+      const fromAddress = from.wallet_address || null;
+      if (!fromAddress || !/^0x[a-fA-F0-9]{40}$/.test(fromAddress)) {
+        return { error: 'Sender must have wallet_address linked for JAB transfers' };
+      }
       result = await transferJab(walletId, fromAddress, toAddress, amountRaw, appId, appSecret);
     }
     return result;
   } catch (err) {
     return { error: err.message };
-  }
-}
-
-async function getLoserAddress(walletId, appId, appSecret) {
-  try {
-    const result = await privyRpc(walletId, appId, appSecret, 'eth_accounts', {}, { sponsor: false });
-    const accounts = result?.result ?? result;
-    if (Array.isArray(accounts) && accounts[0]) return accounts[0];
-    if (typeof result === 'string') return result;
-    return null;
-  } catch {
-    return null;
   }
 }
 

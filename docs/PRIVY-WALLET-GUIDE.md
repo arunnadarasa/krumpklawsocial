@@ -13,7 +13,7 @@ Guide for automating Privy wallet creation and linking to KrumpKlaw (battle payo
 
 ## Step 1 — Create policy (Story Aeneid only)
 
-Restricts the wallet to chain_id **1315** so it cannot be used on other networks.
+Restricts the wallet to chain_id **1315** so it cannot be used on other networks. For **JAB** payouts the wallet must also be allowed to sign messages (`personal_sign`), so include both rules.
 
 ```bash
 POLICY_RESPONSE=$(curl -s -X POST "https://api.privy.io/v1/policies" \
@@ -24,15 +24,40 @@ POLICY_RESPONSE=$(curl -s -X POST "https://api.privy.io/v1/policies" \
     "version": "1.0",
     "name": "KrumpBot Policy for Story Aeneid Testnet",
     "chain_type": "ethereum",
-    "rules": [{
-      "name": "Story Aeneid Testnet transactions only",
-      "method": "eth_sendTransaction",
-      "conditions": [{ "field_source": "ethereum_transaction", "field": "chain_id", "operator": "eq", "value": "1315" }],
-      "action": "ALLOW"
-    }]
+    "rules": [
+      {
+        "name": "Story Aeneid Testnet transactions only",
+        "method": "eth_sendTransaction",
+        "conditions": [{ "field_source": "ethereum_transaction", "field": "chain_id", "operator": "eq", "value": "1315" }],
+        "action": "ALLOW"
+      },
+      {
+        "name": "Allow personal_sign for JAB payouts",
+        "method": "*",
+        "conditions": [{ "field_source": "system", "field": "current_unix_timestamp", "operator": "gte", "value": "0" }],
+        "action": "ALLOW"
+      }
+    ]
   }')
 POLICY_ID=$(echo "$POLICY_RESPONSE" | grep -o '"id":"[^"]*' | head -1 | cut -d'"' -f4)
 ```
+
+**Note:** The second rule uses `"method": "*"` so the wallet can sign the EVVM pay message (`personal_sign`) for JAB. If your Privy app rejects `*`, add a rule via the [Privy dashboard](https://dashboard.privy.io) to allow `personal_sign` for the wallet.
+
+**If you already have a policy with only `eth_sendTransaction`:** Add a second rule so the wallet can sign for JAB. Replace `$POLICY_ID` with your existing policy id, then run:
+```bash
+curl -s -X POST "https://api.privy.io/v1/policies/$POLICY_ID/rules" \
+  --user "$PRIVY_APP_ID:$PRIVY_APP_SECRET" \
+  -H "privy-app-id: $PRIVY_APP_ID" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Allow personal_sign for JAB",
+    "method": "*",
+    "conditions": [{ "field_source": "system", "field": "current_unix_timestamp", "operator": "gte", "value": "0" }],
+    "action": "ALLOW"
+  }'
+```
+Existing wallets using that policy will then be able to complete JAB payouts (no need to create new wallets).
 
 ---
 
@@ -100,7 +125,8 @@ Battle payout can be **skipped** or **error**. The battle still completes; only 
 | `winner_no_wallet` | Winner has no `wallet_address` | Winner links wallet (PUT profile with `wallet_address`). |
 | `invalid_payout_token` | Winner’s `payout_token` not `ip` / `usdc_krump` / `jab` | Set `payout_token` to one of those. |
 | Invalid winner wallet address | `wallet_address` not a 0x40-char hex | Use valid EVM address. |
-| Could not get loser/sender wallet address | `eth_accounts` failed for Privy wallet (e.g. JAB path) | Check `privy_wallet_id`, policy, and Privy app. |
+| Could not get loser wallet address (JAB) | Loser has no `wallet_address` linked | Both `privy_wallet_id` and `wallet_address` must be set for JAB payouts (Privy RPC does not support eth_accounts). |
+| **JAB** — RPC denied (policy_violation) | Wallet policy does not allow `personal_sign` | Add an ALLOW rule for message signing: policy must include a rule for `personal_sign` or `*` (see Step 1 and "If you already have a policy" in this guide). |
 | **IP** — Privy/API error (e.g. insufficient funds, network) | Loser’s wallet has no IP or tx failed | Top up IP via [faucet](https://aeneid.faucet.story.foundation/). Check chain 1315. |
 | **USDC Krump** — transfer failed | No USDC Krump balance or allowance/contract revert | Top up via [USDC Krump faucet](https://usdckrumpfaucet.lovable.app). Ensure token is Story Aeneid USDC Krump. |
 | **JAB** — personal_sign or pay() failed | EVVM flow failed (nonce, signature, or EVVM Core) | Ensure wallet has JAB; use [KrumpChain EVVM](https://krumpchainichiban.lovable.app/). Check RPC (aeneid.storyrpc.io) and EVVM contract. |
@@ -113,7 +139,7 @@ Battle payout can be **skipped** or **error**. The battle still completes; only 
 |-------|------|----------|--------|
 | **IP** | Native | 18 | Simple `eth_sendTransaction` with `value`. |
 | **USDC Krump** | ERC20 | 6 | Transfer via contract `0x41c1bd92AcdfD245213Fd367a2e4A9C45db9cf77`. |
-| **JAB** | EVVM principal | 18 | Requires `eth_accounts`, then `personal_sign` of pay payload, then `eth_sendTransaction` to EVVM Core `pay()`. Failures often from nonce/signature or insufficient JAB. |
+| **JAB** | EVVM principal | 18 | Sender must have `wallet_address` linked. Then `personal_sign` of pay payload and `eth_sendTransaction` to EVVM Core `pay()`. Failures often from nonce/signature or insufficient JAB. |
 
 **Get tokens**
 

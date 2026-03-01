@@ -40,12 +40,6 @@ router.get('/:id', async (req, res) => {
     if (!battle) {
       return res.status(404).json({ error: 'Battle not found' });
     }
-    // #region agent log
-    const r0 = battle?.result?.rounds?.[0];
-    try {
-      fetch('http://127.0.0.1:7476/ingest/f39bfd8c-08e1-4a03-8cb8-804e3f1c18e3',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'eb9737'},body:JSON.stringify({sessionId:'eb9737',location:'battles.js:get-battle',message:'GET battle result.rounds shape',data:{battleId:req.params.id,roundsCount:battle?.result?.rounds?.length,r0HasAgentAResponse:r0?.agentA?.response != null,r0HasAgentBResponse:r0?.agentB?.response != null,r0AgentAResponseLen:r0?.agentA?.response != null ? String(r0.agentA.response).length : 0,r0AgentBResponseLen:r0?.agentB?.response != null ? String(r0.agentB.response).length : 0},timestamp:Date.now(),hypothesisId:'H2'})}).catch(()=>{});
-    } catch (_) {}
-    // #endregion
     // Format scores for display (avoid long decimals) - keep as numbers for compatibility
     const formatted = {
       ...battle,
@@ -104,12 +98,6 @@ router.post('/create', auth, authAgentOnly, async (req, res) => {
     const evaluation = await arena.evaluateBattle(
       agentA, agentB, responsesA, responsesB, format
     );
-    // #region agent log
-    const r0Create = evaluation?.rounds?.[0];
-    try {
-      fetch('http://127.0.0.1:7476/ingest/f39bfd8c-08e1-4a03-8cb8-804e3f1c18e3',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'eb9737'},body:JSON.stringify({sessionId:'eb9737',location:'battles.js:create-after-arena',message:'Create path evaluation rounds shape',data:{roundsCount:evaluation?.rounds?.length,r0HasAgentAResponse:r0Create?.agentA?.response != null,r0HasAgentBResponse:r0Create?.agentB?.response != null,r0AgentAResponseLen:r0Create?.agentA?.response != null ? String(r0Create.agentA.response).length : 0,r0AgentBResponseLen:r0Create?.agentB?.response != null ? String(r0Create.agentB.response).length : 0},timestamp:Date.now(),hypothesisId:'H2'})}).catch(()=>{});
-    } catch (_) {}
-    // #endregion
 
     // Save to database (with KrumpCity for discovery)
     const battle = Battle.createFromArenaResult(evaluation, citySlug);
@@ -155,11 +143,6 @@ router.post('/create', auth, authAgentOnly, async (req, res) => {
       const loserId = evaluation.winner === agentA ? agentB : agentA;
       const winnerRecord = Agent.findById(evaluation.winner);
       const payoutToken = (winnerRecord?.payout_token || 'ip').toLowerCase();
-      // #region agent log
-      try {
-        fetch('http://127.0.0.1:7476/ingest/f39bfd8c-08e1-4a03-8cb8-804e3f1c18e3',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'eb9737'},body:JSON.stringify({sessionId:'eb9737',location:'battles.js:payout-entry-create',message:'Payout attempt (create path)',data:{battleId:battle.id,loserId,winnerId:evaluation.winner,payoutToken},timestamp:Date.now(),hypothesisId:'H3'})}).catch(()=>{});
-      } catch (_) {}
-      // #endregion
       try {
         console.log('[KrumpPayout] create path battleId=%s loserId=%s winnerId=%s token=%s', battle.id, loserId, evaluation.winner, payoutToken);
         const payoutResult = await transferBattlePayout(loserId, evaluation.winner);
@@ -259,12 +242,6 @@ function updateAgentStats(agentId, evaluation, opponentId) {
 router.post('/record', auth, authAgentOnly, async (req, res) => {
   try {
     const { evaluation } = req.body;
-    // #region agent log
-    const r0 = evaluation?.rounds?.[0];
-    try {
-      fetch('http://127.0.0.1:7476/ingest/f39bfd8c-08e1-4a03-8cb8-804e3f1c18e3',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'eb9737'},body:JSON.stringify({sessionId:'eb9737',location:'battles.js:record-incoming',message:'Record path evaluation rounds shape',data:{roundsCount:evaluation?.rounds?.length,r0HasAgentA:!!r0?.agentA,r0HasAgentB:!!r0?.agentB,r0AgentAResponseLen:r0?.agentA?.response != null ? String(r0.agentA.response).length : 0,r0AgentBResponseLen:r0?.agentB?.response != null ? String(r0.agentB.response).length : 0,r0Keys:r0 ? Object.keys(r0) : []},timestamp:Date.now(),hypothesisId:'H1'})}).catch(()=>{});
-    } catch (_) {}
-    // #endregion
 
     // Normalize: if client sent responsesA/responsesB at top level but rounds lack .response, fill them so the UI shows debate text
     const topLevelA = evaluation.responsesA;
@@ -318,11 +295,6 @@ router.post('/record', auth, authAgentOnly, async (req, res) => {
       const loserId = evaluation.winner === evaluation.agentA ? evaluation.agentB : evaluation.agentA;
       const winnerRecord = Agent.findById(evaluation.winner);
       const payoutToken = (winnerRecord?.payout_token || 'ip').toLowerCase();
-      // #region agent log
-      try {
-        fetch('http://127.0.0.1:7476/ingest/f39bfd8c-08e1-4a03-8cb8-804e3f1c18e3',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'eb9737'},body:JSON.stringify({sessionId:'eb9737',location:'battles.js:payout-entry-record',message:'Payout attempt (record path)',data:{battleId:battle.id,loserId,winnerId:evaluation.winner,payoutToken},timestamp:Date.now(),hypothesisId:'H3'})}).catch(()=>{});
-      } catch (_) {}
-      // #endregion
       try {
         console.log('[KrumpPayout] record path battleId=%s loserId=%s winnerId=%s token=%s', battle.id, loserId, evaluation.winner, payoutToken);
         const r = await transferBattlePayout(loserId, evaluation.winner);
