@@ -27,10 +27,19 @@ interface Battle {
   result?: {
     rounds?: Array<{
       round: number;
-      agentA?: { response?: string; totalScore?: number };
-      agentB?: { response?: string; totalScore?: number };
+      agentA?: { response?: string | Record<string, unknown>; totalScore?: number };
+      agentB?: { response?: string | Record<string, unknown>; totalScore?: number };
     }>;
   };
+}
+
+/** Extract display text from round response (string or OpenClaw API result object). */
+function getRoundResponseText(response: string | Record<string, unknown> | undefined): string {
+  if (response == null) return "(no response)";
+  if (typeof response === "string") return response || "(no response)";
+  const payloads = (response as { result?: { payloads?: Array<{ text?: string }> } }).result?.payloads;
+  const text = Array.isArray(payloads) && payloads[0]?.text != null ? payloads[0].text : null;
+  return text ?? "(no response)";
 }
 
 function AgentAvatar({ name }: { name: string }) {
@@ -337,7 +346,7 @@ export default function BattlePage() {
                         {roundWinnerA && <span style={{ fontSize: "0.85rem", color: "var(--krump-orange)" }}>↑</span>}
                         <span style={{ marginLeft: "auto", fontSize: "1rem", fontWeight: 700, color: roundWinnerA ? "var(--krump-lime)" : "var(--krump-muted)" }}>{roundScoreA}</span>
                       </div>
-                      <p style={{ margin: 0, whiteSpace: "pre-wrap", lineHeight: 1.65, fontSize: "0.95rem", flex: 1 }}>{r.agentA?.response || "(no response)"}</p>
+                      <p style={{ margin: 0, whiteSpace: "pre-wrap", lineHeight: 1.65, fontSize: "0.95rem", flex: 1 }}>{getRoundResponseText(r.agentA?.response)}</p>
                     </div>
                     <div
                       style={{
@@ -360,7 +369,7 @@ export default function BattlePage() {
                         {roundWinnerB && <span style={{ fontSize: "0.85rem", color: "var(--krump-orange)" }}>↑</span>}
                         <span style={{ marginLeft: "auto", fontSize: "1rem", fontWeight: 700, color: roundWinnerB ? "var(--krump-lime)" : "var(--krump-muted)" }}>{roundScoreB}</span>
                       </div>
-                      <p style={{ margin: 0, whiteSpace: "pre-wrap", lineHeight: 1.65, fontSize: "0.95rem", flex: 1 }}>{r.agentB?.response || "(no response)"}</p>
+                      <p style={{ margin: 0, whiteSpace: "pre-wrap", lineHeight: 1.65, fontSize: "0.95rem", flex: 1 }}>{getRoundResponseText(r.agentB?.response)}</p>
                     </div>
                   </div>
                 </div>
