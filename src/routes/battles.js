@@ -112,23 +112,26 @@ router.post('/create', auth, authAgentOnly, async (req, res) => {
     const winnerContent = evaluation.winner === 'tie'
       ? `Tie in ${format} battle! Both averaged ${evaluation.avgScores[agentA].toFixed(1)}`
       : `${winnerName} wins in ${format} battle! Avg: ${evaluation.avgScores[evaluation.winner].toFixed(1)} vs ${evaluation.avgScores[evaluation.winner === agentA ? agentB : agentA].toFixed(1)}`;
-    const post = Post.create({
+    const embedded = {
+      battleId: battle.id,
+      format: format,
+      topic: topic,
+      summary: arena.generatePostReport(evaluation, true, {
+        agentAName: agentARecord.name,
+        agentBName: agentBRecord.name,
+        winnerName
+      })
+    };
+    const postPayload = {
       type: 'battle',
       content: winnerContent,
       krump_city: citySlug,
-      embedded: {
-        battleId: battle.id,
-        format: format,
-        topic: topic,
-        summary: arena.generatePostReport(evaluation, true, {
-          agentAName: agentARecord.name,
-          agentBName: agentBRecord.name,
-          winnerName
-        })
-      },
+      embedded,
       reactions: { '🔥': 0, '⚡': 0, '🎯': 0, '💚': 0 }
-    }, agentA); // Post from winner's perspective or neutral
-    
+    };
+    const post = Post.create(postPayload, agentA);
+    Post.create(postPayload, agentB); // So both participants see the battle on their profile
+
     // Update rankings
     const Ranking = require('../models/Ranking');
     Ranking.updateAgentRankings(agentA);
@@ -140,6 +143,11 @@ router.post('/create', auth, authAgentOnly, async (req, res) => {
       const loserId = evaluation.winner === agentA ? agentB : agentA;
       const winnerRecord = Agent.findById(evaluation.winner);
       const payoutToken = (winnerRecord?.payout_token || 'ip').toLowerCase();
+      // #region agent log
+      try {
+        fetch('http://127.0.0.1:7476/ingest/f39bfd8c-08e1-4a03-8cb8-804e3f1c18e3',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'eb9737'},body:JSON.stringify({sessionId:'eb9737',location:'battles.js:payout-entry-create',message:'Payout attempt (create path)',data:{battleId:battle.id,loserId,winnerId:evaluation.winner,payoutToken},timestamp:Date.now(),hypothesisId:'H3'})}).catch(()=>{});
+      } catch (_) {}
+      // #endregion
       try {
         const payoutResult = await transferBattlePayout(loserId, evaluation.winner);
         if (payoutResult.hash) {
@@ -245,12 +253,41 @@ router.post('/record', auth, authAgentOnly, async (req, res) => {
     updateAgentStats(evaluation.agentA, evaluation, evaluation.agentB);
     updateAgentStats(evaluation.agentB, evaluation, evaluation.agentA);
     
+    // Create feed posts so both participants see the battle on their profile
+    const agentARec = Agent.findById(evaluation.agentA);
+    const agentBRec = Agent.findById(evaluation.agentB);
+    const winnerName = evaluation.winner === 'tie' ? 'Tie' : (evaluation.winner === evaluation.agentA ? (agentARec?.name || evaluation.agentA) : (agentBRec?.name || evaluation.agentB));
+    const arena = new EnhancedKrumpArena();
+    const summary = arena.generatePostReport(evaluation, true, {
+      agentAName: agentARec?.name || evaluation.agentA,
+      agentBName: agentBRec?.name || evaluation.agentB,
+      winnerName
+    });
+    const winnerContent = evaluation.winner === 'tie'
+      ? `Tie in ${evaluation.format} battle! Both averaged ${evaluation.avgScores[evaluation.agentA].toFixed(1)}`
+      : `${winnerName} wins in ${evaluation.format} battle! Avg: ${evaluation.avgScores[evaluation.winner].toFixed(1)} vs ${evaluation.avgScores[evaluation.winner === evaluation.agentA ? evaluation.agentB : evaluation.agentA].toFixed(1)}`;
+    const Post = require('../models/Post');
+    const postPayload = {
+      type: 'battle',
+      content: winnerContent,
+      krump_city: evaluation.krump_city || null,
+      embedded: { battleId: battle.id, format: evaluation.format, topic: evaluation.topic || '', summary },
+      reactions: { '🔥': 0, '⚡': 0, '🎯': 0, '💚': 0 }
+    };
+    Post.create(postPayload, evaluation.agentA);
+    Post.create(postPayload, evaluation.agentB);
+    
     // Battle payout (loser -> winner)
     if (evaluation.winner !== 'tie') {
       const { transferBattlePayout } = require('../services/privyPayout');
       const loserId = evaluation.winner === evaluation.agentA ? evaluation.agentB : evaluation.agentA;
       const winnerRecord = Agent.findById(evaluation.winner);
       const payoutToken = (winnerRecord?.payout_token || 'ip').toLowerCase();
+      // #region agent log
+      try {
+        fetch('http://127.0.0.1:7476/ingest/f39bfd8c-08e1-4a03-8cb8-804e3f1c18e3',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'eb9737'},body:JSON.stringify({sessionId:'eb9737',location:'battles.js:payout-entry-record',message:'Payout attempt (record path)',data:{battleId:battle.id,loserId,winnerId:evaluation.winner,payoutToken},timestamp:Date.now(),hypothesisId:'H3'})}).catch(()=>{});
+      } catch (_) {}
+      // #endregion
       try {
         const r = await transferBattlePayout(loserId, evaluation.winner);
         if (r.hash) Battle.updatePayout(battle.id, r.hash, payoutToken);

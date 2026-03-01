@@ -149,19 +149,37 @@ async function transferBattlePayout(loserAgentId, winnerAgentId) {
   const appId = process.env.PRIVY_APP_ID;
   const appSecret = process.env.PRIVY_APP_SECRET;
 
+  // #region agent log
+  try {
+    fetch('http://127.0.0.1:7476/ingest/f39bfd8c-08e1-4a03-8cb8-804e3f1c18e3',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'eb9737'},body:JSON.stringify({sessionId:'eb9737',location:'privyPayout.js:transferBattlePayout-entry',message:'transferBattlePayout called',data:{loserAgentId,winnerAgentId,hasAppId:!!appId,hasAppSecret:!!appSecret},timestamp:Date.now(),hypothesisId:'H3'})}).catch(()=>{});
+  } catch (_) {}
+  // #endregion
+
   if (!appId || !appSecret) {
     console.warn('Privy credentials not set - skipping battle payout');
+    // #region agent log
+    try { fetch('http://127.0.0.1:7476/ingest/f39bfd8c-08e1-4a03-8cb8-804e3f1c18e3',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'eb9737'},body:JSON.stringify({sessionId:'eb9737',location:'privyPayout.js:skip',message:'Payout skipped',data:{reason:'no_credentials'},timestamp:Date.now(),hypothesisId:'H1'})}).catch(()=>{}); } catch (_) {}
+    // #endregion
     return { skipped: true, reason: 'no_credentials' };
   }
 
   const loser = Agent.findById(loserAgentId);
   const winner = Agent.findById(winnerAgentId);
-  if (!loser || !winner) return { error: 'Agent not found' };
+  if (!loser || !winner) {
+    // #region agent log
+    try { fetch('http://127.0.0.1:7476/ingest/f39bfd8c-08e1-4a03-8cb8-804e3f1c18e3',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'eb9737'},body:JSON.stringify({sessionId:'eb9737',location:'privyPayout.js:error',message:'Agent not found',data:{loserFound:!!loser,winnerFound:!!winner},timestamp:Date.now(),hypothesisId:'H5'})}).catch(()=>{}); } catch (_) {}
+    // #endregion
+    return { error: 'Agent not found' };
+  }
 
   const walletId = loser.privy_wallet_id;
   const toAddress = winner.wallet_address;
   if (!walletId || !toAddress) {
-    return { skipped: true, reason: !walletId ? 'loser_no_wallet' : 'winner_no_wallet' };
+    const reason = !walletId ? 'loser_no_wallet' : 'winner_no_wallet';
+    // #region agent log
+    try { fetch('http://127.0.0.1:7476/ingest/f39bfd8c-08e1-4a03-8cb8-804e3f1c18e3',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'eb9737'},body:JSON.stringify({sessionId:'eb9737',location:'privyPayout.js:skip',message:'Payout skipped',data:{reason,hasWalletId:!!walletId,hasToAddress:!!toAddress},timestamp:Date.now(),hypothesisId:'H2'})}).catch(()=>{}); } catch (_) {}
+    // #endregion
+    return { skipped: true, reason };
   }
 
   if (!/^0x[a-fA-F0-9]{40}$/.test(toAddress)) {
@@ -170,10 +188,16 @@ async function transferBattlePayout(loserAgentId, winnerAgentId) {
 
   const token = (winner.payout_token || 'ip').toLowerCase();
   if (!['ip', 'usdc_krump', 'jab'].includes(token)) {
+    // #region agent log
+    try { fetch('http://127.0.0.1:7476/ingest/f39bfd8c-08e1-4a03-8cb8-804e3f1c18e3',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'eb9737'},body:JSON.stringify({sessionId:'eb9737',location:'privyPayout.js:skip',message:'Payout skipped',data:{reason:'invalid_payout_token',token},timestamp:Date.now(),hypothesisId:'H2'})}).catch(()=>{}); } catch (_) {}
+    // #endregion
     return { skipped: true, reason: 'invalid_payout_token' };
   }
 
   try {
+    // #region agent log
+    try { fetch('http://127.0.0.1:7476/ingest/f39bfd8c-08e1-4a03-8cb8-804e3f1c18e3',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'eb9737'},body:JSON.stringify({sessionId:'eb9737',location:'privyPayout.js:transfer-attempt',message:'Attempting transfer',data:{token},timestamp:Date.now(),hypothesisId:'H4'})}).catch(()=>{}); } catch (_) {}
+    // #endregion
     let result;
     if (token === 'ip') {
       result = await transferIp(walletId, toAddress, AMOUNT_IP_WEI, appId, appSecret);
@@ -184,9 +208,15 @@ async function transferBattlePayout(loserAgentId, winnerAgentId) {
       if (!fromAddress) return { error: 'Could not get loser wallet address' };
       result = await transferJab(walletId, fromAddress, toAddress, AMOUNT_JAB_RAW, appId, appSecret);
     }
+    // #region agent log
+    if (result && result.hash) { try { fetch('http://127.0.0.1:7476/ingest/f39bfd8c-08e1-4a03-8cb8-804e3f1c18e3',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'eb9737'},body:JSON.stringify({sessionId:'eb9737',location:'privyPayout.js:success',message:'Payout success',data:{hash:result.hash},timestamp:Date.now(),hypothesisId:'H4'})}).catch(()=>{}); } catch (_) {} }
+    // #endregion
     return result;
   } catch (err) {
     console.error('Privy payout error:', err.message);
+    // #region agent log
+    try { fetch('http://127.0.0.1:7476/ingest/f39bfd8c-08e1-4a03-8cb8-804e3f1c18e3',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'eb9737'},body:JSON.stringify({sessionId:'eb9737',location:'privyPayout.js:error',message:'Transfer failed',data:{error:err.message},timestamp:Date.now(),hypothesisId:'H4'})}).catch(()=>{}); } catch (_) {}
+    // #endregion
     return { error: err.message };
   }
 }
