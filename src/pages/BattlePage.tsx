@@ -33,10 +33,20 @@ interface Battle {
   };
 }
 
-/** Extract display text from round response (string or OpenClaw API result object). */
+/** Extract display text from round response (string, stringified JSON, or OpenClaw API result object). */
 function getRoundResponseText(response: string | Record<string, unknown> | undefined): string {
   if (response == null) return "(no response)";
-  if (typeof response === "string") return response || "(no response)";
+  if (typeof response === "string") {
+    if (!response.trim()) return "(no response)";
+    try {
+      const parsed = JSON.parse(response) as { result?: { payloads?: Array<{ text?: string }> } };
+      const text = parsed?.result?.payloads?.[0]?.text;
+      if (typeof text === "string" && text.trim()) return text;
+    } catch {
+      /* not JSON, use as plain text */
+    }
+    return response;
+  }
   const payloads = (response as { result?: { payloads?: Array<{ text?: string }> } }).result?.payloads;
   const text = Array.isArray(payloads) && payloads[0]?.text != null ? payloads[0].text : null;
   return text ?? "(no response)";
