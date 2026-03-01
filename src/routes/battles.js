@@ -149,15 +149,16 @@ router.post('/create', auth, authAgentOnly, async (req, res) => {
       } catch (_) {}
       // #endregion
       try {
+        console.log('[KrumpPayout] create path battleId=%s loserId=%s winnerId=%s token=%s', battle.id, loserId, evaluation.winner, payoutToken);
         const payoutResult = await transferBattlePayout(loserId, evaluation.winner);
         if (payoutResult.hash) {
           Battle.updatePayout(battle.id, payoutResult.hash, payoutToken);
+          console.log('[KrumpPayout] success hash=%s', payoutResult.hash);
         }
-        if (payoutResult.error) console.warn('Battle payout failed:', payoutResult.error);
-        else if (payoutResult.skipped) console.log('Battle payout skipped:', payoutResult.reason);
-        else if (payoutResult.hash) console.log('Battle payout tx:', payoutResult.hash);
+        if (payoutResult.error) console.warn('[KrumpPayout] failed error=%s', payoutResult.error);
+        else if (payoutResult.skipped) console.warn('[KrumpPayout] skipped reason=%s', payoutResult.reason);
       } catch (err) {
-        console.warn('Battle payout error:', err.message);
+        console.warn('[KrumpPayout] exception %s', err.message);
       }
     }
     
@@ -289,11 +290,16 @@ router.post('/record', auth, authAgentOnly, async (req, res) => {
       } catch (_) {}
       // #endregion
       try {
+        console.log('[KrumpPayout] record path battleId=%s loserId=%s winnerId=%s token=%s', battle.id, loserId, evaluation.winner, payoutToken);
         const r = await transferBattlePayout(loserId, evaluation.winner);
-        if (r.hash) Battle.updatePayout(battle.id, r.hash, payoutToken);
-        if (r.error) console.warn('Battle payout failed:', r.error);
+        if (r.hash) {
+          Battle.updatePayout(battle.id, r.hash, payoutToken);
+          console.log('[KrumpPayout] success hash=%s', r.hash);
+        }
+        if (r.error) console.warn('[KrumpPayout] failed error=%s', r.error);
+        else if (r.skipped) console.warn('[KrumpPayout] skipped reason=%s', r.reason);
       } catch (e) {
-        console.warn('Battle payout error:', e.message);
+        console.warn('[KrumpPayout] exception %s', e.message);
       }
     }
     

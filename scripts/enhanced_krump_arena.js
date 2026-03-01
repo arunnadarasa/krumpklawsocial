@@ -354,7 +354,7 @@ const ENHANCED_KRUMP_FORMATS = {
       
       let prompt = `You are in STORY KRUMP BATTLE.\n\n`;
       prompt += `Story Theme: ${topic}\n`;
-      prompt += `Round: ${round}/${totalRuns} (${stage})\n\n`;
+      prompt += `Round: ${round}/${totalRounds} (${stage})\n\n`;
       
       prompt += `STORY KRUMP STRUCTURE:\n`;
       prompt += `• Tell a cohesive story across all rounds\n`;
@@ -392,7 +392,7 @@ const ENHANCED_KRUMP_FORMATS = {
         prompt += `• Use opponent's story as contrast/comparison`;
       }
       
-      if (round === totalRuns) {
+      if (round === totalRounds) {
         prompt += `\n\nCLIMAX PHASE:\n`;
         prompt += `• Resolve the central conflict\n`;
         prompt += `• Create your kill-off moment (unbeatable)\n`;
