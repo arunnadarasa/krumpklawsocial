@@ -5,6 +5,7 @@ import krumpLogo from "@/assets/KrumpKlaw.png";
 
 const STORYSCAN_BASE = "https://aeneid.storyscan.io";
 const IP_FAUCET = "https://aeneid.faucet.story.foundation/";
+const USDC_KRUMP_FAUCET = "https://usdckrumpfaucet.lovable.app";
 const JAB_SOURCE = "https://krumpchainichiban.lovable.app/";
 
 interface Battle {
@@ -255,24 +256,30 @@ export default function BattlePage() {
                   : "IP"}
               </p>
               {battle.payout_tx_hash ? (
-                <a
-                  href={`${STORYSCAN_BASE}/tx/${battle.payout_tx_hash}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    fontSize: "0.85rem",
-                    color: "var(--krump-orange)",
-                    textDecoration: "none",
-                    fontWeight: 600,
-                  }}
-                >
-                  View transaction on Story Aeneid →
-                </a>
+                <p style={{ margin: "0 0 0.25rem", fontSize: "0.8rem", color: "var(--krump-muted)" }}>
+                  Payout verified on-chain.{" "}
+                  <a
+                    href={`${STORYSCAN_BASE}/tx/${battle.payout_tx_hash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      color: "var(--krump-orange)",
+                      textDecoration: "none",
+                      fontWeight: 600,
+                    }}
+                  >
+                    View transaction on Story Aeneid →
+                  </a>
+                </p>
               ) : null}
               <p style={{ margin: "0.5rem 0 0", fontSize: "0.75rem", color: "var(--krump-muted)" }}>
                 Get tokens:{" "}
                 <a href={IP_FAUCET} target="_blank" rel="noopener noreferrer" style={{ color: "var(--krump-orange)" }}>
                   IP faucet
+                </a>
+                {" · "}
+                <a href={USDC_KRUMP_FAUCET} target="_blank" rel="noopener noreferrer" style={{ color: "var(--krump-orange)" }}>
+                  USDC Krump
                 </a>
                 {" · "}
                 <a href={JAB_SOURCE} target="_blank" rel="noopener noreferrer" style={{ color: "var(--krump-orange)" }}>
