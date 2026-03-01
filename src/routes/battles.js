@@ -40,6 +40,12 @@ router.get('/:id', async (req, res) => {
     if (!battle) {
       return res.status(404).json({ error: 'Battle not found' });
     }
+    // #region agent log
+    const r0 = battle?.result?.rounds?.[0];
+    try {
+      fetch('http://127.0.0.1:7476/ingest/f39bfd8c-08e1-4a03-8cb8-804e3f1c18e3',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'eb9737'},body:JSON.stringify({sessionId:'eb9737',location:'battles.js:get-battle',message:'GET battle result.rounds shape',data:{battleId:req.params.id,roundsCount:battle?.result?.rounds?.length,r0HasAgentAResponse:r0?.agentA?.response != null,r0HasAgentBResponse:r0?.agentB?.response != null,r0AgentAResponseLen:r0?.agentA?.response != null ? String(r0.agentA.response).length : 0,r0AgentBResponseLen:r0?.agentB?.response != null ? String(r0.agentB.response).length : 0},timestamp:Date.now(),hypothesisId:'H2'})}).catch(()=>{});
+    } catch (_) {}
+    // #endregion
     // Format scores for display (avoid long decimals) - keep as numbers for compatibility
     const formatted = {
       ...battle,
@@ -98,7 +104,13 @@ router.post('/create', auth, authAgentOnly, async (req, res) => {
     const evaluation = await arena.evaluateBattle(
       agentA, agentB, responsesA, responsesB, format
     );
-    
+    // #region agent log
+    const r0Create = evaluation?.rounds?.[0];
+    try {
+      fetch('http://127.0.0.1:7476/ingest/f39bfd8c-08e1-4a03-8cb8-804e3f1c18e3',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'eb9737'},body:JSON.stringify({sessionId:'eb9737',location:'battles.js:create-after-arena',message:'Create path evaluation rounds shape',data:{roundsCount:evaluation?.rounds?.length,r0HasAgentAResponse:r0Create?.agentA?.response != null,r0HasAgentBResponse:r0Create?.agentB?.response != null,r0AgentAResponseLen:r0Create?.agentA?.response != null ? String(r0Create.agentA.response).length : 0,r0AgentBResponseLen:r0Create?.agentB?.response != null ? String(r0Create.agentB.response).length : 0},timestamp:Date.now(),hypothesisId:'H2'})}).catch(()=>{});
+    } catch (_) {}
+    // #endregion
+
     // Save to database (with KrumpCity for discovery)
     const battle = Battle.createFromArenaResult(evaluation, citySlug);
     
@@ -247,7 +259,29 @@ function updateAgentStats(agentId, evaluation, opponentId) {
 router.post('/record', auth, authAgentOnly, async (req, res) => {
   try {
     const { evaluation } = req.body;
-    
+    // #region agent log
+    const r0 = evaluation?.rounds?.[0];
+    try {
+      fetch('http://127.0.0.1:7476/ingest/f39bfd8c-08e1-4a03-8cb8-804e3f1c18e3',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'eb9737'},body:JSON.stringify({sessionId:'eb9737',location:'battles.js:record-incoming',message:'Record path evaluation rounds shape',data:{roundsCount:evaluation?.rounds?.length,r0HasAgentA:!!r0?.agentA,r0HasAgentB:!!r0?.agentB,r0AgentAResponseLen:r0?.agentA?.response != null ? String(r0.agentA.response).length : 0,r0AgentBResponseLen:r0?.agentB?.response != null ? String(r0.agentB.response).length : 0,r0Keys:r0 ? Object.keys(r0) : []},timestamp:Date.now(),hypothesisId:'H1'})}).catch(()=>{});
+    } catch (_) {}
+    // #endregion
+
+    // Normalize: if client sent responsesA/responsesB at top level but rounds lack .response, fill them so the UI shows debate text
+    const topLevelA = evaluation.responsesA;
+    const topLevelB = evaluation.responsesB;
+    if (Array.isArray(topLevelA) && Array.isArray(topLevelB) && evaluation.rounds?.length) {
+      evaluation.rounds.forEach((r, i) => {
+        if (topLevelA[i] != null) {
+          if (r.agentA && r.agentA.response == null) r.agentA.response = String(topLevelA[i]);
+          else if (!r.agentA) r.agentA = { response: String(topLevelA[i]) };
+        }
+        if (topLevelB[i] != null) {
+          if (r.agentB && r.agentB.response == null) r.agentB.response = String(topLevelB[i]);
+          else if (!r.agentB) r.agentB = { response: String(topLevelB[i]) };
+        }
+      });
+    }
+
     const battle = Battle.createFromArenaResult(evaluation);
     
     // Update both agents' stats
